@@ -38,3 +38,23 @@ def test_dfd():
     dep = {"A": [], "B": [["A"]], "C": [["D", "G"], ["A"]], "D": [["C", "G"], ["A"]],
         "E": [["C"], ["D", "G"], ["A"]], "F": [["B"], ["A"]], "G": [["C", "D"], ["A"]]}
     assert serialization_equal(dfd.dfd(df_2).serialize(), dep)
+
+
+def test_approximate_dependencies():
+    mask = dfd.Masks(['a', 'b', 'c'])
+    a = [6, 2, 3, 7, 8, 1, 0, 2, 0, 3, 6, 0, 4, 6, 8, 7, 6, 8, 1, 5, 1, 3, 3, 0, 0, 4, 5, 5, 7, 0, 8, 2, 4, 7, 0, 0, 6, 4, 6, 8]
+    # b = [int(x%2 == 0) for x in a]
+    b = [1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1]
+    # c = [(a[i] + b[i])<4 for i in range(40)]
+    c = [False, True, True, False, False, True, True, True, True, True, False, True, False, False, False, False, False, False, True, False, True, True, True, True, True, False, False, False, False, True, False, True, False, False, True, True, False, False, False, False]
+    df = pd.DataFrame({'a': a, 'b': b, 'c': c})
+    assert dfd.approximate_dependencies(set([0, 1]), 2, df, 1.00, mask)
+    assert dfd.approximate_dependencies(set([0, 1]), 2, df, .90, mask)
+    c[0] = True
+    df = pd.DataFrame({'a': a, 'b': b, 'c': c})
+    assert dfd.approximate_dependencies(set([0, 1]), 2, df, .97, mask)
+    assert not dfd.approximate_dependencies(set([0, 1]), 2, df, .98, mask)
+    c[35] = False
+    df = pd.DataFrame({'a': a, 'b': b, 'c': c})
+    assert dfd.approximate_dependencies(set([0, 1]), 2, df, .95, mask)
+    assert not dfd.approximate_dependencies(set([0, 1]), 2, df, .96, mask)
