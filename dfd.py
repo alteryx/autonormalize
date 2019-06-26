@@ -345,28 +345,29 @@ class Masks(object):
 
 def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
     attrs = df.columns
-    attrs_one = [attrs[x] for x in lhs_set]
-    attrs_two = attrs_one + [attrs[rhs]]
+    attrs_one = [attrs[x] for x in lhs_set]  # names of the columns that are in the lhs_set
+    attrs_two = attrs_one + [attrs[rhs]]  # names of the columns that are in the lhs_set and rhs
 
-    df_one = df.drop_duplicates(attrs_one)
+    df_one = df.drop_duplicates(attrs_one)  # find equivalence classes (drop duplicates w respect to those columns)
     df_two = df.drop_duplicates(attrs_two)
 
-    if df_one.shape[0] == df_two.shape[0]:
+    if df_one.shape[0] == df_two.shape[0]:  # if same size, is a dependency
         return True
     # make this an argument for user, to control how many repeating values
     if df_one.shape[0] > df.shape[0]*.85:
         return False
 
     acc = 0
-    limit = df.shape[0]*(1-accuracy)
+    limit = df.shape[0]*(1-accuracy)  # most rows that can be "wrong"
 
-    if df_two.shape[0] - df_one.shape[0] > limit:
+    if df_two.shape[0] - df_one.shape[0] > limit:  # if number of equivalence classes already exceeds limit
         return False
 
-    merged = df_one.merge(df_two, indicator=True, how='outer')
-    indicator = merged[merged['_merge'] == 'right_only']
+    merged = df_one.merge(df_two, indicator=True, how='outer')  # create new df that is the merge of df_one and df_two
+    indicator = merged[merged['_merge'] == 'right_only']  # filter out the rows that we're only on the right side (the rows that are keeping the two dataframes from being equal)
+    indicator = indicator.drop_duplicates(attrs_one)
 
-    for index, row in indicator.iterrows():
+    for index, row in indicator.iterrows():  #
         # options = df
         # for attr in attrs_one:
         #     mask = masks.get_mask(attr, row[attr])
@@ -385,6 +386,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
                 masks.add_mask(attr, row[attr], m)
             mask = mask & m
 
+        # find all the rows that have the same attributes for columns in lhs_set
         options = df[mask]
 
         np = options[attrs[rhs]].to_numpy()
@@ -395,6 +397,8 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
         for size in unique_counts:
             max_counts = max(max_counts, size)
             tot += size
+
+        # in order to make equivalence class, accept largest subset as the correct, and all others count torward the limit
 
         acc += tot - max_counts
         if acc > limit:
