@@ -1,5 +1,6 @@
 from itertools import combinations
 import numpy
+from tqdm import tqdm
 
 from classes import BitIndexSet, LHSs, DfdDependencies, Node, Partitions
 
@@ -32,7 +33,7 @@ def dfd(df, accuracy=0.98):
                 if x != i:
                     dependencies.add_LHS(x, BitIndexSet(length, set([i])))
     if len(r) > 1:
-        for i in r:
+        for i in tqdm(r):
             lhss = find_LHSs(i, r, df, unique_attrs, partitions, accuracy, masks)
             dependencies.add_LHSs(i, lhss)
     return dependencies
@@ -105,6 +106,8 @@ def find_LHSs(i, attrs, df, unique_attrs, partitions, accuracy, masks):
             node = pick_next_node(node, trace, min_deps, max_non_deps)
 
         seeds = nodes_from_seeds(len(df.columns), generate_next_seeds(max_non_deps, i, unique_attrs, min_deps))
+        print("new seeds")
+        print(seeds)
     return min_deps
 
 
@@ -271,7 +274,7 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks):
         - No dependency
     """
     # for approximate dependencies see TANE section 2.3
-    return approximate_dependencies(lhs_set, rhs, df, accuracy, masks)
+    return approximate_dependencies(lhs_set, rhs, df, accuracy)
 
 
 
@@ -298,37 +301,6 @@ def partition(lhs_set, df, partitions):
     return df_new.shape[0]
 
 
-# def approximate_dependencies(lhs_set, rhs, df, accuracy):
-
-#     # use partitions somehow
-#     attrs = df.columns
-#     attrs_one = [attrs[x] for x in lhs_set]
-#     attrs_two = attrs_one + [attrs[rhs]]
-
-#     df_one = df.drop_duplicates(attrs_one)
-#     df_two = df.drop_duplicates(attrs_two)
-
-#     acc = 0
-#     limit = df.shape[0]*(1-accuracy)
-#     print("this is the  limit")
-#     print(limit)
-
-
-#     while df_one.shape[0] != df_two.shape[0]:
-#         merged = df_one.merge(df_two, indicator=True, how='outer')
-#         indicator = merged[merged['_merge'] == 'right_only']
-#         print(indicator)
-#         acc += indicator.shape[0]
-
-#         if acc > limit:
-#             return False
-
-#         df_new = df.drop(indicator.index)
-#         df_two = df_new.drop_duplicates(attrs_two)
-
-#     return True
-
-
 # will move this to classes.py later
 class Masks(object):
 
@@ -345,7 +317,20 @@ class Masks(object):
             return self._masks[col][val]
 
 
-def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
+def find_extra(group_df):
+    np = group_df.to_numpy()
+    _, unique_counts = numpy.unique(np, return_counts=True)
+
+    tot = 0
+    max_counts = 0
+    for size in unique_counts:
+        max_counts = max(max_counts, size)
+        tot += size
+
+    return tot - max_counts
+
+
+def approximate_dependencies(lhs_set, rhs, df, accuracy):
     """
     Checks whether the columns represented in lhs_set functionally determines the column rhs
     for the dataframe df.
@@ -369,33 +354,64 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
         - this holds in data for at least accuracy % of rows
         - at least 15% of values are repeating (*to be added as custom argument*)
     """
-
     attrs = df.columns
     attrs_one = [attrs[x] for x in lhs_set]
-    attrs_two = attrs_one + [attrs[rhs]]
+    groupings = df.groupby(attrs_one)[attrs[rhs]]
+    # make this an argument for user, to control how many repeating values
+    if len(groupings) > df.shape[0]*0.85:
+        return False
+    acc = 0
+    limit = df.shape[0]*(1-accuracy)
+    for _, grp in groupings:
+        extra = find_extra(grp)
+        acc += extra
+        if acc > limit:
+            return False
+    return True
 
+
+def approximate_dependencies_2(lhs_set, rhs, df, accuracy, masks):
+    """
+    Checks whether the columns represented in lhs_set functionally determines the column rhs
+    for the dataframe df.
+    If lhs_set --> rhs, returns True. Otherwise returns False.
+    Arguments:
+    Lhs_set (set-like object): a BitIndexSet representing the columns in lhs_set (or any iterable set)
+    rhs (int): the index of the column for the rhs of the relation
+    df (pd.Dataframe): the dataframe containing the data
+    accuracy (float, 0 < accuracy <= 1.0): the degree of accuracy required from the data to conclude a dependency
+        (e.g. 95% of the data needs to reflect a dependnecy)
+    masks (Masks object): stores past created masks
+    Returns:
+    is_dependency (bool): True if satisfies requirments to be dependency, False if not.
+    *in order to be a dependency:
+        - the number of equivalence classes for tuples in columns in lhs_set, is equal to the number of equivalence
+        classes for tuples in columns in lhs_set+rhs
+        - this holds in data for at least accuracy % of rows
+        - at least 15% of values are repeating (*to be added as custom argument*)
+    """
     # finding the equivalence classes for the set of lhs attributes, and set of lhs attributes *union* rhs attribute
-    df_one = df.drop_duplicates(attrs_one)
-    df_two = df.drop_duplicates(attrs_two)
+    lhs_attr = [df.columns[x] for x in lhs_set]
+    df_lhs_rhs = df.drop_duplicates(lhs_attr+ [df.columns[rhs]])
+    df_lhs = df_lhs_rhs.drop_duplicates(lhs_attr)
 
     # make this an argument for user, to control how many repeating values
-    if df_one.shape[0] > df.shape[0]*.85:
+    if df_lhs.shape[0] > df.shape[0]*.85:
         return False
 
     acc = 0
     limit = df.shape[0]*(1-accuracy)  # most rows that can be "wrong"
 
-    if df_two.shape[0] - df_one.shape[0] > limit:  # if number of equivalence classes already exceeds limit
+    if df_lhs_rhs.shape[0] - df_lhs.shape[0] > limit:  # if number of equivalence classes already exceeds limit
         return False
 
-    merged = df_one.merge(df_two, indicator=True, how='outer')  # create new df that is the merge of df_one and df_two
-    indicator = merged[merged['_merge'] == 'right_only']  # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
-    indicator = indicator.drop_duplicates(attrs_one)  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
+    merged = df_lhs.merge(df_lhs_rhs, indicator=True, how='outer')  # create new df that is the merge of df_one and df_two
+    indicator = merged[merged['_merge'] == 'right_only'] # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
+    indicator = indicator.drop_duplicates(lhs_attr)  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
 
     for index, row in indicator.iterrows():
-
-        mask = df[attrs_one[0]].values == row[attrs_one[0]]
-        for attr in attrs_one[1:]:
+        mask = df[lhs_attr[0]].values == row[lhs_attr[0]]
+        for attr in lhs_attr[1:]:
             m = masks.get_mask(attr, row[attr])
             if m is None:
                 m = df[attr].values == row[attr]
@@ -405,7 +421,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
         # all the rows that have the same attributes for columns in lhs_set
         options = df[mask]
 
-        np = options[attrs[rhs]].to_numpy()
+        np = options[df.columns[rhs]].to_numpy()
         _, unique_counts = numpy.unique(np, return_counts=True)  # unique_counts is the number of occurances for each equivalence class in rhs column (with identical lhs_set column values)
 
         tot = 0
@@ -422,3 +438,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
     # idea: try using numpy arrays and taking intersections of sets for each column????
 
     return True
+
+
+
+
