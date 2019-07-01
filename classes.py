@@ -1,94 +1,94 @@
-class BitIndexSet(object):
-    """
-    A BitIndexSet represents a set where each of the elements are an integer.
-    The size of the set is the greatest element possible for the given situation.
-    """
+# class BitIndexSet(object):
+#     """
+#     A BitIndexSet represents a set where each of the elements are an integer.
+#     The size of the set is the greatest element possible for the given situation.
+#     """
 
-    def __init__(self, size, attr_set=set()):
-        self._data = 0
-        self._size = size
-        for attr in attr_set:
-            self._data += 1 << (attr)
+#     def __init__(self, size, attr_set=set()):
+#         self._data = 0
+#         self._size = size
+#         for attr in attr_set:
+#             self._data += 1 << (attr)
 
-    def _get_bit(self, i):
-        return (self._data >> i) % 2
+#     def _get_bit(self, i):
+#         return (self._data >> i) % 2
 
-    def _remove_bit(self, i):
-        if self._get_bit(i) == 0:
-            return
-        self._data -= 1 << i
+#     def _remove_bit(self, i):
+#         if self._get_bit(i) == 0:
+#             return
+#         self._data -= 1 << i
 
-    def _add_bit(self, i):
-        if self._get_bit(i) == 1:
-            return
-        self._data += 1 << i
+#     def _add_bit(self, i):
+#         if self._get_bit(i) == 1:
+#             return
+#         self._data += 1 << i
 
-    def get_size(self):
-        return self._size
+#     def get_size(self):
+#         return self._size
 
-    def to_set(self):
-        """ Returns self as a Set object"""
-        bits = self._data
-        new_set = set()
-        for i in range(self._size):
-            if bits % 2 == 1:
-                new_set.add(i)
-            bits = bits >> 1
-        return new_set
+#     def to_set(self):
+#         """ Returns self as a Set object"""
+#         bits = self._data
+#         new_set = set()
+#         for i in range(self._size):
+#             if bits % 2 == 1:
+#                 new_set.add(i)
+#             bits = bits >> 1
+#         return new_set
 
-    def is_subset(self, set2):
-        """ True if self is a subset of set2"""
-        for i in range(self._size):
-            if self._get_bit(i) == 1 and set2._get_bit(i) != 1:
-                return False
-        return True
+#     def is_subset(self, set2):
+#         """ True if self is a subset of set2"""
+#         for i in range(self._size):
+#             if self._get_bit(i) == 1 and set2._get_bit(i) != 1:
+#                 return False
+#         return True
 
-    def is_superset(self, set2):
-        """ True if self is a superset of set2"""
-        for i in range(self._size):
-            if set2._get_bit(i) == 1 and self._get_bit(i) != 1:
-                return False
-        return True
+#     def is_superset(self, set2):
+#         """ True if self is a superset of set2"""
+#         for i in range(self._size):
+#             if set2._get_bit(i) == 1 and self._get_bit(i) != 1:
+#                 return False
+#         return True
 
-    def get_compliment(self, rhs):
-        """
-        Returns the compliment of the current set, except for the
-        rhs which remains 0 (not in the set)
-        """
-        new_set = BitIndexSet(self._size)
-        for i in range(self._size):
-            if self._get_bit(i) == 0 and i != rhs:
-                new_set._data += 1 << i
-        return new_set
+#     def get_compliment(self, rhs):
+#         """
+#         Returns the compliment of the current set, except for the
+#         rhs which remains 0 (not in the set)
+#         """
+#         new_set = BitIndexSet(self._size)
+#         for i in range(self._size):
+#             if self._get_bit(i) == 0 and i != rhs:
+#                 new_set._data += 1 << i
+#         return new_set
 
-    def difference(self, set2):
-        """Removes all elements in set2, from self (if exists in self)"""
-        for i in range(set2._size):
-            if set2._get_bit(i) == 1:
-                self._remove_bit(i)
+#     def difference(self, set2):
+#         """Removes all elements in set2, from self (if exists in self)"""
+#         for i in range(set2._size):
+#             if set2._get_bit(i) == 1:
+#                 self._remove_bit(i)
 
-    def add_new(self, attrs):
-        """ Returns new set that contains all attributes of self, and all
-        in attrs--a Set() object"""
-        at = self.to_set()
-        return BitIndexSet(self._size, at.union(attrs))
+#     def add_new(self, attrs):
+#         """ Returns new set that contains all attributes of self, and all
+#         in attrs--a Set() object"""
+#         at = self.to_set()
+#         return BitIndexSet(self._size, at.union(attrs))
 
-    def __eq__(self, set2):
-        if not isinstance(set2, BitIndexSet):
-            return False
-        return self._data == set2._data
+#     def __eq__(self, set2):
+#         if not isinstance(set2, BitIndexSet):
+#             return False
+#         return self._data == set2._data
 
-    def __hash__(self):
-        return hash(self._data)
+#     def __hash__(self):
+#         return hash(self._data)
 
-    def __iter__(self):
-        return iter(self.to_set())
+#     def __iter__(self):
+#         return iter(self.to_set())
 
-    def __str__(self):
-        return str(self.to_set())
+#     def __str__(self):
+#         return str(self.to_set())
 
-    def __len__(self):
-        return len(self.to_set())
+#     def __len__(self):
+#         return len(self.to_set())
 
 
 class LHSs(object):
@@ -105,14 +105,14 @@ class LHSs(object):
 
     def add_dep(self, attr_set):
         """
-        Adds attr_set as a LHS. attr_set is a BitIndexSet
+        Adds attr_set as a LHS. attr_set is a frozenset
         """
         for attr in attr_set:
             self._dic[attr].add(attr_set)
 
     def all_sets(self):
         """
-        Returns all LHS's stored in self, as a set of BitIndexSets
+        Returns all LHS's stored in self, as a set of frozensets
         """
         result = set()
         for attr in self._attrs:
@@ -127,7 +127,7 @@ class LHSs(object):
         """
         for x in attr_set:
             for lhs in self._dic[x]:
-                if lhs.is_subset(attr_set):
+                if lhs.issubset(attr_set):
                     return True
         return False
 
@@ -138,9 +138,8 @@ class LHSs(object):
         """
         for x in attr_set:
             for lhs in self._dic[x]:
-                if attr_set.is_subset(lhs):
+                if attr_set.issubset(lhs):
                     return True
-            break
         return False
 
 
@@ -150,18 +149,14 @@ class DfdDependencies(object):
     """
 
     def __init__(self, attrs):
-        self._attrs = attrs
         self._dic = {}
         for rhs in attrs:
             self._dic[rhs] = set()
 
-    def add_LHS(self, rhs, lhs):
-        """
-        Adds dependency lhs --> rhs to self.
-        lhs is a BitIndexSet
-        rhs is an Index
-        """
-        self._dic[self._attrs[rhs]].add(lhs)
+    def add_unique_lhs(self, i):
+        for attr in self._dic:
+            if i != attr:
+                self._dic[attr].add(frozenset([i]))
 
     def add_LHSs(self, rhs, lhss):
         """
@@ -170,18 +165,12 @@ class DfdDependencies(object):
         lhss is a LHSs object, rhs is an index.
         """
         for lhs in lhss.all_sets():
-            self._dic[self._attrs[rhs]].add(lhs)
+            self._dic[rhs].add(lhs)
 
     def serialize(self):
-        ser = {}
-        for rhs in self._dic:
-            lhss = []
-            for lhs in self._dic[rhs]:
-                lhs_lst = []
-                for attr in lhs:
-                    lhs_lst.append(self._attrs[attr])
-                lhss.append(lhs_lst)
-            ser[rhs] = lhss
+        ser = self._dic.copy()
+        for rhs in ser:
+            ser[rhs] = [list(lhs) for lhs in ser[rhs]]
         return ser
 
 
@@ -307,15 +296,6 @@ class Node(object):
     def __str__(self):
         return str({"attributes": str(self.attrs), "visited": self.visited,
             "category": self.category, "prev": self.prev, "next": self.next, "loc": id(self)})
-
-
-class Partitions(object):
-    """
-    Stores past sizes of equivilence classes for column combinations
-    """
-
-    def __init__(self):
-        self.partitions = {}
 
 
 class Dependencies(object):
@@ -595,3 +575,18 @@ def find_closure(rel, x):
                 return helper(set_attr + [dep], rel_)
         return set_attr
     return set(helper(x[:], rel))
+
+
+class Masks(object):
+
+    def __init__(self, columns):
+        self._masks = {}
+        for col in columns:
+            self._masks[col] = {}
+
+    def add_mask(self, col, val, mask):
+        self._masks[col][val] = mask
+
+    def get_mask(self, col, val):
+        if val in self._masks[col]:
+            return self._masks[col][val]

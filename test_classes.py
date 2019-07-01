@@ -1,171 +1,66 @@
 import pytest
 
-import classes
-from classes import BitIndexSet, LHSs, DfdDependencies, Dependencies, find_closure
+from classes import LHSs, DfdDependencies, Dependencies, find_closure
 
 from normalize import normalize
 
 
-def test_to_set():
-    attr = set([1, 2, 5, 6, 9])
-    bit_set = BitIndexSet(10, attr)
-    assert attr == bit_set.to_set()
-
-
-def test_is_subset():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 5, 6]))
-    bit_set_3 = BitIndexSet(10, set([1, 2, 7]))
-    assert bit_set_1.is_subset(bit_set_1)
-    assert bit_set_2.is_subset(bit_set_1)
-    assert not bit_set_1.is_subset(bit_set_2)
-    assert not bit_set_3.is_subset(bit_set_1)
-
-
-def test_is_superset():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 5, 6]))
-    bit_set_3 = BitIndexSet(10, set([1, 2, 7]))
-    assert bit_set_1.is_superset(bit_set_1)
-    assert bit_set_1.is_superset(bit_set_2)
-    assert not bit_set_2.is_superset(bit_set_1)
-    assert not bit_set_1.is_superset(bit_set_3)
-
-
-def test_get_compliment():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 2, 7]))
-    assert bit_set_1.get_compliment(4).to_set() == set([0, 3, 7, 8])
-    assert bit_set_2.get_compliment(0).to_set() == set([3, 4, 5, 6, 8, 9])
-
-
-def test_difference():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 5, 6]))
-    bit_set_1.difference(bit_set_2)
-    assert bit_set_1.to_set() == set([2, 9])
-    bit_set_2.difference(BitIndexSet(10, set([3, 8, 9])))
-    assert bit_set_2.to_set() == set([1, 5, 6])
-
-
-def test_eq():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    assert bit_set_1 == bit_set_2
-
-
-def test_hash():
-    bit_set_1 = BitIndexSet(10, set([1, 2, 5, 6, 9]))
-    bit_set_2 = BitIndexSet(10, set([1, 5, 6]))
-    set_test = set()
-    set_test.add(bit_set_1)
-    set_test.add(bit_set_2)
-    assert bit_set_1 in set_test
-    assert bit_set_2 in set_test
-
-
-def test_iter():
-    lst = [1, 2, 5, 6, 9]
-    bit_set_1 = BitIndexSet(10, set(lst))
-    compare = []
-    for x in bit_set_1:
-        compare.append(x)
-    assert lst == compare
-
-
 def test_all_sets_and_add_dep():
-    lhss = LHSs([0, 1, 2, 4, 6, 7, 8, 9, 10, 14, 15, 16], True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
     assert lhss.all_sets() == set()
-    bit_index_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bit_index_1)
-    assert lhss.all_sets() == set([bit_index_1])
-    bit_index_2 = BitIndexSet(16, set([1, 4, 7, 8, 9]))
-    bit_index_3 = BitIndexSet(16, set([8]))
-    lhss.add_dep(bit_index_2)
-    lhss.add_dep(bit_index_3)
-    assert lhss.all_sets() == set([bit_index_1, bit_index_2, bit_index_3])
+    set_1 = frozenset(['a', 'c', 'd'])
+    lhss.add_dep(set_1)
+    assert lhss.all_sets() == set([set_1])
+    set_2 = frozenset(['a', 'c', 'e', 'f', 'g'])
+    set_3 = frozenset(['b'])
+    lhss.add_dep(set_2)
+    lhss.add_dep(set_3)
+    assert lhss.all_sets() == set([set_1, set_2, set_3])
 
 
 def test_contains_subset():
-    lhss = LHSs([0, 1, 2, 4, 6, 7, 8, 9, 10, 14, 15, 16], True)
-    bit_index_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bit_index_1)
-    bit_index_2 = BitIndexSet(16, set([1, 4, 7, 8, 9]))
-    bit_index_3 = BitIndexSet(16, set([8]))
-    lhss.add_dep(bit_index_2)
-    lhss.add_dep(bit_index_3)
-    assert lhss.contains_subset(bit_index_1)
-    assert lhss.contains_subset(BitIndexSet(15, set([8, 9, 10])))
-    assert not lhss.contains_subset(BitIndexSet(15, set([14, 15, 16])))
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    set_1 = frozenset(['a', 'c', 'd'])
+    lhss.add_dep(set_1)
+    set_2 = frozenset(['a', 'c', 'e', 'f', 'g'])
+    set_3 = frozenset(['g'])
+    lhss.add_dep(set_2)
+    lhss.add_dep(set_3)
+    assert lhss.contains_subset(set_1)
+    assert lhss.contains_subset(frozenset(['a', 'c', 'd', 'f']))
+    assert not lhss.contains_subset(frozenset(['b']))
 
 
 def test_contains_superset():
-    lhss = LHSs([0, 1, 2, 4, 6, 7, 8, 9, 10, 14, 15, 16], True)
-    bit_index_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bit_index_1)
-    bit_index_2 = BitIndexSet(16, set([1, 4, 7, 8, 9]))
-    bit_index_3 = BitIndexSet(16, set([8]))
-    lhss.add_dep(bit_index_2)
-    lhss.add_dep(bit_index_3)
-    assert lhss.contains_superset(bit_index_1)
-    assert lhss.contains_superset(BitIndexSet(15, set([1, 4, 8])))
-    assert not lhss.contains_superset(BitIndexSet(15, set([1, 4, 8, 10])))
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    set_1 = frozenset(['a', 'c', 'd', 'e', 'g'])
+    lhss.add_dep(set_1)
+    set_2 = frozenset(['a', 'c', 'e', 'f'])
+    set_3 = frozenset(['b', 'c'])
+    lhss.add_dep(set_2)
+    lhss.add_dep(set_3)
+    assert lhss.contains_superset(set_1)
+    assert lhss.contains_superset(frozenset(['a', 'c', 'f']))
+    assert not lhss.contains_superset(frozenset(['a', 'b', 'c']))
 
 
 def test_LHSs_add_dep_and_all_sets():
-    lhss = LHSs(set([1, 2, 4, 5, 6, 7, 8, 10, 13, 14, 15]), True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
     assert lhss.all_sets() == set()
-    bis_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bis_1)
-    assert lhss.all_sets() == set([bis_1])
-    bis_2 = BitIndexSet(16, set([15]))
-    lhss.add_dep(bis_2)
-    assert lhss.all_sets() == set([bis_1, bis_2])
-    bis_3 = BitIndexSet(16, set([1, 4, 13]))
-    lhss.add_dep(bis_3)
-    assert lhss.all_sets() == set([bis_1, bis_2, bis_3])
+    set_1 = frozenset(['a', 'c', 'd', 'e', 'g'])
+    lhss.add_dep(set_1)
+    assert lhss.all_sets() == set([set_1])
+    set_2 = frozenset(['a', 'c', 'e', 'f'])
+    lhss.add_dep(set_2)
+    assert lhss.all_sets() == set([set_1, set_2])
+    set_3 = frozenset(['b', 'c'])
+    lhss.add_dep(set_3)
+    assert lhss.all_sets() == set([set_1, set_2, set_3])
 
 
-def test_contains_subset_lhss():
-    lhss = LHSs(set([1, 2, 4, 5, 6, 7, 8, 10, 13, 14, 15]), True)
-    bis_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bis_1)
-    bis_2 = BitIndexSet(16, set([15]))
-    lhss.add_dep(bis_2)
-    bis_3 = BitIndexSet(16, set([1, 4, 13]))
-    lhss.add_dep(bis_3)
-    assert lhss.contains_subset(bis_1)
-    assert lhss.contains_subset(BitIndexSet(16, set([1, 4, 5, 6, 13])))
-    assert not lhss.contains_subset(BitIndexSet(16, set([1, 2, 14])))
+def test_add_unique_lhs():
 
-
-def test_contains_superset_lhss():
-    lhss = LHSs(set([1, 2, 4, 5, 6, 7, 8, 10, 13, 14, 15]), True)
-    bis_1 = BitIndexSet(16, set([1, 2, 4]))
-    lhss.add_dep(bis_1)
-    bis_2 = BitIndexSet(16, set([15]))
-    lhss.add_dep(bis_2)
-    bis_3 = BitIndexSet(16, set([1, 4, 13]))
-    lhss.add_dep(bis_3)
-    assert lhss.contains_superset(bis_1)
-    assert lhss.contains_superset(BitIndexSet(16, set([1, 4])))
-    assert not lhss.contains_superset(BitIndexSet(16, set([14, 15])))
-
-
-def test_add_LHS():
-    dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
-    dependencies.add_LHS(1, BitIndexSet(9, set([0])))
-    assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [], "location": [], "speed": [],
-        "experience": [], "mother": [], "name": []}
-    dependencies.add_LHS(3, BitIndexSet(9, set([1, 2])))
-    assert dependencies.serialize() == {
-        "rating": [], "age": [["name"]], "height": [],
-        "weight": [["age", "height"]], "location": [], "speed": [],
-        "experience": [], "mother": [], "name": []
-        }
-    dependencies.add_LHS(3, BitIndexSet(9, set([0])))
-    assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [["name"], ["age", "height"]], "location": [], "speed": [],
-        "experience": [], "mother": [], "name": []}
+    # TO DO BRO
 
 
 def test_add_LHSs():

@@ -3,7 +3,7 @@ import os
 import pytest
 import pandas as pd
 
-from classes import BitIndexSet, LHSs, Dependencies, Node
+from classes import LHSs, Dependencies, Node
 import dfd
 
 path = os.getcwd()

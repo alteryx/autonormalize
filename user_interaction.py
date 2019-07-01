@@ -3,7 +3,7 @@ from classes import Dependencies
 import normalize
 
 
-def find_dependencies(df, accuracy=0.98):
+def find_dependencies(df, accuracy=0.98, rep_percent=0.85):
     """
     Finds dependencies within dataframe df with DFD search algorithm.
     Returns the dependencies as a Dependencies object.
@@ -13,7 +13,7 @@ def find_dependencies(df, accuracy=0.98):
         - known dependencies
         - threshold for repeating data?
     """
-    return Dependencies(dfd.dfd(df, accuracy))
+    return Dependencies(dfd.dfd(df, accuracy, rep_percent))
 
 
 def normalization(df, dependencies):
