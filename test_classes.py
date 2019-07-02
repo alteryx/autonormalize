@@ -61,19 +61,20 @@ def test_LHSs_add_dep_and_all_sets():
 def test_add_unique_lhs():
 
     # TO DO BRO
+    pass
 
 
 def test_add_LHSs():
-    lhss_weight = LHSs(set([0, 1, 2, 4, 5, 6, 7]), True)
-    lhss_weight.add_dep(BitIndexSet(9, set([0])))
-    lhss_weight.add_dep(BitIndexSet(9, set([1, 2])))
-    lhss_age = LHSs(set([0, 2, 4, 5, 6, 7]), True)
-    lhss_age.add_dep(BitIndexSet(9, set([0])))
+    lhss_weight = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]), True)
+    lhss_weight.add_dep(frozenset(["name"]))
+    lhss_weight.add_dep(frozenset(["age", "height"]))
+    lhss_age = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]), True)
+    lhss_age.add_dep(frozenset(["name"]))
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
-    dependencies.add_LHSs(1, lhss_age)
+    dependencies.add_LHSs("age", lhss_age)
     assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [], "location": [], "speed": [],
         "experience": [], "mother": [], "name": []}
-    dependencies.add_LHSs(3, lhss_weight)
+    dependencies.add_LHSs("weight", lhss_weight)
     assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [["name"], ["age", "height"]], "location": [], "speed": [],
         "experience": [], "mother": [], "name": []}
 

@@ -8,61 +8,79 @@ from classes import LHSs, DfdDependencies, Node, Masks
 # see https://hpi.de/fileadmin/user_upload/fachgebiete/naumann/publications/2014/DFD_CIKM2014_p949_CRC.pdf for DFD paper
 # run script.py  to see a couple examples
 
-def dfd(df, accuracy=0.98):
+def dfd(df, accuracy, rep_percent):
     """
-    Main loop of DFD algorithm. Refer to section 3.2 of papter for some literature.
+    Main loop of DFD algorithm. It returns all the dependencies represented
+    in the data in dataframe df. Refer to section 3.2 of paper for literature.
+    Checks each column to see if it's unique. If it is unique, it is added
+    as the LHS of a dependency for every other element. It then loops through
+    all the other non-unique columns and determines all the LHS that the
+    column depends on. (LHS --> column)
 
-    - checks each column to see if it's unique
-        - if unique: it is the LHS of a dependency for every other element
+    Arguments:
 
-    - loops through all other non-unique columns and determines all lhs that the
-    column depends on
+    df (pd.Dataframe object): the dataframe containing the data to find the
+    dependencies from
+
+    accuracy (0 < float <= 1.00): the accuracy threshold
+    required in order to conclude a dependency (i.e. with accuracy = 0.98,
+    0.98 of the rows must hold true the dependency LHS --> RHS)
+
+    rep_percent (0 < float <= 1.00): the maximum amount of
+    data that may be unique in order to determine a dependency (i.e. with
+    rep_percent = 0.85, if less than 15% of rows are repeated for the columns
+    in LHS + RHS, no dependency will be concluded.)
+
+    Returns:
+    minimal_dependencies (DfdDependencies object): the minimal dependencies
+    represented by the data in df
     """
     partitions = {}
     masks = Masks(df.columns)
-    r = set(df.columns)
+    non_uniq = set(df.columns)
     unique_attrs = set()
     dependencies = DfdDependencies(df.columns)
-    for i in r.copy():
+    for i in non_uniq.copy():
         if df[i].is_unique:
             unique_attrs.add(i)
-            r.remove(i)
+            non_uniq.remove(i)
             dependencies.add_unique_lhs(i)
-    for i in tqdm(r):
-        lhss = find_LHSs(i, r, df, unique_attrs, partitions, accuracy, masks, rep_percent)
+    for i in tqdm(non_uniq):
+        lhss = find_LHSs(i, non_uniq, df, partitions, accuracy, masks, rep_percent)
         dependencies.add_LHSs(i, lhss)
     return dependencies
 
 
-def find_LHSs(i, attrs, df, unique_attrs, partitions, accuracy, masks, rep_percent):
+def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
     """
-    Looks for all LHS sets of attributes for the RHS attribute i.
+    Finds all LHS sets of attributes that satisfy a dependency relation for the
+    RHS attribute i. This is such that LHS --> RHS.
 
-    i: rhs on dependencies looking for
+    Arguments:
 
-    attrs: all non-unique attributes
+    rhs (string): name of column for which we are investigating dependencies for
+    attrs (Set object containing strings): the columns to consider as LHS attributes
 
-    df: dataframe for which determining dependencies from
+    df (Dataframe object): dataframe containing data to look at
 
-    unique_attrs: all the unique attributes
+    partitions (Dict): dictionary containing past calculated partition sizes for
+    column combinations
 
-    partitions: partitions object with past calculated partitions
+    accuracy (0 < float <= 1.00): the accuracy threshold required in order
+    to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
+    hold true the dependency LHS --> RHS)
 
+    masks (Masks object): contains past calculated masks
 
-    Process:
-    - generates seeds for all of the attributes to look at and builds lattice graph
-    - chooses a random node
-        - if node is visited:
-            - if it is a candidate, checks if it can be updated category
-            * see node documentation for category descriptions
-        - if node is not visited:
-            - attempt to infer type
-            - else... partition to determine type
-    - for picking next node: if is dependency, move back in trace, if is non-dependency move up
-    -  if out of seeds, check for new seeds based off of the fact that pruning may have lead
-    to missing some elements on this run
+    rep_percent (0 < float <= 1.00): the maximum amount of data that may be
+    unique in order to determine a dependency (i.e. with rep_percent = 0.85,
+    if less than 15% of rows are repeated for the columns in LHS + RHS, no
+    dependency will be concluded.)
+
+    Returns:
+    lhss (LHSs object): all the LHS that determine rhs
     """
-    lhs_attrs = attrs.difference(set([i]))
+    lhs_attrs = attrs.difference(set([rhs]))
     seeds = nodes_from_seeds(lhs_attrs)
     min_deps = LHSs(lhs_attrs, True)
     max_non_deps = LHSs(lhs_attrs, False)
@@ -84,7 +102,7 @@ def find_LHSs(i, attrs, df, unique_attrs, partitions, accuracy, masks, rep_perce
             else:
                 node.infer_type()
                 if node.category == 0:
-                    if compute_partitions(df, i, node.attrs, partitions, accuracy, masks, rep_percent):
+                    if compute_partitions(df, rhs, node.attrs, partitions, accuracy, masks, rep_percent):
                         if node.is_minimal():
                             min_deps.add_dep(node.attrs)
                             node.category = 2
@@ -100,16 +118,21 @@ def find_LHSs(i, attrs, df, unique_attrs, partitions, accuracy, masks, rep_perce
 
             node = pick_next_node(node, trace, min_deps, max_non_deps)
 
-        seeds = nodes_from_seeds(generate_next_seeds(max_non_deps, i, unique_attrs, min_deps, lhs_attrs))
+        seeds = nodes_from_seeds(generate_next_seeds(max_non_deps, min_deps, lhs_attrs))
     return min_deps
 
 
 def nodes_from_seeds(seeds):
     """
-    Creates nodes from seeds and returns them.
+    Returns nodes from a list of seeds. Creates nodes for each seed,
+    and calls make_lattice which connexts them forming the rest of the
+    lattice graph.
 
-    - Cretes a node for each seed
-    - Calls make_lattice which connects them and forms the rest of the lattice graph
+    Arguments:
+    seeds (Set strings): set of column names of seeds
+
+    Returns:
+    nodes (Node list): list of base nodes for lattice graph
     """
     base_nodes = [Node(frozenset([attr])) for attr in seeds]
     make_lattice(base_nodes, seeds)
@@ -118,10 +141,13 @@ def nodes_from_seeds(seeds):
 
 def make_lattice(nodes, attrs):
     """
-    Builds the rest of the lattice graph given a list of seed nodes.
-    To do this it must create nodes for all possible subsets of the seeds,
-    and connect each of them to their subsets, and their supersets so that
-    a lattice is formed.
+    Builds the rest of the lattice graph given a list of nodes,
+    creating nodes for all possible subsets of the nodes given,
+    and connecting them to each other.
+
+    Arguments:
+    nodes (Node list): list of nodes to connect upward from
+    attrs (string Set): set of column names present in the lattice
     """
     if len(nodes) < 2:
         return
@@ -149,19 +175,32 @@ def make_lattice(nodes, attrs):
 
 
 def sort_key(node):
+    """
+    Sort key for sorting lists of nodes.
+    """
     return node.attrs.__hash__()
 
 
 def pick_next_node(node, trace, min_deps, max_non_deps):
     """
-    If is candidate min dependency:
-        - if no unchecked subsets that could be dependnecy: --> must be min-dependency
-        - else: check that subset
-    If is candidate max non-dependency:
-        - if no unchecked supersets that could be non-dependency: --> must be max non-dependency
-        - else: check that superset
-    Else:
-        - return last node on trace (go back down in graph)
+    Picks the next node to look at. If current node is a candidate minimum
+    dependency looks for unchecked subsets. If no unchecked subsets that could
+    be a dependency, current node must be a minimum dependency. Otherwise,
+    check an unchecked subset.
+    If current node is a candidate maximal dependnecy, look for unchecked
+    supersets. If no unchecked supersets that could be a non-dependency,
+    it must be a maximum non-dependency. Otherwise, check an unchecked superset.
+    If not a candidate, return last node on trace (go back down in graph)
+
+    Arguments:
+    node (Node object): current node just visited
+    trace (Node list): stack of past nodes visited
+    min_deps (LHSs object): discovered minimum dependencies
+    max_non_deps (LHSs object): discovered maximum non-dependencies
+
+    Returns:
+    next_node (Node object or None): next node to look at, None if none left
+    to check in currrent part of graph
     """
     if node.category == 3:
         s = node.unchecked_subsets()
@@ -187,33 +226,51 @@ def pick_next_node(node, trace, min_deps, max_non_deps):
         return trace.pop()
 
 
-def remove_pruned_subsets(sets, min_deps):
+def remove_pruned_subsets(subsets, min_deps):
     """
-    - if is a subset of a min-dependency, must be dependent
+    Removes all pruned subsets. A subset can be pruned when it is a
+    subset of an existing discovered minimum dependency (because we
+    thus know it is a non-dependency)
+
+    Arguments:
+    subsets (Node list): list of subset nodes
+    min_deps (LHSs object): discovered minimal dependencies
     """
-    for n in sets[:]:
+    for n in subsets[:]:
         if min_deps.contains_superset(n.attrs):
-            sets.remove(n)
+            subsets.remove(n)
 
 
 def remove_pruned_supersets(supersets, max_non_deps):
     """
-    - if is a superset of a max-non-dependency, must be non-dependent
+    Removes all pruned supersets. A superset can be pruned when it is
+    a superset of an existing discovered maximal non-dependency (because
+    we thus know it is a dependency)
+
+    Arguments:
+    supersets (Node list): list of superset nodes
+    max_non_deps (LHSs object): discovered maximal non-dependencies
     """
     for n in supersets[:]:
         if max_non_deps.contains_subset(n.attrs):
             supersets.remove(n)
 
 
-def generate_next_seeds(max_non_deps, rhs, uniques_set, min_deps, lhs_attrs):
+def generate_next_seeds(max_non_deps, min_deps, lhs_attrs):
     """
-    Generates seeds for nodes that are still unchecked due to agressive pruning.
+    Generates seeds for the nodes that are still unchecked due to pruning.
+    This is done based off of the knowledge that once every possibility has
+    been considered, the compliment of hte maximal non-dependencies, minus
+    the existing minimum dependencies is 0 (the two are equal). Thus, if this
+    is not satisfied, the new seeds are the remaining elements.
 
-    Method:
-    when every possibility has been considered, the complement of max non-dependencies
-    minus the existing min dependencies is 0 (they are equal).
-    If this is not satisfied:
-    New seeds are the remaining elements
+    Arguments:
+    max_non_deps (LHSs object): discovered maximal non-dependencies
+    min_deps (LHSs object): discovered minimal dependencies
+    lhs_attrs (string Set): attributes being considered as parts of LHSs
+
+    Returns:
+    seed_attributes (string list): list of seeds that need to be visited
     """
     seeds = set()
     if max_non_deps.all_sets() == set():
@@ -232,23 +289,33 @@ def generate_next_seeds(max_non_deps, rhs, uniques_set, min_deps, lhs_attrs):
 
 def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percent):
     """
-    Determines whether lhs_set --> rhs for dataframe df.
+    Returns true if lhs_set --> rhs for dataframe df.
 
-    df: the dataframe storing data
-    rhs: the rhs on dependency investigating
-    lhs_set: set of attributes on lhs of dependency investigating
-    partitions: partitions object storing past computed partitions
+    Arguments:
 
-    Determines the number of equivilence classes for columns in lhs_set.
-    Determines the number of equivilence classes for columns in lhs_set and rhs.
+    df (Dataframe object): dataframe containing data to look at
 
-    If less than 10% of rows are repititions:
-        - No dependency
+    rhs (string): name of column for which we are investigating dependencies for
+    attrs (Set object containing strings): the columns to consider as LHS attributes
 
-    If number of equivilence classes is the same:
-        - Dependency
-    Else:
-        - No dependency
+    lhs_set (string Set): set containing column names of LHS set
+
+    partitions (Dict): dictionary containing past calculated partition sizes for
+    column combinations
+
+    accuracy (0 < float <= 1.00): the accuracy threshold required in order
+    to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
+    hold true the dependency LHS --> RHS)
+
+    masks (Masks object): contains past calculated masks
+
+    rep_percent (0 < float <= 1.00): the maximum amount of data that may be
+    unique in order to determine a dependency (i.e. with rep_percent = 0.85,
+    if less than 15% of rows are repeated for the columns in LHS + RHS, no
+    dependency will be concluded.)
+
+    Returns:
+    is_dependency (bool): True if is a dependency, false otherwise
     """
     # for approximate dependencies see TANE section 2.3
     if accuracy < 1:
@@ -261,7 +328,8 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
 
 def partition(attrs, df, partitions):
     """
-    Returns the number of equivilence classes for columns in lhs_set.
+    Returns the number of equivilence classes for the columns represented
+    in attrs for dataframe df.
     """
     if attrs in partitions:
         return partitions[attrs]
@@ -269,49 +337,13 @@ def partition(attrs, df, partitions):
     partitions[attrs] = shape
     return shape
 
-# def find_extra(group_df):
-#     np = group_df.to_numpy()
-#     _, unique_counts = numpy.unique(np, return_counts=True)
-
-#     tot = 0
-#     max_counts = 0
-#     for size in unique_counts:
-#         max_counts = max(max_counts, size)
-#         tot += size
-
-#     return tot - max_counts
-
-
-# def approximate_dependencies(lhs_set, rhs, df, accuracy):
-#     limit = df.shape[0]*(1-accuracy)
-#     attrs = df.columns
-#     attrs_one = [attrs[x] for x in lhs_set]
-#     # make this an argument for user, to control how many repeating values
-#     # if len(groupings) > df.shape[0]*0.85:
-#     #     return False
-#     acc = 0
-#     for _, grp in groupings:
-#         extra = find_extra(grp)
-#         acc += extra
-#         if acc > limit:
-#             return False
-#     return True
-
 
 def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
     """
     Checks whether the columns represented in lhs_set functionally determines the column rhs
     for the dataframe df.
     If lhs_set --> rhs, returns True. Otherwise returns False.
-    Arguments:
-    Lhs_set (LIST OBJECT): a BitIndexSet representing the columns in lhs_set (or any iterable set)
-    rhs (int): the index of the column for the rhs of the relation
-    df (pd.Dataframe): the dataframe containing the data
-    accuracy (float, 0 < accuracy <= 1.0): the degree of accuracy required from the data to conclude a dependency
-        (e.g. 95% of the data needs to reflect a dependnecy)
-    masks (Masks object): stores past created masks
-    Returns:
-    is_dependency (bool): True if satisfies requirments to be dependency, False if not.
+
     *in order to be a dependency:
         - the number of equivalence classes for tuples in columns in lhs_set, is equal to the number of equivalence
         classes for tuples in columns in lhs_set+rhs
@@ -348,7 +380,3 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
             return False
     # idea: try using numpy arrays and taking intersections of sets for each column????
     return True
-
-
-
-
