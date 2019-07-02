@@ -32,6 +32,7 @@ def dfd(df, accuracy, rep_percent):
     in LHS + RHS, no dependency will be concluded.)
 
     Returns:
+
     minimal_dependencies (DfdDependencies object): the minimal dependencies
     represented by the data in df
     """
@@ -365,7 +366,9 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
     acc = 0
 
     for index, row in indicator.iterrows():
-        mask = df[lhs_set[0]].values == row[lhs_set[0]]
+        mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
+        if mask is None:
+            mask = df[lhs_set[0]].values == row[lhs_set[0]]
         for attr in lhs_set[1:]:
             m = masks.get_mask(attr, row[attr])
             if m is None:
