@@ -590,3 +590,4 @@ class Masks(object):
     def get_mask(self, col, val):
         if val in self._masks[col]:
             return self._masks[col][val]
+        return None

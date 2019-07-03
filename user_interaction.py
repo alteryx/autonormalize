@@ -31,14 +31,56 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85):
 
 def normalize_dependencies(dependencies):
     """
+    Breaks up a set of dependency relations into groups that are normalized,
+    meaning there are no partial or transitive dependencies within each group.
 
+    Arguments:
+
+    dependencies (Dependencies object): the dependencies to be normalized
+
+    Returns:
+
+    dependencies_groups (Dependencies list): list of Dependencies objects each
+    containing the relations in a new group
     """
-
     return normalize.normalize(dependencies)
 
 
 def split_dataframe(df, new_grps):
-    pass
+    """
+    Splits up a dataframe dfb into new dataframes based off of dependency
+    groups provided.
+
+    Arguments:
+
+    df (DataFrame): dataframe to split up
+
+    new_grps (Dependencies list): list of groups of dependencies to base
+    split off of
+
+    Retunrs:
+
+    new_dfs (DataFrame list): list of new dataframes
+    """
+    # this needs to accomodate for approximate dependencies....
+
+    new_dfs = []
+
+    for group in new_grps:
+
+        all_attrs = group.all_attrs()
+        new_df = df.copy()
+
+        drops = set(new_df.columns).difference(all_attrs)
+        new_df.drop(columns=list(drops), inplace=True)
+
+        # HOW TO DROP DUPLICATES ACCORDING TO APPROXIMATE DEPENDENCIES.... NOW IS THE TIMEEEE
+
+        # iterate through dependencies, drop all duplicates for LHS attrs (keeping the one w the most common occurances )
+
+        new_dfs.append(new_df)
+
+    return new_dfs
 
 
 def normalize_dataframe(df, dependencies):

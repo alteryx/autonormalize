@@ -179,7 +179,7 @@ def sort_key(node):
     """
     Sort key for sorting lists of nodes.
     """
-    return node.attrs.__hash__()
+    return ''.join(sorted(list(node.attrs))).__hash__()
 
 
 def pick_next_node(node, trace, min_deps, max_non_deps):
@@ -366,15 +366,73 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
     acc = 0
 
     for index, row in indicator.iterrows():
-        mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
-        if mask is None:
-            mask = df[lhs_set[0]].values == row[lhs_set[0]]
-        for attr in lhs_set[1:]:
+
+        # mask = None
+        # for attr in lhs_set:
+        #     if row[attr] in masks[attr]:
+        #         m = masks[attr][row[attr]]
+        #     else:
+        #         m = df[attr].values == row[attr]
+        #         masks[attr][row[attr]] = m
+        #     if mask is None:
+        #         mask = m
+        #     else:
+        #         mask = mask & m
+
+
+        # HOW THE FR*CK R THESE DIFFERENT??? MERP
+
+        # mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
+        # if mask is None:
+        #     mask = df[lhs_set[0]].values == row[lhs_set[0]]
+        # for attr in lhs_set[1:]:
+        #     m = masks.get_mask(attr, row[attr])
+        #     if m is None:
+        #         m = df[attr].values == row[attr]
+        #         masks.add_mask(attr, row[attr], m)
+        #     mask = mask & m
+
+        # mask = df[lhs_set[0]].values == row[lhs_set[0]]
+        # for attr in lhs_set[1:]:
+        #     m = masks.get_mask(attr, row[attr])
+        #     if m is None:
+        #         m = df[attr].values == row[attr]
+        #         masks.add_mask(attr, row[attr], m)
+        #     mask = mask & m
+
+
+
+
+        mask = None
+        for attr in lhs_set:
             m = masks.get_mask(attr, row[attr])
             if m is None:
                 m = df[attr].values == row[attr]
                 masks.add_mask(attr, row[attr], m)
-            mask = mask & m
+            if mask is None:
+                mask = m
+            else:
+                mask = mask & m
+
+        # HOW THE FR*CK R THESE DIFFERENT??? MERP
+
+        # mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
+        # if mask is None:
+        #     mask = df[lhs_set[0]].values == row[lhs_set[0]]
+        # for attr in lhs_set[1:]:
+        #     m = masks.get_mask(attr, row[attr])
+        #     if m is None:
+        #         m = df[attr].values == row[attr]
+        #         masks.add_mask(attr, row[attr], m)
+        #     mask = mask & m
+
+        # mask = df[lhs_set[0]].values == row[lhs_set[0]]
+        # for attr in lhs_set[1:]:
+        #     m = masks.get_mask(attr, row[attr])
+        #     if m is None:
+        #         m = df[attr].values == row[attr]
+        #         masks.add_mask(attr, row[attr], m)
+        #     mask = mask & m
 
         options = df[mask]
         _, unique_counts = numpy.unique(options[rhs].to_numpy(), return_counts=True)
