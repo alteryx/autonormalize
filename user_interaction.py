@@ -84,32 +84,28 @@ def split_dataframe(df, new_grps):
 
 
 def normalize_dataframe(df, dependencies):
+    """
+    Normalizes a dataframe based on the dependencies given.
+
+    Arguments:
+    df (DataFrame): dataframe to split up
+    dependencies (Dependencies object): the dependencies to be normalized
+
+    Returns:
+    new_dfs (DataFrame list): list of new dataframes
+    """
 
     return split_dataframe(df, normalize_dependencies(dependencies))
 
 
-def normalization(df, dependencies):
-    """
-    Breaks up dataframe df into new normalized dataframes based on the
-    dependency relations represented in dependencies.
-    Returns a list of the new dataframes.
-    """
-    # THIS NEEDS TO ACCOMODATE FOR APPROXIMATE DEPENDENCIES
-    new_groups = normalize.normalize(dependencies)
-    new_dfs = []
-    for group in new_groups:
-        all_attrs = group.all_attrs()
-        new_df = df.copy()
-        drops = set(new_df.columns).difference(all_attrs)
-        new_df.drop(columns=list(drops), inplace=True)
-        new_df.drop_duplicates(inplace=True)
-        new_dfs.append(new_df)
-    return new_dfs
-
-
 def auto_normalize(df):
     """
-    Finds dependencies and then normalizes. Direct pipeline from
-    find_dependencies(df) to normalization(df, dependencies)
+    Normalizes dataframe via dependencies discovered in data.
+
+    Arguments:
+    df (DataFrame): dataframe to split up
+
+    Returns:
+    new_dfs (DataFrame list): list of new dataframes
     """
-    return normalization(df, find_dependencies(df))
+    return normalize_dataframe(df, find_dependencies(df))

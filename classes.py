@@ -93,26 +93,27 @@
 
 class LHSs(object):
     """
-    Stores the LHS of dependency relations for a single RHS.
+    Efficiently stores the LHSs of dependencies relations for a single RHS>
     """
 
-    def __init__(self, attrs, ismin):
+    def __init__(self, attrs):
         self._dic = {}
-        self._ismin = ismin
         self._attrs = attrs
         for at in attrs:
             self._dic[at] = set()
 
     def add_dep(self, attr_set):
         """
-        Adds attr_set as a LHS. attr_set is a frozenset
+        Adds attr_set as a LHS.
+        Requires:
+        attr_set is a frozenset.
         """
         for attr in attr_set:
             self._dic[attr].add(attr_set)
 
     def all_sets(self):
         """
-        Returns all LHS's stored in self, as a set of frozensets
+        Returns all LHSs stored in self as a set of frozensets
         """
         result = set()
         for attr in self._attrs:
@@ -122,8 +123,9 @@ class LHSs(object):
 
     def contains_subset(self, attr_set):
         """
-        True if self contains a subset of attr_set
-        attr_set is a BitIndexSet.
+        Returns True if self contains a subset of attr_set, False otherwise.
+        Requires:
+        attr_set is a set of attributes.
         """
         for x in attr_set:
             for lhs in self._dic[x]:
@@ -133,8 +135,9 @@ class LHSs(object):
 
     def contains_superset(self, attr_set):
         """
-        True if self contains a superset of attr_set.
-        attr_set is a BitIndexSet
+        Returns True if self contains a superset of attr_set, Fale otherwise.
+        Requires:
+        attr_set is a set of attributes
         """
         for x in attr_set:
             for lhs in self._dic[x]:
@@ -176,12 +179,26 @@ class DfdDependencies(object):
 
 class Node(object):
     """
-    Represents a node in the lattice graph in DFD algorithm search.
+    Represents a node in the lattice graph in DFD algorithmic search for dependencies.
 
-    Category codes:
-    Unclassified = 0
-    Dependency = 1, Minimal Dependency = 2, Candidate Minimal Dependency = 3
-    Non-Dependency = -1, Maximal Non-Dependency = -2, Candidate Maximal Non-Dependency = -3
+    Attributes:
+
+    attrs (string frozenset): attributes in the node
+
+    visited (bool): True if the node has been visited, False otherwise
+
+    cateogry (-3 <= int <= 3): representing the classified category of the node
+        0 = Unclassified
+        1 = Dependency
+        2 = Minimal Dependnecy
+        3 = Candidate Minimal Dependency
+        -1 = Non-dependency
+        -2 = Maximal Non-dependency
+        -3 = Candidate Maximal Non-dependency
+
+    prev (Node set): child nodes (subsets with one less element)
+
+    next (Node set): parent nodes (supersets with one more element)
     """
 
     def __init__(self, attr_set):
@@ -206,10 +223,9 @@ class Node(object):
 
     def is_minimal(self):
         """
-        Returns true if all subsets with one less element
-        (all subsets stored in self.prev) are classified
-        as non-dependencies.
-        Updates the category to minimal dependency if so.
+        Returns True if node is minimal. Node is minimal if all
+        subsets in self.prev are classified as non-dependencies.
+        If it is minimal, updates the category to minimal dependency.
         """
         for x in self.prev:
             if x.category >= 0:
@@ -219,10 +235,9 @@ class Node(object):
 
     def is_maximal(self):
         """
-        Returns true if all supersets with one more element
-        (all supersets stored in self.next) are classified
-        as dependencies.
-        Updates the category to maximal non-dependency if so.
+        Returns True if node is maximal. Node is maximal if all
+        supersets in self.next are classified as dependencies.
+        If it is maximal, updates the category to maximal non-dependency.
         """
         for x in self.next:
             if x.category <= 0:
@@ -232,11 +247,11 @@ class Node(object):
 
     def update_dependency_type(self, min_deps, max_non_deps):
         """
-        Updates node's dependency type based off of min_deps,
-        and max_non_deps.
-        If node is a subset of a max_non_deps, changes from candidate max
-        non-depenedency, to non-dependency. If self is a superset
-        of a min_dep, changes from candidate min dependency, to dependency.
+        Updates the node's dependency type based off of min_deps and
+        max_non_deps. If node is a subset of a set in max_non_deps, changes
+        category from candidate max non-dependency, to non-dependency.
+        If node is a superset of a set in min_deps, changes from candidate
+        min dependency, to dependency.
         """
         if min_deps.contains_subset(self.attrs):
             self.category = 1
@@ -245,24 +260,20 @@ class Node(object):
 
     def unchecked_subsets(self):
         """
-        Returns all subsets (with one less element) that haven't
-        yet been visited.
+        Returns all child nodes that haven't been visited.
         """
         return [x for x in self.prev if not x.visited]
 
     def unchecked_supersets(self):
         """
-        Returns all supersets (with one more element) that haven't
-        been visited yet.
+        Returns all parent nodes that haven't been visited.
         """
         return [x for x in self.next if not x.visited]
 
     def infer_type(self):
         """
-        Tries to infer type by seeing if any subsets are a dependency
-        (--> self is a dependency)
-        or if any supersets are non-dependencies (--> self is a
-        non-dependency)
+        Tries to infer type of node by checking if any subsets are a dependency,
+        or if any supersets are non-dependenies.
         """
         # TO DO: optimize, this is inefficient (or it's helper functions are)
         if self._dep_subset():
@@ -300,11 +311,14 @@ class Node(object):
 
 class Dependencies(object):
     """
-    Represents dependencies for the normalization process and for
-    user interaction
+    Represents the dependency relations among a set of attributes.
     """
 
     def __init__(self, dependencies):
+        """
+        Creates a Dependencies object from either a DfdDependencies
+        object, or from a dictionary representing dependencies relatins.
+        """
         if isinstance(dependencies, dict):
             self._data = dependencies
         else:
@@ -313,19 +327,23 @@ class Dependencies(object):
     def add_dep(self, rhs, lhs):
         """
         Adds the dependency lhs --> rhs.
-        lhs is a list, and rhs is a single attribute
+
+        Arguments:
+        lhs (string list): the attributes on left hand side of relation
+        rhs (string): attribute on right hand side
         """
-        assert isinstance(lhs, list)
         assert rhs in self._data
         self._data[rhs].append(lhs)
 
     def remove_dep(self, rhs, lhs):
         """
-        Removes the dependency lhs --> rhs. (requires that this dependency exists)
-        lhs is a list, rhs is an attribute
-        removes the dependence lhs --> rhs
+        Removes the dependency lhs --> rhs.
+        Requires that this dependency exists.
+
+        Arguments:
+        lhs (string list): the attributes on left hand side of relation
+        rhs (string): attribute on right hand side
         """
-        assert isinstance(lhs, list)
         assert rhs in self._data
         self._data[rhs].remove(lhs)
 
@@ -343,8 +361,9 @@ class Dependencies(object):
     def from_rels(cls, rels):
         """
         Returns a Dependencies object from a list of relations.
-        rels: list of tuples where format is (lhs, rhs) and
-        lhs is a list of attributes, and rhs is a single attribute
+
+        Arguments:
+        rels ((string list*string) list): relations such that lhs --> rhs
         """
         dic = {}
         all_attrs_l = set()
@@ -361,7 +380,7 @@ class Dependencies(object):
 
     def __str__(self):
         """
-        For printing, visually displays dependencies
+        For printing, visually displays dependency relations.
         """
         result = []
         for rhs in self._data:
@@ -377,9 +396,9 @@ class Dependencies(object):
 
     def tuple_relations(self):
         """
-        Returns the dependencies/relations stores in self as a list of relations
-        in the format: [(lhs, rhs), ...] where lhs is a list of attributes, and rhs
-        is a single attribute.
+        Returns the dependency relations stored in self as a list of
+        relations in the format: [(lhs, rhs), ...] where lhs is a list of
+        attributes, and rhs is a single attribute.
         """
         result = []
         for rhs in self._data:
@@ -443,16 +462,14 @@ class Dependencies(object):
     #             i += 1
     #         self._data[rhs] = itera
 
-    def prep(self):
-        """
-        Removes implied extroneous attributes.
-        """
-        self.remove_implied_extroneous()
-        # self.remove_redundant()
-
     def find_candidate_keys(self):
         """
         Returns all candidate keys as a list of sets of attributes.
+        A candidate key is a minimal set of attributes whose closure is
+        all attributes in the table.
+
+        Returns:
+        candidate_keys (string set list): candidate keys found
 
         example:
             TO DO
@@ -485,21 +502,23 @@ class Dependencies(object):
             return result
 
         cand_keys = helper(lhs_only, all_attrs.difference(lhs_only), all_attrs)
+
         for x in cand_keys[:]:
             for y in cand_keys[:]:
-                if x.issuperset(y) and x != y:
+                if x.issuperset(y) and x is not y:
                     cand_keys.remove(x)
                     break
         return cand_keys
 
     def find_partial_deps(self):
         """
-        Returns all partial dependence relations
-        List of form: [(lhs, rhs), ... ]
-        where lhs is a list of attributes
-        rhs is an attribute
+        Finds all partial dependencies within self.
 
-        example:
+        Returns:
+        partial_deps ((string list*string) list): partial dependencies
+        of the form [(lhs, rhs), ... ]
+
+        Example:
             A --> B
             C --> D
             DF --> E
@@ -525,12 +544,13 @@ class Dependencies(object):
 
     def find_trans_deps(self):
         """
-        Returns all transitive dependence relations
-        List of form: [(lhs, rhs), ... ]
-        where lhs is a list of attributes
-        rhs is an attribute
+        Finds all transitive dependencies within self.
 
-        example:
+        Returns:
+        partial_deps ((string list*string) list): transitive dependencies
+        of the form [(lhs, rhs), ... ]
+
+        Example:
             A --> B
             C --> D
             DF --> E
@@ -561,9 +581,15 @@ class Dependencies(object):
 
 def find_closure(rel, x):
     """
-    Returns closure of attribute set x as a set of attributes under relations rel
-    rel is a list of relations of form [(lhs, rhs)...] where lhs is list of attrs
-    x is a list of attributes
+    Returns the closure of attribute set x under relations in rel.
+
+    Arguments:
+    rel ((string list * string) list): relations of form [(lhs, rhs)...]
+    x (string list): attributes to find the closure of
+
+    Returns:
+    closure (string Set): the attributes that can be determined from the
+    attributes in x (aka. its closure)
     """
     def helper(set_attr, rel):
         if rel == []:

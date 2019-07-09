@@ -82,9 +82,9 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
     lhss (LHSs object): all the LHS that determine rhs
     """
     lhs_attrs = attrs.difference(set([rhs]))
-    seeds = nodes_from_seeds(lhs_attrs)
-    min_deps = LHSs(lhs_attrs, True)
-    max_non_deps = LHSs(lhs_attrs, False)
+    seeds = nodes_from_seeds(sorted(list(lhs_attrs)))
+    min_deps = LHSs(lhs_attrs)
+    max_non_deps = LHSs(lhs_attrs)
     trace = []
     while seeds != []:
         node = seeds[0]  # should this actually be random?
@@ -117,9 +117,9 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
                             node.category = -3
                 node.visited = True
 
-            node = pick_next_node(node, trace, min_deps, max_non_deps)
+            node = pick_next_node(node, trace, min_deps, max_non_deps, df.columns)
 
-        seeds = nodes_from_seeds(generate_next_seeds(max_non_deps, min_deps, lhs_attrs))
+        seeds = nodes_from_seeds(sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs)))
     return min_deps
 
 
@@ -174,15 +174,21 @@ def make_lattice(nodes, attrs):
     #         new_node = Node(new_attrs, prev, [])
     #         next_level.append(new_node)\
 
+from functools import partial
 
-def sort_key(node):
+
+def sort_key(attrs, node):
     """
     Sort key for sorting lists of nodes.
     """
-    return ''.join(sorted(list(node.attrs))).__hash__()
+    acc = 0
+    for i in range(len(attrs)):
+        if attrs[i] in node.attrs:
+            acc += 10**i
+    return acc
 
 
-def pick_next_node(node, trace, min_deps, max_non_deps):
+def pick_next_node(node, trace, min_deps, max_non_deps, attrs):
     """
     Picks the next node to look at. If current node is a candidate minimum
     dependency looks for unchecked subsets. If no unchecked subsets that could
@@ -203,6 +209,7 @@ def pick_next_node(node, trace, min_deps, max_non_deps):
     next_node (Node object or None): next node to look at, None if none left
     to check in currrent part of graph
     """
+    srt_key = partial(sort_key, sorted(attrs))
     if node.category == 3:
         s = node.unchecked_subsets()
         remove_pruned_subsets(s, min_deps)
@@ -211,7 +218,7 @@ def pick_next_node(node, trace, min_deps, max_non_deps):
             node.cateogry = 2
         else:
             trace.append(node)
-            return sorted(s, key=sort_key)[0]
+            return sorted(s, key=srt_key)[0]
     elif node.category == -3:
         s = node.unchecked_supersets()
         remove_pruned_supersets(s, max_non_deps)
@@ -220,7 +227,7 @@ def pick_next_node(node, trace, min_deps, max_non_deps):
             node.category = -2
         else:
             trace.append(node)
-            return sorted(s, key=sort_key)[0]
+            return sorted(s, key=srt_key)[0]
     else:
         if trace == []:
             return None
@@ -367,42 +374,6 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
 
     for index, row in indicator.iterrows():
 
-        # mask = None
-        # for attr in lhs_set:
-        #     if row[attr] in masks[attr]:
-        #         m = masks[attr][row[attr]]
-        #     else:
-        #         m = df[attr].values == row[attr]
-        #         masks[attr][row[attr]] = m
-        #     if mask is None:
-        #         mask = m
-        #     else:
-        #         mask = mask & m
-
-
-        # HOW THE FR*CK R THESE DIFFERENT??? MERP
-
-        # mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
-        # if mask is None:
-        #     mask = df[lhs_set[0]].values == row[lhs_set[0]]
-        # for attr in lhs_set[1:]:
-        #     m = masks.get_mask(attr, row[attr])
-        #     if m is None:
-        #         m = df[attr].values == row[attr]
-        #         masks.add_mask(attr, row[attr], m)
-        #     mask = mask & m
-
-        # mask = df[lhs_set[0]].values == row[lhs_set[0]]
-        # for attr in lhs_set[1:]:
-        #     m = masks.get_mask(attr, row[attr])
-        #     if m is None:
-        #         m = df[attr].values == row[attr]
-        #         masks.add_mask(attr, row[attr], m)
-        #     mask = mask & m
-
-
-
-
         mask = None
         for attr in lhs_set:
             m = masks.get_mask(attr, row[attr])
@@ -413,26 +384,6 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
                 mask = m
             else:
                 mask = mask & m
-
-        # HOW THE FR*CK R THESE DIFFERENT??? MERP
-
-        # mask = masks.get_mask(lhs_set[0], row[lhs_set[0]])
-        # if mask is None:
-        #     mask = df[lhs_set[0]].values == row[lhs_set[0]]
-        # for attr in lhs_set[1:]:
-        #     m = masks.get_mask(attr, row[attr])
-        #     if m is None:
-        #         m = df[attr].values == row[attr]
-        #         masks.add_mask(attr, row[attr], m)
-        #     mask = mask & m
-
-        # mask = df[lhs_set[0]].values == row[lhs_set[0]]
-        # for attr in lhs_set[1:]:
-        #     m = masks.get_mask(attr, row[attr])
-        #     if m is None:
-        #         m = df[attr].values == row[attr]
-        #         masks.add_mask(attr, row[attr], m)
-        #     mask = mask & m
 
         options = df[mask]
         _, unique_counts = numpy.unique(options[rhs].to_numpy(), return_counts=True)

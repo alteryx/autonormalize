@@ -13,13 +13,21 @@ from classes import Dependencies
 #         return normalize(new_grps[0]) + normalize(new_grps[1])
 #     return [dependencies]
 
+# SHOULD FINDING TRANSITIVE OR PARTIAL DEPS BE ONLY RELATED TO THE PRIM KEY?????
 
 def normalize(dependencies):
     """
-    Normalizes the dependencies into new groups by breaking up all
-    partial and transitive dependencies.
+    Normalizes the dependency relationships in dependencies into new
+    groups by breaking up all partial and transitive dependencies.
+
+    Arguments:
+    dependencies (Dependencies object): the dependencies to be split up
+
+    Returns:
+    new_groups (Dependencies list): list of new dependencies objects representing
+    the new groups
     """
-    dependencies.prep()
+    dependencies.remove_implied_extroneous()
     no_part_deps = remove_part_deps(dependencies)
     no_trans_deps = []
     for grp in no_part_deps:
@@ -29,8 +37,15 @@ def normalize(dependencies):
 
 def remove_part_deps(dependencies):
     """
-    Breaks up dependencies into new groups so that there are
-    no partial dependencies.
+    Breaks up the dependency relations in dependencies into new groups of
+    relations so that there are no more partial dependencies.
+
+    Arguments:
+    dependencies (Dependneies object): the dependencies to be split up
+
+    Returns:
+    new_groups (Dependencies list): list of new dependencies objects representing
+    the new groups with no partial depenencies
     """
     part_deps = dependencies.find_partial_deps()
     if part_deps == []:
@@ -41,8 +56,15 @@ def remove_part_deps(dependencies):
 
 def remove_trans_deps(dependencies):
     """
-    Breaks up dependencies into new groups so that there are no
-    transitive dependencies.
+    Breaks up the dependency relations in dependencies into new groups of
+    relations so that there are no more transitive dependencies.
+
+    Arguments:
+    dependencies (Dependneies object): the dependencies to be split up
+
+    Returns:
+    new_groups (Dependencies list): list of new dependencies objects representing
+    the new groups with no transitive depenencies
     """
     trans_deps = dependencies.find_trans_deps()
     if trans_deps == []:
@@ -53,7 +75,16 @@ def remove_trans_deps(dependencies):
 
 def find_most_comm(deps):
     """
-    Given a list of dependencies, find the most common LHS set.
+    Given a list of dependency relations, finds the most common set of
+    LHS attributes. If more than one LHS set occurs the same amount of
+    times, chooses the set with the least number of attributes.
+
+    Arguments:
+    deps ((string Set*string) list): list of tuples representing relations
+    where the lhs is a set of attribute names, and the rhs is an attribute.
+
+    Returns:
+    most_comm (string Set): the most common lhs set of attributes
     """
     positions = {}
     priority_lst = []
@@ -85,9 +116,19 @@ def find_most_comm(deps):
 
 def split_on_dep(lhs_dep, dependencies):
     """
-    Given the LHS attributes of a dependency, breaks up the dependencies
-    into two groups so that the LHS given is now the primary key of the
-    new group. The old group keeps the same primary key.
+    Given the LHS attributes of a dependency, breaks up the dependency
+    relations in dependencies into two groups so that the LHS given is
+    the primary key of the new group. The old group keeps the same
+    primary key.
+
+    Arguments:
+    lhs_dep (string list): set of attributes to be the new group's
+    primary key
+    dependencies (Dependencies object): dependency relations to be
+    split up
+
+    Returns:
+    new_groups (Dependencies object * Dependencies object): the new groups
     """
     new_deps = {}
     old_deps = dependencies.serialize()
@@ -118,4 +159,4 @@ def split_on_dep(lhs_dep, dependencies):
             if len(old_rhs.intersection(lhs)) != 0:
                 new_deps[rhs].remove(lhs)
 
-    return [Dependencies.deserialize(old_deps), Dependencies.deserialize(new_deps)]
+    return (Dependencies.deserialize(old_deps), Dependencies.deserialize(new_deps))

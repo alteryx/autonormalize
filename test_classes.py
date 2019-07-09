@@ -6,7 +6,7 @@ from normalize import normalize
 
 
 def test_all_sets_and_add_dep():
-    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     assert lhss.all_sets() == set()
     set_1 = frozenset(['a', 'c', 'd'])
     lhss.add_dep(set_1)
@@ -19,7 +19,7 @@ def test_all_sets_and_add_dep():
 
 
 def test_contains_subset():
-    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     set_1 = frozenset(['a', 'c', 'd'])
     lhss.add_dep(set_1)
     set_2 = frozenset(['a', 'c', 'e', 'f', 'g'])
@@ -32,7 +32,7 @@ def test_contains_subset():
 
 
 def test_contains_superset():
-    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     set_1 = frozenset(['a', 'c', 'd', 'e', 'g'])
     lhss.add_dep(set_1)
     set_2 = frozenset(['a', 'c', 'e', 'f'])
@@ -45,7 +45,7 @@ def test_contains_superset():
 
 
 def test_LHSs_add_dep_and_all_sets():
-    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'], True)
+    lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     assert lhss.all_sets() == set()
     set_1 = frozenset(['a', 'c', 'd', 'e', 'g'])
     lhss.add_dep(set_1)
@@ -59,16 +59,17 @@ def test_LHSs_add_dep_and_all_sets():
 
 
 def test_add_unique_lhs():
-
-    # TO DO BRO
-    pass
+    dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
+    dependencies.add_unique_lhs("name")
+    assert dependencies.serialize() == {"rating": [["name"]], "age": [["name"]], "height": [["name"]], "weight": [["name"]], "location": [["name"]], "speed": [["name"]],
+        "experience": [["name"]], "mother": [["name"]], "name": []}
 
 
 def test_add_LHSs():
-    lhss_weight = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]), True)
+    lhss_weight = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]))
     lhss_weight.add_dep(frozenset(["name"]))
     lhss_weight.add_dep(frozenset(["age", "height"]))
-    lhss_age = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]), True)
+    lhss_age = LHSs(set(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"]))
     lhss_age.add_dep(frozenset(["name"]))
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
     dependencies.add_LHSs("age", lhss_age)
@@ -122,7 +123,7 @@ def test_find_candidate_keys():
         'A': [['B']], 'B': [['E'], ['A', 'D']], 'C': [['E', 'F']],
         'D': [['A']], 'E': [['A']], 'F': [['G']], 'G': []}
     dependencies = Dependencies(dep_dic)
-    dependencies.prep()
+    dependencies.remove_implied_extroneous()
     assert dependencies.find_candidate_keys() == [{'A', 'G'}, {'B', 'G'}, {'E', 'G'}]
 
 
@@ -131,7 +132,7 @@ def test_find_partial_deps():
         'A': [['B']], 'B': [['E'], ['A', 'D']], 'C': [['E', 'F']],
         'D': [['A']], 'E': [['A']], 'F': [['G']], 'G': []}
     dependencies = Dependencies(dep_dic)
-    dependencies.prep()
+    dependencies.remove_implied_extroneous()
     partial_deps = [(['A'], 'D'), (['G'], 'F')]
     assert dependencies.find_partial_deps() == partial_deps
 
@@ -144,22 +145,6 @@ def test_find_closure():
     rels = dependencies.tuple_relations()
     clos = {'A', 'B', 'D', 'E'}
     assert find_closure(rels, ['A']) == clos
-
-
-# def test_remove_partial_deps():
-#     dep_dic = {
-#         'A': [['B']], 'B': [['E'], ['A', 'D']], 'C': [['E', 'F']],
-#         'D': [['A']], 'E': [['A']], 'F': [['G']], 'G': []}
-#     dependencies = Dependencies(dep_dic)
-#     dependencies.prep()
-#     new = remove_partial_deps(dependencies)
-#     for x in new:
-#         assert x.find_partial_deps() == []
-    # assert len(new) == 3
-    # assert new[0].serialize() == {'A': [['B']], 'B': [['A']], 'C': [['A', 'G']], 'G': []}
-    # assert new[1].serialize() == {'F': [['G']], 'G': []}
-    # assert new[2].serialize() == {'A': [], 'D': [['A']], 'E': [['A']]}
-
 
 def test_from_rels():
     dep_dic = {
@@ -176,33 +161,5 @@ def test_find_trans_deps():
         'A': [], 'B': [], 'C': [], 'D': [['F']],
         'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
     dep = Dependencies(dep_dic)
-    dep.prep()
+    dep.remove_implied_extroneous()
     assert dep.find_trans_deps() == [(['F'], 'D')]
-
-
-# def test_remove_trans_deps():
-#     dep_dic = {
-#         'A': [], 'B': [], 'C': [], 'D': [['F']],
-#         'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
-#     dep = Dependencies(dep_dic)
-#     dep.prep()
-#     new = remove_trans_deps(dep)
-#     for x in new:
-#         assert x.find_trans_deps() == []
-
-
-def test_normalize():
-    dep_dic = {
-        'A': [], 'B': [], 'C': [], 'D': [['F']],
-        'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
-    dep = Dependencies(dep_dic)
-    new = normalize(dep)
-    for x in new:
-        assert x.find_trans_deps() == []
-        assert x.find_partial_deps() == []
-
-
-
-# TO DO: organize tests into different files, real life dataset example test!!!!
-
-
