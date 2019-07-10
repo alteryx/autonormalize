@@ -3,8 +3,8 @@ import os
 import pytest
 import pandas as pd
 
-from classes import LHSs, Dependencies, Node, Masks
-import dfd
+from autonormalize.classes import LHSs, Dependencies, Node, Masks
+from autonormalize import dfd
 
 path = os.getcwd()
 
@@ -18,7 +18,7 @@ dic_1 = {
 df_1 = pd.DataFrame(dic_1)
 # A = index,   B = random,   C = random,   D = random,
 # E = c != 1,   F = b < 10,   G = c + d
-df_2 = pd.read_csv(os.path.join(path, 'example_3'))
+df_2 = pd.read_csv(os.path.join(path, 'examples/example_3'))
 
 
 def serialization_equal(dic_1, dic_2):

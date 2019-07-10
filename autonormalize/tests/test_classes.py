@@ -1,8 +1,8 @@
 import pytest
 
-from classes import LHSs, DfdDependencies, Dependencies, find_closure
+from autonormalize.classes import LHSs, DfdDependencies, Dependencies, find_closure
 
-from normalize import normalize
+from autonormalize.normalize import normalize
 
 
 def test_all_sets_and_add_dep():

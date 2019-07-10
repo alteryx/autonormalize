@@ -1,3 +1,5 @@
+import pandas as pd
+
 from classes import Dependencies
 
 
@@ -160,3 +162,23 @@ def split_on_dep(lhs_dep, dependencies):
                 new_deps[rhs].remove(lhs)
 
     return (Dependencies.deserialize(old_deps), Dependencies.deserialize(new_deps))
+
+
+def drop_primary_dups(df, deps):
+
+    df_lst = []
+
+    # new_df = pd.DataFrame(columns=df.columns)
+
+    # find primary key
+    # the ones with nothing pointing toward them?????
+    prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+
+    groups = df.groupby(prim_key)
+
+    for name, group in groups:
+        df_lst.append(group.mode().iloc[0])
+        # new_df = new_df.append(group.mode().iloc[0], ignore_index=True)
+
+    return (pd.DataFrame(df_lst, columns=df.columns)).reset_index(drop=True)
+

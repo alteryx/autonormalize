@@ -74,9 +74,7 @@ def split_dataframe(df, new_grps):
         drops = set(new_df.columns).difference(all_attrs)
         new_df.drop(columns=list(drops), inplace=True)
 
-        # HOW TO DROP DUPLICATES ACCORDING TO APPROXIMATE DEPENDENCIES.... NOW IS THE TIMEEEE
-
-        # iterate through dependencies, drop all duplicates for LHS attrs (keeping the one w the most common occurances )
+        new_df = normalize.drop_primary_dups(new_df, group)
 
         new_dfs.append(new_df)
 
