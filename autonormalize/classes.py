@@ -306,7 +306,7 @@ class Node(object):
 
     def __str__(self):
         return str({"attributes": str(self.attrs), "visited": self.visited,
-            "category": self.category, "prev": self.prev, "next": self.next, "loc": id(self)})
+                    "category": self.category, "prev": self.prev, "next": self.next, "loc": id(self)})
 
 
 class Dependencies(object):

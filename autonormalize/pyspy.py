@@ -1,7 +1,8 @@
 import os
-import user_interaction
+
 import pandas as pd
 
+import user_interaction
 
 pollution_df = pd.read_csv(os.path.join(os.getcwd(), 'pollution.csv'))
 pollution_df = pollution_df.drop(columns=pollution_df.columns[9:])

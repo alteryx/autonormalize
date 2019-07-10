@@ -1,12 +1,14 @@
+from functools import partial
 from itertools import combinations
+
 import numpy
 from tqdm import tqdm
 
-from classes import LHSs, DfdDependencies, Node, Masks
-
+from classes import DfdDependencies, LHSs, Masks, Node
 
 # see https://hpi.de/fileadmin/user_upload/fachgebiete/naumann/publications/2014/DFD_CIKM2014_p949_CRC.pdf for DFD paper
 # run script.py  to see a couple examples
+
 
 def dfd(df, accuracy, rep_percent):
     """
@@ -155,7 +157,7 @@ def make_lattice(nodes, attrs):
     # TO DO: inefficient, but straight forward --> OPTIMIZE THIS
     this_level_size = len(nodes[0].attrs)
     next_level = []
-    combos = combinations(attrs, this_level_size+1)
+    combos = combinations(attrs, this_level_size + 1)
     for new_attrs in combos:
         new_node = Node(frozenset(new_attrs))
         for n in nodes:
@@ -173,8 +175,6 @@ def make_lattice(nodes, attrs):
     #                 prev.append(n)
     #         new_node = Node(new_attrs, prev, [])
     #         next_level.append(new_node)\
-
-from functools import partial
 
 
 def sort_key(attrs, node):
@@ -329,7 +329,7 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
     if accuracy < 1:
         return approximate_dependencies(list(lhs_set), rhs, df, accuracy, masks, rep_percent)
     part_rhs = partition(lhs_set.union(set([rhs])), df, partitions)
-    if part_rhs > df.shape[0]*rep_percent :
+    if part_rhs > df.shape[0] * rep_percent:
         return False
     return part_rhs == partition(lhs_set, df, partitions)
 
@@ -360,15 +360,15 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
     """
     df_lhs_rhs = df.drop_duplicates(lhs_set + [rhs])
     df_lhs = df_lhs_rhs.drop_duplicates(lhs_set)
-    if df_lhs.shape[0] > df.shape[0]*rep_percent:
+    if df_lhs.shape[0] > df.shape[0] * rep_percent:
         return False
 
-    limit = df.shape[0]*(1-accuracy)
-    if df_lhs_rhs.shape[0]-df_lhs.shape[0] > limit:
+    limit = df.shape[0] * (1 - accuracy)
+    if df_lhs_rhs.shape[0] - df_lhs.shape[0] > limit:
         return False
 
     merged = df_lhs.merge(df_lhs_rhs, indicator=True, how='outer')  # create new df that is the merge of df_one and df_two
-    indicator = merged[merged['_merge'] == 'right_only'] # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
+    indicator = merged[merged['_merge'] == 'right_only']  # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
     indicator = indicator.drop_duplicates(lhs_set)  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
     acc = 0
 

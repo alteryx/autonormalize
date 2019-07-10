@@ -4,9 +4,7 @@ import time
 import pandas as pd
 
 import dfd
-
 import user_interaction
-
 
 path = os.getcwd()
 
@@ -24,13 +22,13 @@ dic_2 = {
     "age": [1, 2, 3, 4, 5, 6, 7, 5, 6],
     "height": [4, 5, 6, 7, 8, 9, 10, 8, 9],
     "less_than_5": [1, 1, 1, 1, 0, 0, 0, 0, 0]
-    }
+}
 
 dic_1 = {
     "id": [100, 101, 102, 103, 104, 105, 106, 107, 109],
     "age": [1, 2, 3, 4, 5, 6, 7, 5, 6],
     "height": [4, 5, 6, 7, 8, 9, 10, 8, 9]
-    }
+}
 
 
 df_1 = pd.DataFrame(dic_1)
@@ -54,13 +52,11 @@ def print_example(str_interp, df, dim=None):
 print_example(str(dic_1), df_1)
 print_example(str(dic_2), df_2)
 print_example("A = index,   B = random,   C = random,   D = random,   " +
-    "E = c != 1,   F = b < 10,   G = c + d", df, (100000, 7))
+              "E = c != 1,   F = b < 10,   G = c + d", df, (100000, 7))
 
 # print_example("see gen file", df_3, (400000, 12))
 
 # print_example("see gen file", df_4, (400000, 14))
-
-
 
 print(df_acc)
 
@@ -72,6 +68,3 @@ print(deps)
 
 for df in new_dfs:
     print(df)
-
-
-

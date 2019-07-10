@@ -2,7 +2,6 @@ import pandas as pd
 
 from classes import Dependencies
 
-
 # def normalize(dependencies):
 #     dependencies.prep()
 #     part_deps = dependencies.find_partial_deps()
@@ -16,6 +15,7 @@ from classes import Dependencies
 #     return [dependencies]
 
 # SHOULD FINDING TRANSITIVE OR PARTIAL DEPS BE ONLY RELATED TO THE PRIM KEY?????
+
 
 def normalize(dependencies):
     """
@@ -95,9 +95,9 @@ def find_most_comm(deps):
         if frozenset(lhs) in positions:
             ind = positions[frozenset(lhs)]
             score = priority_lst[ind][0] + 1
-            while ind != 0 and priority_lst[ind-1][0] < score:
-                priority_lst[ind] = priority_lst[ind-1]
-                positions[frozenset(priority_lst[ind-1][1])] = ind
+            while ind != 0 and priority_lst[ind - 1][0] < score:
+                priority_lst[ind] = priority_lst[ind - 1]
+                positions[frozenset(priority_lst[ind - 1][1])] = ind
                 ind -= 1
             priority_lst[ind] = (score, lhs)
             positions[frozenset(lhs)] = ind
@@ -181,4 +181,3 @@ def drop_primary_dups(df, deps):
         # new_df = new_df.append(group.mode().iloc[0], ignore_index=True)
 
     return (pd.DataFrame(df_lst, columns=df.columns)).reset_index(drop=True)
-

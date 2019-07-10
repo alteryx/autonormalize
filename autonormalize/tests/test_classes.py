@@ -1,8 +1,9 @@
-import pytest
-
-from autonormalize.classes import LHSs, DfdDependencies, Dependencies, find_closure
-
-from autonormalize.normalize import normalize
+from autonormalize.classes import (
+    Dependencies,
+    DfdDependencies,
+    LHSs,
+    find_closure
+)
 
 
 def test_all_sets_and_add_dep():
@@ -62,7 +63,7 @@ def test_add_unique_lhs():
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
     dependencies.add_unique_lhs("name")
     assert dependencies.serialize() == {"rating": [["name"]], "age": [["name"]], "height": [["name"]], "weight": [["name"]], "location": [["name"]], "speed": [["name"]],
-        "experience": [["name"]], "mother": [["name"]], "name": []}
+                                        "experience": [["name"]], "mother": [["name"]], "name": []}
 
 
 def test_add_LHSs():
@@ -74,33 +75,33 @@ def test_add_LHSs():
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
     dependencies.add_LHSs("age", lhss_age)
     assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [], "location": [], "speed": [],
-        "experience": [], "mother": [], "name": []}
+                                        "experience": [], "mother": [], "name": []}
     dependencies.add_LHSs("weight", lhss_weight)
     assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [["name"], ["age", "height"]], "location": [], "speed": [],
-        "experience": [], "mother": [], "name": []}
+                                        "experience": [], "mother": [], "name": []}
 
 
 def test_add_and_remove_dep():
     dep_dic = {'A': [], 'B': [['A']], 'C': [['D', 'G'], ['A']],
-        'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
-        'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
+               'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
+               'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
     dependencies = Dependencies(dep_dic)
     dependencies.add_dep('B', ['C'])
     assert dependencies.serialize() == {'A': [],
-        'B': [['A'], ['C']], 'C': [['D', 'G'], ['A']],
-        'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
-        'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
+                                        'B': [['A'], ['C']], 'C': [['D', 'G'], ['A']],
+                                        'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
+                                        'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
     dependencies.remove_dep('B', ['C'])
     assert dependencies.serialize() == dep_dic
 
 
 def test_tuple_relations():
     dep_dic = {'A': [], 'B': [['A']], 'C': [['D', 'G'], ['A']],
-        'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']]}
+               'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']]}
     dependencies = Dependencies(dep_dic)
     tuple_comp = [(['D', 'G'], 'C'), (['A'], 'C'), (['A'], 'B'),
-        (['D', 'G'], 'E'), (['A'], 'E'), (['C'], 'E'),
-        (['A'], 'D'), (['C', 'G'], 'D')]
+                  (['D', 'G'], 'E'), (['A'], 'E'), (['C'], 'E'),
+                  (['A'], 'D'), (['C', 'G'], 'D')]
     assert dependencies.tuple_relations() == tuple_comp
 
 
@@ -145,6 +146,7 @@ def test_find_closure():
     rels = dependencies.tuple_relations()
     clos = {'A', 'B', 'D', 'E'}
     assert find_closure(rels, ['A']) == clos
+
 
 def test_from_rels():
     dep_dic = {

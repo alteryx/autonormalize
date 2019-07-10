@@ -1,10 +1,9 @@
 import os
 
-import pytest
 import pandas as pd
 
-from autonormalize.classes import LHSs, Dependencies, Node, Masks
 from autonormalize import dfd
+from autonormalize.classes import Masks
 
 path = os.getcwd()
 
@@ -13,7 +12,7 @@ dic_1 = {
     "age": [1, 2, 3, 4, 5, 6, 7, 5, 6],
     "height": [4, 5, 6, 7, 8, 9, 10, 8, 9],
     "less_than_5": [1, 1, 1, 1, 0, 0, 0, 0, 0]
-    }
+}
 
 df_1 = pd.DataFrame(dic_1)
 # A = index,   B = random,   C = random,   D = random,
@@ -23,7 +22,7 @@ df_2 = pd.read_csv(os.path.join(path, 'examples/example_3'))
 
 def serialization_equal(dic_1, dic_2):
     for x in dic_1:
-        if not x in dic_2:
+        if x not in dic_2:
             return False
         if sorted(dic_1[x]) != sorted(dic_2[x]):
             return False
@@ -32,11 +31,11 @@ def serialization_equal(dic_1, dic_2):
 
 def test_dfd():
     dep = {"id": [], "age": [["height"], ["id"]], "height": [["age"], ["id"]],
-        "less_than_5": [["age"], ["height"], ["id"]]}
+           "less_than_5": [["age"], ["height"], ["id"]]}
     assert serialization_equal(dfd.dfd(df_1, 0.98, 0.85).serialize(), dep)
 
     dep = {"A": [], "B": [["A"]], "C": [["D", "G"], ["A"]], "D": [["C", "G"], ["A"]],
-        "E": [["C"], ["D", "G"], ["A"]], "F": [["B"], ["A"]], "G": [["C", "D"], ["A"]]}
+           "E": [["C"], ["D", "G"], ["A"]], "F": [["B"], ["A"]], "G": [["C", "D"], ["A"]]}
     assert serialization_equal(dfd.dfd(df_2, 0.98, 0.90).serialize(), dep)
 
 

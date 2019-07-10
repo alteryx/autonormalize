@@ -1,5 +1,3 @@
-import pytest
-
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
@@ -65,14 +63,12 @@ def test_drop_primary_dups():
     dep_dic = {"requires_light": [], "is_dark": [], "light_on": [["requires_light", "is_dark"]]}
     deps = classes.Dependencies(dep_dic)
     df = pd.DataFrame([[True, True, True], [True, True, True], [False, True, False],
-                        [True, False, False], [True, False, False], [False, True, False], [True, False, True]],
-                        columns=["requires_light", "is_dark", "light_on"])
+                       [True, False, False], [True, False, False], [False, True, False], [True, False, True]],
+                      columns=["requires_light", "is_dark", "light_on"])
 
     new_df = normalize.drop_primary_dups(df, deps)
     compare_df = pd.DataFrame([[True, False, False], [False, True, False], [True, True, True]],
-                                columns=["requires_light", "is_dark", "light_on"])
+                              columns=["requires_light", "is_dark", "light_on"])
     print(new_df)
     print(compare_df)
     assert_frame_equal(compare_df, new_df)
-
-
