@@ -4,7 +4,7 @@ from itertools import combinations
 import numpy
 from tqdm import tqdm
 
-from autonormalize.classes import DfdDependencies, LHSs, Masks, Node
+from classes import DfdDependencies, LHSs, Masks, Node
 
 # see https://hpi.de/fileadmin/user_upload/fachgebiete/naumann/publications/2014/DFD_CIKM2014_p949_CRC.pdf for DFD paper
 # run script.py  to see a couple examples
