@@ -1,6 +1,6 @@
 import pandas as pd
 
-from classes import Dependencies
+from autonormalize.classes import Dependencies
 
 # def normalize(dependencies):
 #     dependencies.prep()
