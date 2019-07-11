@@ -17,7 +17,7 @@ dic_1 = {
 df_1 = pd.DataFrame(dic_1)
 # A = index,   B = random,   C = random,   D = random,
 # E = c != 1,   F = b < 10,   G = c + d
-df_2 = pd.read_csv(os.path.join(path, 'examples/example_3'))
+df_2 = pd.read_csv(os.path.join(path, 'autonormalize/examples/example_3'))
 
 
 def serialization_equal(dic_1, dic_2):

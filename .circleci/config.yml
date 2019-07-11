@@ -1,25 +1,90 @@
-version: 2
+version: 2.1
+
+commands:
+  install-packaged-autonormalize:
+    description: "install autonormalize from source distribution"
+    steps:
+      - run : |
+          source test_env/bin/activate
+          python setup.py sdist
+          AUTONORMALIZE_VERSION=$(python setup.py --version)
+          tar -zxvf "dist/autonormalize-${AUTONORMALIZE_VERSION}.tar.gz"
+          pip install -e "autonormalize-${AUTONORMALIZE_VERSION}/"
+          pip install -r "autonormalize-${AUTONORMALIZE_VERSION}/test-requirements.txt"
+  run-packaged-tests:
+    description: "run unit tests on packaged testing files"
+    steps:
+      - run: |
+          source test_env/bin/activate
+          cd "autonormalize-$(python setup.py --version)/"
+          pytest
+  install-an-complete:
+    description: "install autonormalize[complete]"
+    steps:
+      - run: |
+          virtualenv test_an_complete_env && source test_an_complete_env/bin/activate
+          AUTONORMALIZE_VERSION=$(python setup.py --version)
+          pip install -e "autonormalize-${AUTONORMALIZE_VERSION}/[complete]"
+
 jobs:
-  "python-35":
-    working_directory: ~/autonormalize
+  "python-27":
+    working_directory: ~/auto-norm
     docker:
-        - image: circleci/python:3.5
+      - image: circleci/python:2.7
     steps:
       - checkout
-      - run: |
-          virtualenv venv_35 -q
-          source venv_35/bin/activate
-          make installdeps
-      - run: |
-          source venv_35/bin/activate
-          make lint
-      - run: |
-          source venv_35/bin/activate
-          coverage erase
-          make test
+      - run: virtualenv test_env && virtualenv dev_env
+      - install-packaged-autonormalize
+      - run: source dev_env/bin/activate && make installdeps
+      - run: source dev_env/bin/activate && make lint
+      - run-packaged-tests
+      - install-an-complete
+
+  "python-35":
+    working_directory: ~/auto-norm
+    docker:
+      - image: circleci/python:3.5
+    steps:
+      - checkout
+      - run: virtualenv test_env && virtualenv dev_env
+      - install-packaged-autonormalize
+      - run: source dev_env/bin/activate && make installdeps
+      - run: source dev_env/bin/activate && make lint
+      - run-packaged-tests
+      - install-an-complete
+
+  "python-36":
+    working_directory: ~/auto-norm
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - run: virtualenv test_env && virtualenv dev_env
+      - install-packaged-autonormalize
+      - run: source dev_env/bin/activate && make installdeps
+      - run: source dev_env/bin/activate && make lint
+      - run-packaged-tests
+      - install-an-complete
+
+  "python-37":
+    working_directory: ~/auto-norm
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: virtualenv test_env && virtualenv dev_env
+      - install-packaged-autonormalize
+      - run: source dev_env/bin/activate && make installdeps
+      - run: source dev_env/bin/activate && make lint
+      - run-packaged-tests
+      - install-an-complete
+
 
 workflows:
   version: 2
   test_all_python_versions:
     jobs:
+      - "python-27"
       - "python-35"
+      - "python-36"
+      - "python-37"
