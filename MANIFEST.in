@@ -4,4 +4,5 @@ include README.md
 include featuretools/primitives/data/featuretools_unit_test_example.csv
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
-recursive-include *.csv
+include autonormalize/downloads/liquor.csv
+include autonormalize/examples/example_3
