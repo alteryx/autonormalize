@@ -5,7 +5,6 @@ import os
 import pandas as pd
 
 import user_interaction
-
 from autonormalize.classes import Dependencies
 
 deps_dic = {
