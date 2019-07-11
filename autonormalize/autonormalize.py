@@ -1,5 +1,6 @@
 import dfd
 import normalize
+
 from autonormalize.classes import Dependencies
 
 
