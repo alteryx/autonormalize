@@ -17,7 +17,17 @@ dic_1 = {
 df_1 = pd.DataFrame(dic_1)
 # A = index,   B = random,   C = random,   D = random,
 # E = c != 1,   F = b < 10,   G = c + d
-df_2 = pd.read_csv(os.path.join(path, 'examples/example_3'))
+df_2 = pd.read_csv(os.path.join(path, 'autonormalize/examples/example_3'))
+
+
+def assert_equal_dependency_dics(dep1, dep2):
+
+    assert set(dep1.keys()) == set(dep2.keys())
+
+    for rhs in dep1.keys():
+        one = map(frozenset, dep1[rhs])
+        two = map(frozenset, dep2[rhs])
+        assert set(one) == set(two)
 
 
 def serialization_equal(dic_1, dic_2):
@@ -32,11 +42,11 @@ def serialization_equal(dic_1, dic_2):
 def test_dfd():
     dep = {"id": [], "age": [["height"], ["id"]], "height": [["age"], ["id"]],
            "less_than_5": [["age"], ["height"], ["id"]]}
-    assert serialization_equal(dfd.dfd(df_1, 0.98, 0.85).serialize(), dep)
+    assert_equal_dependency_dics(dfd.dfd(df_1, 0.98, 0.85).serialize(), dep)
 
     dep = {"A": [], "B": [["A"]], "C": [["D", "G"], ["A"]], "D": [["C", "G"], ["A"]],
            "E": [["C"], ["D", "G"], ["A"]], "F": [["B"], ["A"]], "G": [["C", "D"], ["A"]]}
-    assert serialization_equal(dfd.dfd(df_2, 0.98, 0.90).serialize(), dep)
+    assert_equal_dependency_dics(dfd.dfd(df_2, 0.98, 0.90).serialize(), dep)
 
 
 def test_compute_partitions():
