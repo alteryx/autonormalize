@@ -6,6 +6,20 @@ from autonormalize.classes import (
 )
 
 
+def assert_equal_dependency_dics(dep1, dep2):
+
+    assert set(dep1.keys()) == set(dep2.keys())
+
+    for rhs in dep1.keys():
+        one = map(frozenset, dep1[rhs])
+        two = map(frozenset, dep2[rhs])
+        assert set(one) == set(two)
+
+
+def assert_equal_cand_keys(keys1, keys2):
+    assert set(map(frozenset, keys1)) == set(map(frozenset, keys2))
+
+
 def test_all_sets_and_add_dep():
     lhss = LHSs(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     assert lhss.all_sets() == set()
@@ -62,8 +76,10 @@ def test_LHSs_add_dep_and_all_sets():
 def test_add_unique_lhs():
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
     dependencies.add_unique_lhs("name")
-    assert dependencies.serialize() == {"rating": [["name"]], "age": [["name"]], "height": [["name"]], "weight": [["name"]], "location": [["name"]], "speed": [["name"]],
-                                        "experience": [["name"]], "mother": [["name"]], "name": []}
+    assert_equal_dependency_dics(dependencies.serialize(), {"rating": [["name"]], "age": [["name"]],
+                                                            "height": [["name"]], "weight": [["name"]],
+                                                            "location": [["name"]], "speed": [["name"]],
+                                                            "experience": [["name"]], "mother": [["name"]], "name": []})
 
 
 def test_add_LHSs():
@@ -74,11 +90,13 @@ def test_add_LHSs():
     lhss_age.add_dep(frozenset(["name"]))
     dependencies = DfdDependencies(["name", "age", "height", "weight", "location", "speed", "rating", "experience", "mother"])
     dependencies.add_LHSs("age", lhss_age)
-    assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [], "location": [], "speed": [],
-                                        "experience": [], "mother": [], "name": []}
+    assert_equal_dependency_dics(dependencies.serialize(), {"rating": [], "age": [["name"]], "height": [], "weight": [],
+                                                            "location": [], "speed": [],
+                                                            "experience": [], "mother": [], "name": []})
     dependencies.add_LHSs("weight", lhss_weight)
-    assert dependencies.serialize() == {"rating": [], "age": [["name"]], "height": [], "weight": [["name"], ["age", "height"]], "location": [], "speed": [],
-                                        "experience": [], "mother": [], "name": []}
+    assert_equal_dependency_dics(dependencies.serialize(), {"rating": [], "age": [["name"]], "height": [],
+                                                            "weight": [["name"], ["age", "height"]], "location": [], "speed": [],
+                                                            "experience": [], "mother": [], "name": []})
 
 
 def test_add_and_remove_dep():
@@ -87,12 +105,12 @@ def test_add_and_remove_dep():
                'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
     dependencies = Dependencies(dep_dic)
     dependencies.add_dep('B', ['C'])
-    assert dependencies.serialize() == {'A': [],
-                                        'B': [['A'], ['C']], 'C': [['D', 'G'], ['A']],
-                                        'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
-                                        'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]}
+    assert_equal_dependency_dics(dependencies.serialize(),
+                                 {'A': [], 'B': [['A'], ['C']], 'C': [['D', 'G'], ['A']],
+                                  'D': [['A'], ['C', 'G']], 'E': [['D', 'G'], ['A'], ['C']],
+                                  'F': [['A'], ['B']], 'G': [['A'], ['C', 'D']]})
     dependencies.remove_dep('B', ['C'])
-    assert dependencies.serialize() == dep_dic
+    assert_equal_dependency_dics(dependencies.serialize(), dep_dic)
 
 
 def test_tuple_relations():
@@ -125,7 +143,7 @@ def test_find_candidate_keys():
         'D': [['A']], 'E': [['A']], 'F': [['G']], 'G': []}
     dependencies = Dependencies(dep_dic)
     dependencies.remove_implied_extroneous()
-    assert dependencies.find_candidate_keys() == [{'A', 'G'}, {'B', 'G'}, {'E', 'G'}]
+    assert_equal_cand_keys(dependencies.find_candidate_keys(), [{'A', 'G'}, {'B', 'G'}, {'E', 'G'}])
 
 
 def test_find_partial_deps():
