@@ -1,3 +1,5 @@
+import copy
+
 # class BitIndexSet(object):
 #     """
 #     A BitIndexSet represents a set where each of the elements are an integer.
@@ -348,7 +350,7 @@ class Dependencies(object):
         self._data[rhs].remove(lhs)
 
     def serialize(self):
-        return self._data.copy()
+        return copy.deepcopy(self._data)
 
     @classmethod
     def deserialize(cls, dic):

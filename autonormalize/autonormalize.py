@@ -1,5 +1,5 @@
-import dfd
-import normalize
+from autonormalize import dfd
+from autonormalize import normalize
 
 from autonormalize.classes import Dependencies
 
