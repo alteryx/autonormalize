@@ -1,7 +1,5 @@
-from autonormalize import dfd
-from autonormalize import normalize
-
-from autonormalize.classes import Dependencies
+from . import dfd, normalize
+from .classes import Dependencies
 
 
 def find_dependencies(df, accuracy=0.98, rep_percent=0.85):
