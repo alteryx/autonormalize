@@ -393,6 +393,12 @@ class Dependencies(object):
             result.append(lhs_str)
         return "\n".join(result)
 
+    def __eq__(self, dep_2):
+        """
+        For object comparison.
+        """
+        return self._data == dep_2._data
+
     def all_attrs(self):
         return set(self._data.keys())
 

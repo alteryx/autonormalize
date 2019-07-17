@@ -139,7 +139,7 @@ def split_on_dep(lhs_dep, dependencies):
 
     # new primary key
     for attr in lhs_dep:
-        new_deps[attr] = []
+        new_deps[attr] = old_deps[attr].copy()
 
     for rhs in list(old_deps.keys()):
         if lhs_dep in old_deps[rhs]:
