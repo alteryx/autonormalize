@@ -174,6 +174,9 @@ def drop_primary_dups(df, deps):
     # the ones with nothing pointing toward them?????
     prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
 
+    if df.drop_duplicates(prim_key).shape[0] == df.shape[0]:
+        return df
+
     groups = df.groupby(prim_key)
 
     for name, group in groups:

@@ -440,6 +440,16 @@ class Dependencies(object):
             self._data[rhs].remove(lhs)
             self._data[rhs].append(y)
 
+        # remove dups
+        for rhs in self._data:
+
+            i = 0
+            while i < len(self._data[rhs]):
+                if self._data[rhs][i] in self._data[rhs][i + 1:]:
+                    self._data[rhs].pop(i)
+                else:
+                    i += 1
+
     # def remove_redundant(self):
     #     """
     #     removes all redundant dependencies
