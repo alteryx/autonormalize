@@ -67,8 +67,16 @@ def test_drop_primary_dups():
                       columns=["requires_light", "is_dark", "light_on"])
 
     new_df = normalize.drop_primary_dups(df, deps)
-    compare_df = pd.DataFrame([[True, False, False], [False, True, False], [True, True, True]],
-                              columns=["requires_light", "is_dark", "light_on"])
+    # compare_df = pd.DataFrame([[True, False, False], [False, True, False], [True, True, True]],
+    #                           columns=["requires_light", "is_dark", "light_on"])
     # compare_df = compare_df.sort_values(by=["requires_light", "is_dark"]).reset_index(drop=True)
 
-    assert_frame_equal(normalize.drop_primary_dups(compare_df, deps), new_df)
+    for index, row in new_df.iterrows():
+        if row['requires_light'] and not row['is_dark']:
+            assert not row['light_on']
+        if not row['requires_light'] and row['is_dark']:
+            assert not row['light_on']
+        if row['requires_light'] and row['is_dark']:
+            assert row['light_on']
+
+    # assert_frame_equal(normalize.drop_primary_dups(compare_df, deps), new_df)
