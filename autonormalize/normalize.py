@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .classes import Dependencies, find_closure
+from .classes import Dependencies
 
 # def normalize(dependencies):
 #     dependencies.prep()
@@ -182,7 +182,6 @@ def drop_primary_dups(df, deps):
     # the ones with nothing pointing toward them?????
     # prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
     prim_key = deps.get_prim_key()
-
 
     if df.drop_duplicates(prim_key).shape[0] == df.shape[0]:
         return df

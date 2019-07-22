@@ -1,6 +1,7 @@
+import featuretools as ft
+
 from . import dfd, normalize
 from .classes import Dependencies
-import featuretools as ft
 
 
 def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
@@ -117,16 +118,6 @@ def make_entity_set(df, new_grps, id=None, time_index=None):
     return ft.EntitySet(id, entities, relations)
 
 
-
-
-
-
-
-
-
-
-
-
 def normalize_dataframe(df, dependencies):
     """
     Normalizes a dataframe based on the dependencies given.
@@ -153,4 +144,3 @@ def auto_normalize(df):
     new_dfs (DataFrame list): list of new dataframes
     """
     return normalize_dataframe(df, find_dependencies(df))
-
