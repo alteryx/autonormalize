@@ -316,7 +316,7 @@ class Dependencies(object):
     Represents the dependency relations among a set of attributes.
     """
 
-    def __init__(self, dependencies):
+    def __init__(self, dependencies, prim_key=None):
         """
         Creates a Dependencies object from either a DfdDependencies
         object, or from a dictionary representing dependencies relatins.
@@ -325,6 +325,13 @@ class Dependencies(object):
             self._data = dependencies
         else:
             self._data = dependencies.serialize()
+        self._primkey = prim_key
+
+    def set_prim_key(self, prim_key):
+        self._primkey = prim_key
+
+    def get_prim_key(self):
+        return self._primkey
 
     def add_dep(self, rhs, lhs):
         """
@@ -595,6 +602,10 @@ class Dependencies(object):
                     if not acc:
                         trans_deps.append((lhs, rhs))
         return trans_deps
+
+    def equiv_attrs(self, one, two):
+        tups = self.tuple_relations()
+        return find_closure(tups, [one]) == find_closure(tups, [two])
 
 
 def find_closure(rel, x):

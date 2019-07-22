@@ -1,8 +1,9 @@
 from . import dfd, normalize
 from .classes import Dependencies
+import featuretools as ft
 
 
-def find_dependencies(df, accuracy=0.98, rep_percent=0.85):
+def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
     """
     Finds dependencies within dataframe df with the DFD search algorithm.
     Returns the dependencies as a Dependencies object.
@@ -25,7 +26,13 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85):
     dependencies (Dependencies object): the dependencies found in the data
     within the contraints provided
     """
-    return Dependencies(dfd.dfd(df, accuracy, rep_percent))
+    deps = Dependencies(dfd.dfd(df, accuracy, rep_percent, index))
+    if index is None:
+        prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+        deps.set_prim_key(prim_key)
+    else:
+        deps.set_prim_key([index])
+    return deps
 
 
 def normalize_dependencies(dependencies):
@@ -57,7 +64,7 @@ def split_dataframe(df, new_grps):
     new_grps (Dependencies list): list of groups of dependencies to base
     split off of
 
-    Retunrs:
+    Returns:
 
     new_dfs (DataFrame list): list of new dataframes
     """
@@ -78,6 +85,46 @@ def split_dataframe(df, new_grps):
         new_dfs.append(new_df)
 
     return new_dfs
+
+
+def make_entity_set(df, new_grps, id=None, time_index=None):
+
+    entities = {}
+
+    relations = []
+
+    prim_keys = set()
+
+    for dep in new_grps:
+        all_attrs = dep.all_attrs()
+
+        drops = set(df.columns).difference(all_attrs)
+        new_df = df.drop(columns=list(drops))
+
+        new_df = normalize.drop_primary_dups(new_df, dep)
+        prim_key = dep.get_prim_key()[0]
+
+        entities[prim_key] = (new_df, prim_key)  # ADD TIME INDEX HERE SOMEHOW
+        prim_keys.add(prim_key)
+
+    # now create relationships
+
+    for entity in entities:
+        for col in entities[entity][0].columns:
+            if col in prim_keys and col != entity:
+                relations.append((col, col, entity, col))
+
+    return ft.EntitySet(id, entities, relations)
+
+
+
+
+
+
+
+
+
+
 
 
 def normalize_dataframe(df, dependencies):
@@ -106,3 +153,4 @@ def auto_normalize(df):
     new_dfs (DataFrame list): list of new dataframes
     """
     return normalize_dataframe(df, find_dependencies(df))
+

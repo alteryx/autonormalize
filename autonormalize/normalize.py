@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .classes import Dependencies
+from .classes import Dependencies, find_closure
 
 # def normalize(dependencies):
 #     dependencies.prep()
@@ -52,7 +52,7 @@ def remove_part_deps(dependencies):
     part_deps = dependencies.find_partial_deps()
     if part_deps == []:
         return [dependencies]
-    new_deps = split_on_dep(find_most_comm(part_deps), dependencies)
+    new_deps = split_on_dep(find_most_comm(part_deps, dependencies), dependencies)
     return remove_part_deps(new_deps[0]) + remove_part_deps(new_deps[1])
 
 
@@ -71,11 +71,11 @@ def remove_trans_deps(dependencies):
     trans_deps = dependencies.find_trans_deps()
     if trans_deps == []:
         return [dependencies]
-    new_deps = split_on_dep(find_most_comm(trans_deps), dependencies)
+    new_deps = split_on_dep(find_most_comm(trans_deps, dependencies), dependencies)
     return remove_trans_deps(new_deps[0]) + remove_trans_deps(new_deps[1])
 
 
-def find_most_comm(deps):
+def find_most_comm(deps, dependencies):
     """
     Given a list of dependency relations, finds the most common set of
     LHS attributes. If more than one LHS set occurs the same amount of
@@ -113,6 +113,12 @@ def find_most_comm(deps):
         if len(priority_lst[i][1]) < len(max_lhs):
             max_lhs = priority_lst[i][1]
         i += 1
+
+    for i in range(len(max_lhs)):
+        for key in dependencies.get_prim_key():
+            if dependencies.equiv_attrs(max_lhs[i], key):
+                max_lhs[i] = key
+
     return max_lhs
 
 
@@ -161,18 +167,22 @@ def split_on_dep(lhs_dep, dependencies):
             if len(old_rhs.intersection(lhs)) != 0:
                 new_deps[rhs].remove(lhs)
 
-    return (Dependencies.deserialize(old_deps), Dependencies.deserialize(new_deps))
+    # new_grp = Dependencies.deserialize(new_deps)
+    # new_grp.set_prim_key(lhs_dep)
+
+    return (Dependencies(old_deps, dependencies.get_prim_key()), Dependencies(new_deps, lhs_dep))
 
 
 def drop_primary_dups(df, deps):
 
     df_lst = []
-
     # new_df = pd.DataFrame(columns=df.columns)
 
     # find primary key
     # the ones with nothing pointing toward them?????
-    prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+    # prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+    prim_key = deps.get_prim_key()
+
 
     if df.drop_duplicates(prim_key).shape[0] == df.shape[0]:
         return df
