@@ -81,7 +81,7 @@ def split_dataframe(df, new_grps):
         drops = set(new_df.columns).difference(all_attrs)
         new_df.drop(columns=list(drops), inplace=True)
 
-        new_df = normalize.drop_primary_dups(new_df, group)
+        new_df = normalize.drop_primary_dups(new_df, group.get_prim_key())
 
         new_dfs.append(new_df)
 
@@ -102,7 +102,8 @@ def make_entity_set(df, new_grps, id=None, time_index=None):
         drops = set(df.columns).difference(all_attrs)
         new_df = df.drop(columns=list(drops))
 
-        new_df = normalize.drop_primary_dups(new_df, dep)
+        new_df = normalize.drop_primary_dups(new_df, dep.get_prim_key())
+
         prim_key = dep.get_prim_key()[0]
 
         entities[prim_key] = (new_df, prim_key)  # ADD TIME INDEX HERE SOMEHOW

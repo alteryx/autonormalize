@@ -51,23 +51,18 @@ def test_drop_primary_dups():
               "state": ['HI', 'MA', 'HI', 'TX', 'WA', 'AL', 'MA', 'HI', 'WA', 'NA'],
               "is_liberal": [True, True, True, False, True, True, True, True, True, False]}
     df = pd.DataFrame(df_dic)
-    dep_dic = {"city": [], "state": [["city"]], "is_liberal": [["city"]]}
-    deps = classes.Dependencies(dep_dic, ['city'])
-
-    new_df = normalize.drop_primary_dups(df, deps)
+    new_df = normalize.drop_primary_dups(df, ['city'])
 
     df_new_dic = {"city": ["boston", "dallas", "honolulu", "seattle"],
                   "state": ["MA", "TX", "HI", "WA"],
                   "is_liberal": [True, False, True, True]}
     assert_frame_equal(pd.DataFrame(df_new_dic), new_df)
 
-    dep_dic = {"requires_light": [], "is_dark": [], "light_on": [["requires_light", "is_dark"]]}
-    deps = classes.Dependencies(dep_dic, ['requires_light', 'is_dark'])
     df = pd.DataFrame([[True, True, True], [True, True, True], [False, True, False],
                        [True, False, False], [True, False, False], [False, True, False], [True, False, True]],
                       columns=["requires_light", "is_dark", "light_on"])
 
-    new_df = normalize.drop_primary_dups(df, deps)
+    new_df = normalize.drop_primary_dups(df, ['requires_light', 'is_dark'])
     # compare_df = pd.DataFrame([[True, False, False], [False, True, False], [True, True, True]],
     #                           columns=["requires_light", "is_dark", "light_on"])
     # compare_df = compare_df.sort_values(by=["requires_light", "is_dark"]).reset_index(drop=True)

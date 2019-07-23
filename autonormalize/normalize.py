@@ -37,6 +37,91 @@ def normalize(dependencies):
     return no_trans_deps
 
 
+# def make_entity_set(df, new_grps, id=None, time_index=None):
+
+    # make it from below code vvv (makes new indexes)
+
+
+def make_indexes(depdf):
+    prim_key = depdf.deps.get_prim_key()
+
+    if len(prim_key) > 1:
+
+        depdf.df.insert(0, '_'.join(prim_key), range(0, len(depdf.df)))
+
+        # now need to replace it in the parent df...
+        if depdf.parent is not None:
+
+            add = [None] * len(depdf.parent.df)
+            indices = depdf.df.groupby(prim_key).indices
+
+            for name in indices:
+
+                mask = None
+                for i in len(prim_key):
+                    m = depdf.df[prim_key[i]] == name[i]
+                    if mask is None:
+                        mask = m
+                    else:
+                        mask = mask & m
+
+                new_val = depdf.df[mask]['_'.join(prim_key)][0]
+
+                for index in indices[name]:
+                    add[index] = new_val
+
+            depdf.parent.df.drop(columns=prim_key, inplace=True)
+            depdf.parent.df.insert(len(depdf.parent.df), '_'.join(prim_key), add)
+
+    for child in depdf.children:
+        make_indexes(child)
+
+
+class DepDF(object):
+
+    def __init__(self, deps, df, parent=None):
+        self.deps = deps
+        self.df = df
+        self.parent = parent
+        self.children = []
+
+
+def normalize_dataframe(depdf):
+
+    part_deps = depdf.deps.find_partial_deps()
+    if part_deps != []:
+        split_on = find_most_comm(part_deps, depdf.deps)
+        print(split_on)
+        split_up(split_on, depdf)
+        return
+    trans_deps = depdf.deps.find_trans_deps()
+    if trans_deps != []:
+        split_on = find_most_comm(trans_deps, depdf.deps)
+        print(split_on)
+        split_up(split_on, depdf)
+        return
+
+
+def split_up(split_on, depdf):
+
+    parent_deps, child_deps = split_on_dep(split_on, depdf.deps)
+    child = DepDF(child_deps, form_child(depdf.df, child_deps), depdf)
+    depdf.deps = parent_deps
+    depdf.df = depdf.df.drop(columns=list(set(depdf.df.columns).difference(parent_deps.all_attrs())))
+    depdf.children.append(child)
+    normalize_dataframe(depdf)
+    normalize_dataframe(child)
+
+
+def form_child(df, deps):
+
+    attrs = deps.all_attrs()
+    drops = set(df.columns).difference(attrs)
+    new_df = df.drop(columns=list(drops))
+    new_df = drop_primary_dups(new_df, deps.get_prim_key())
+    return new_df
+
+
 def remove_part_deps(dependencies):
     """
     Breaks up the dependency relations in dependencies into new groups of
@@ -173,7 +258,7 @@ def split_on_dep(lhs_dep, dependencies):
     return (Dependencies(old_deps, dependencies.get_prim_key()), Dependencies(new_deps, lhs_dep))
 
 
-def drop_primary_dups(df, deps):
+def drop_primary_dups(df, prim_key):
 
     df_lst = []
     # new_df = pd.DataFrame(columns=df.columns)
@@ -181,7 +266,6 @@ def drop_primary_dups(df, deps):
     # find primary key
     # the ones with nothing pointing toward them?????
     # prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
-    prim_key = deps.get_prim_key()
 
     if df.drop_duplicates(prim_key).shape[0] == df.shape[0]:
         return df
