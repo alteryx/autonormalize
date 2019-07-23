@@ -321,6 +321,7 @@ class Dependencies(object):
         Creates a Dependencies object from either a DfdDependencies
         object, or from a dictionary representing dependencies relatins.
         """
+        assert prim_key is None or isinstance(prim_key, list)
         if isinstance(dependencies, dict):
             self._data = dependencies
         else:
@@ -328,6 +329,7 @@ class Dependencies(object):
         self._primkey = prim_key
 
     def set_prim_key(self, prim_key):
+        assert prim_key is None or isinstance(prim_key, list)
         self._primkey = prim_key
 
     def get_prim_key(self):

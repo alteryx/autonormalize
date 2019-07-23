@@ -17,7 +17,7 @@ def test_normalize():
     dep_dic = {
         'A': [], 'B': [], 'C': [], 'D': [['F']],
         'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
-    dep = classes.Dependencies(dep_dic)
+    dep = classes.Dependencies(dep_dic, ['A', 'B', 'C'])
     new = normalize.normalize(dep)
     dep_dic = dep.serialize()
     for x in new:
@@ -30,12 +30,13 @@ def test_normalize():
 
 
 def test_find_most_comm():
-    rels = [(set(['a']), 'b'), (set(['b']), 'c'), (set(['b']), 'a'),
-            (set(['d']), 'a')]
-    assert normalize.find_most_comm(rels) == set(['b'])
-    rels = [(set(['a', 'c']), 'b'), (set(['b']), 'c'), (set(['b']), 'a'),
-            (set(['d']), 'a'), (set(['a', 'c']), 'b')]
-    assert normalize.find_most_comm(rels) == set(['b'])
+    deps = classes.Dependencies({}, ['d'])
+    rels = [(['a'], 'b'), (['b'], 'c'), (['b'], 'a'),
+            (['d'], 'a')]
+    assert normalize.find_most_comm(rels, deps) == ['b']
+    rels = [(['a', 'c'], 'b'), (['b'], 'c'), (['b'], 'a'),
+            (['d'], 'a'), (['a', 'c'], 'b')]
+    assert normalize.find_most_comm(rels, deps) == ['b']
 
 
 def test_split_on_dep():
@@ -51,7 +52,7 @@ def test_drop_primary_dups():
               "is_liberal": [True, True, True, False, True, True, True, True, True, False]}
     df = pd.DataFrame(df_dic)
     dep_dic = {"city": [], "state": [["city"]], "is_liberal": [["city"]]}
-    deps = classes.Dependencies(dep_dic)
+    deps = classes.Dependencies(dep_dic, ['city'])
 
     new_df = normalize.drop_primary_dups(df, deps)
 
@@ -61,7 +62,7 @@ def test_drop_primary_dups():
     assert_frame_equal(pd.DataFrame(df_new_dic), new_df)
 
     dep_dic = {"requires_light": [], "is_dark": [], "light_on": [["requires_light", "is_dark"]]}
-    deps = classes.Dependencies(dep_dic)
+    deps = classes.Dependencies(dep_dic, ['requires_light', 'is_dark'])
     df = pd.DataFrame([[True, True, True], [True, True, True], [False, True, False],
                        [True, False, False], [True, False, False], [False, True, False], [True, False, True]],
                       columns=["requires_light", "is_dark", "light_on"])

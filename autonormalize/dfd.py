@@ -10,7 +10,7 @@ from .classes import DfdDependencies, LHSs, Masks, Node
 # run script.py  to see a couple examples
 
 
-def dfd(df, accuracy, rep_percent, index):
+def dfd(df, accuracy, rep_percent, index=None):
     """
     Main loop of DFD algorithm. It returns all the dependencies represented
     in the data in dataframe df. Refer to section 3.2 of paper for literature.
