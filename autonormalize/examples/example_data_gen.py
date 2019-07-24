@@ -116,15 +116,15 @@ for x in range(400000):
     a = random.randint(0, 25)
     b = random.randint(0, 3)
     c = random.randint(-10, 20)
-    d = a % 8
-    e = (a % 2) == 0
-    f = b + c <= 2
+    d = a <= 15 and b >= 2
+    e = a + b
+    f = a+b+c >= 15
     elem = [a, b, c, d, e, f]
     for x in range(6):
         elem[x] = str(elem[x])
     csvData.append(elem)
 
-with open('example_norm_both', 'w') as csvFile:
+with open('example_make_index', 'w') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerows(csvData)
 
