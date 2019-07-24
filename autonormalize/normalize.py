@@ -2,20 +2,6 @@ import pandas as pd
 
 from .classes import Dependencies
 
-# def normalize(dependencies):
-#     dependencies.prep()
-#     part_deps = dependencies.find_partial_deps()
-#     if part_deps != []:
-#         new_grps = split_on_dep(find_most_comm(part_deps), dependencies)
-#         return normalize(new_grps[0]) + normalize(new_grps[1])
-#     trans_deps = dependencies.find_trans_deps()
-#     if trans_deps != []:
-#         new_grps = split_on_dep(find_most_comm(trans_deps), dependencies)
-#         return normalize(new_grps[0]) + normalize(new_grps[1])
-#     return [dependencies]
-
-# SHOULD FINDING TRANSITIVE OR PARTIAL DEPS BE ONLY RELATED TO THE PRIM KEY?????
-
 
 def normalize(dependencies):
     """

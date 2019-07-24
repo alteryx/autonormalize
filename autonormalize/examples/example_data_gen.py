@@ -118,7 +118,7 @@ for x in range(400000):
     c = random.randint(-10, 20)
     d = a <= 15 and b >= 2
     e = a + b
-    f = a+b+c >= 15
+    f = a + b + c >= 15
     elem = [a, b, c, d, e, f]
     for x in range(6):
         elem[x] = str(elem[x])
