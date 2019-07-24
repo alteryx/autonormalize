@@ -22,6 +22,8 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
     rep_percent = 0.85, if less than 15% of rows are repeated for the columns
     in LHS + RHS, no dependency will be concluded.)
 
+    index (string: optional): name of column that is intended index of df
+
     Returns:
 
     dependencies (Dependencies object): the dependencies found in the data
@@ -53,72 +55,6 @@ def normalize_dependencies(dependencies):
     return normalize.normalize(dependencies)
 
 
-def split_dataframe(df, new_grps):
-    """
-    Splits up a dataframe dfb into new dataframes based off of dependency
-    groups provided.
-
-    Arguments:
-
-    df (DataFrame): dataframe to split up
-
-    new_grps (Dependencies list): list of groups of dependencies to base
-    split off of
-
-    Returns:
-
-    new_dfs (DataFrame list): list of new dataframes
-    """
-    # this needs to accomodate for approximate dependencies....
-
-    new_dfs = []
-
-    for group in new_grps:
-
-        all_attrs = group.all_attrs()
-        new_df = df.copy()
-
-        drops = set(new_df.columns).difference(all_attrs)
-        new_df.drop(columns=list(drops), inplace=True)
-
-        new_df = normalize.drop_primary_dups(new_df, group.get_prim_key())
-
-        new_dfs.append(new_df)
-
-    return new_dfs
-
-
-def make_entity_set(df, new_grps, id=None, time_index=None):
-
-    entities = {}
-
-    relations = []
-
-    prim_keys = set()
-
-    for dep in new_grps:
-        all_attrs = dep.all_attrs()
-
-        drops = set(df.columns).difference(all_attrs)
-        new_df = df.drop(columns=list(drops))
-
-        new_df = normalize.drop_primary_dups(new_df, dep.get_prim_key())
-
-        prim_key = dep.get_prim_key()[0]
-
-        entities[prim_key] = (new_df, prim_key)  # ADD TIME INDEX HERE SOMEHOW
-        prim_keys.add(prim_key)
-
-    # now create relationships
-
-    for entity in entities:
-        for col in entities[entity][0].columns:
-            if col in prim_keys and col != entity:
-                relations.append((col, col, entity, col))
-
-    return ft.EntitySet(id, entities, relations)
-
-
 def normalize_dataframe(df, dependencies):
     """
     Normalizes a dataframe based on the dependencies given.
@@ -130,8 +66,75 @@ def normalize_dataframe(df, dependencies):
     Returns:
     new_dfs (DataFrame list): list of new dataframes
     """
+    depdf = normalize.DepDF(dependencies, df, dependencies.get_prim_key())
+    normalize.normalize_dataframe(depdf)
+    return depdf.return_dfs()
 
-    return split_dataframe(df, normalize_dependencies(dependencies))
+
+def make_entityset(df, dependencies, name=None, time_index=None):
+    """
+    Creates a normalized EntitySet from df based on the dependencies given.
+
+    Arguments:
+    df (DataFrame): dataframe to normalize and make entity set from
+    dependencies (Dependenies object): the dependencies discovered in df
+    name (string: optional): the name of created EntitySet
+
+    Returns:
+    entityset (ft.EntitySet object): created entity set
+    """
+    depdf = normalize.DepDF(dependencies, df, dependencies.get_prim_key())
+    normalize.normalize_dataframe(depdf)
+    normalize.make_indexes(depdf)
+
+    entities = {}
+    relationships = []
+
+    stack = [depdf]
+
+    while stack != []:
+        current = stack.pop()
+        if time_index in current.df.columns:
+            entities[current.index[0]] = (current.df, current.index[0], time_index)
+        else:
+            entities[current.index[0]] = (current.df, current.index[0])
+        for child in current.children:
+            # add to stack
+            # add relationship
+            stack.append(child)
+            relationships.append((child.index[0], child.index[0], current.index[0], child.index[0]))
+
+    return ft.EntitySet(name, entities, relationships)
+
+
+def auto_entityset(df, accuracy=0.98, rep_percent=0.85, index=None, name=None, time_index=None):
+    """
+    Creates a normalized entityset from a dataframe.
+
+    Arugments:
+
+    df (Dataframe object): the dataframe containing data
+
+    accuracy (0 < float <= 1.00; default = 0.98): the accuracy threshold
+    required in order to conclude a dependency (i.e. with accuracy = 0.98,
+    0.98 of the rows must hold true the dependency LHS --> RHS)
+
+    rep_percent (0 < float <= 1.00; default = 0.85): the maximum amount of
+    data that may be unique in order to determine a dependency (i.e. with
+    rep_percent = 0.85, if less than 15% of rows are repeated for the columns
+    in LHS + RHS, no dependency will be concluded.)
+
+    index (string: optional): name of column that is intended index of df
+
+    name (string: optional): the name of created EntitySet
+
+    time_index (str: optional): name of time column in the dataframe.
+
+    Returns:
+
+    entityset (ft.EntitySet object): created entity set
+    """
+    return make_entityset(df, find_dependencies(df, accuracy, rep_percent, index), name, time_index)
 
 
 def auto_normalize(df):
