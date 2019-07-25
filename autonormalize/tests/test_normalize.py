@@ -9,9 +9,7 @@ from autonormalize import classes, normalize
 
 
 def test_normalize():
-
     # how to test that relations remain the same???
-
     # check that there are no new relations?
     # there can be less however?
     dep_dic = {
