@@ -84,7 +84,7 @@ def make_indexes(depdf):
 
 def normalize_dataframe(depdf):
     """
-    Normalizes the dataframe represented by depdf forming its downstream relatives accordingly.
+    Normalizes the dataframe represented by depdf forming its descendents accordingly.
     """
 
     part_deps = depdf.deps.find_partial_deps()
