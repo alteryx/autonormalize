@@ -30,11 +30,11 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
     within the contraints provided
     """
     deps = Dependencies(dfd.dfd(df, accuracy, rep_percent, index))
-    if index is None:
-        prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
-        deps.set_prim_key(prim_key)
-    else:
-        deps.set_prim_key([index])
+    # if index is None:
+    #     prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+    #     deps.set_prim_key(prim_key)
+    # else:
+    #     deps.set_prim_key([index])
     return deps
 
 

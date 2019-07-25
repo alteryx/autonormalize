@@ -50,6 +50,8 @@ def dfd(df, accuracy, rep_percent, index=None):
             dependencies.add_unique_lhs(i)
     for i in tqdm(non_uniq):
         lhss = find_LHSs(i, non_uniq, df, partitions, accuracy, masks, rep_percent)
+        print("rhs: " + str(i))
+        print(lhss.all_sets())
         dependencies.add_LHSs(i, lhss)
     return dependencies
 
@@ -88,9 +90,12 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
     min_deps = LHSs(lhs_attrs)
     max_non_deps = LHSs(lhs_attrs)
     trace = []
+    # print("starting rhs " + str(rhs))
     while seeds != []:
         node = seeds[0]  # should this actually be random?
         while node is not None:
+
+            # print(node.attrs)
 
             if node.visited:
                 if node.is_candidate():
@@ -99,6 +104,7 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
                             min_deps.add_dep(node.attrs)
                     else:
                         if node.is_maximal():
+                            print("adding here 105")
                             max_non_deps.add_dep(node.attrs)
                     node.update_dependency_type(min_deps, max_non_deps)
 
@@ -113,15 +119,19 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
                             node.category = 3
                     else:
                         if node.is_maximal():
+                            print("adding here 120")
                             max_non_deps.add_dep(node.attrs)
                             node.category = -2
                         else:
+                            print("setting to -3")
                             node.category = -3
                 node.visited = True
 
             node = pick_next_node(node, trace, min_deps, max_non_deps, df.columns)
 
         seeds = nodes_from_seeds(sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs)))
+    # print("ending rhs: " + str(rhs))
+    # print(min_deps.all_sets())
     return min_deps
 
 
@@ -223,6 +233,7 @@ def pick_next_node(node, trace, min_deps, max_non_deps, attrs):
         s = node.unchecked_supersets()
         remove_pruned_supersets(s, max_non_deps)
         if s == []:
+            print("adding here 232")
             max_non_deps.add_dep(node.attrs)
             node.category = -2
         else:
@@ -280,6 +291,8 @@ def generate_next_seeds(max_non_deps, min_deps, lhs_attrs):
     Returns:
     seed_attributes (string list): list of seeds that need to be visited
     """
+    # print("generating next seeds")
+    # print(max_non_deps.all_sets())
     seeds = set()
     if max_non_deps.all_sets() == set():
         seeds = lhs_attrs.difference(min_deps.all_sets().pop())
@@ -292,6 +305,7 @@ def generate_next_seeds(max_non_deps, min_deps, lhs_attrs):
                 seeds = seeds.intersection(nfd_compliment)
     for x in min_deps.all_sets():
         seeds = seeds.difference(x)
+    # print(seeds)
     return list(seeds)
 
 
@@ -329,8 +343,8 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
     if accuracy < 1:
         return approximate_dependencies(list(lhs_set), rhs, df, accuracy, masks, rep_percent)
     part_rhs = partition(lhs_set.union(set([rhs])), df, partitions)
-    if part_rhs > df.shape[0] * rep_percent:
-        return False
+    # if part_rhs > df.shape[0] * rep_percent:
+    #     return False
     return part_rhs == partition(lhs_set, df, partitions)
 
 
@@ -360,8 +374,8 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
     """
     df_lhs_rhs = df.drop_duplicates(lhs_set + [rhs])
     df_lhs = df_lhs_rhs.drop_duplicates(lhs_set)
-    if df_lhs.shape[0] > df.shape[0] * rep_percent:
-        return False
+    # if df_lhs.shape[0] > df.shape[0] * rep_percent:
+    #     return False
 
     limit = df.shape[0] * (1 - accuracy)
     if df_lhs_rhs.shape[0] - df_lhs.shape[0] > limit:
@@ -386,6 +400,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
                 mask = mask & m
 
         options = df[mask]
+        print(options)
         _, unique_counts = numpy.unique(options[rhs].to_numpy(), return_counts=True)
         acc += unique_counts.sum() - unique_counts.max()
         if acc > limit:

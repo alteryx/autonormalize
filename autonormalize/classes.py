@@ -110,6 +110,7 @@ class LHSs(object):
         Requires:
         attr_set is a frozenset.
         """
+        print("adding dep " + str(attr_set))
         for attr in attr_set:
             self._dic[attr].add(attr_set)
 
