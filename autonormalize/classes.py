@@ -1,4 +1,5 @@
 import copy
+from itertools import combinations
 
 # class BitIndexSet(object):
 #     """
@@ -110,7 +111,6 @@ class LHSs(object):
         Requires:
         attr_set is a frozenset.
         """
-        print("adding dep " + str(attr_set))
         for attr in attr_set:
             self._dic[attr].add(attr_set)
 
@@ -491,17 +491,7 @@ class Dependencies(object):
     #         self._data[rhs] = itera
 
     def find_candidate_keys(self):
-        """
-        Returns all candidate keys as a list of sets of attributes.
-        A candidate key is a minimal set of attributes whose closure is
-        all attributes in the table.
 
-        Returns:
-        candidate_keys (string set list): candidate keys found
-
-        example:
-            TO DO
-        """
         rhs_attrs = set([rhs for rhs in self._data if len(self._data[rhs]) > 0])
         lhs_attrs = set()
         for rhs in self._data:
@@ -510,26 +500,20 @@ class Dependencies(object):
 
         lhs_only = lhs_attrs.difference(rhs_attrs)
         all_attrs = set(self._data.keys())
+        rhs_only = rhs_attrs.difference(lhs_attrs)
+        lhs_and_lhs = all_attrs.difference(lhs_only.union(rhs_only))
         rels = self.tuple_relations()
 
         if find_closure(rels, list(lhs_only)) == all_attrs:
             return [lhs_only]
 
-        def helper(base, options, all_attrs):
-            if len(options) == 0:
-                return [base]
-            if base == all_attrs:
-                return [base]
-            result = []
-            for x in options:
-                combo = base.union(set([x]))
-                if find_closure(rels, list(combo)) == all_attrs:
-                    result.append(combo)
-                else:
-                    result = result + helper(combo, options.difference(set([x])), all_attrs)
-            return result
+        cand_keys = []
 
-        cand_keys = helper(lhs_only, all_attrs.difference(lhs_only), all_attrs)
+        for l in range(1, len(lhs_and_lhs) + 1):
+            combos = combinations(lhs_and_lhs, l)
+            for comb in combos:
+                if find_closure(rels, list(lhs_only.union(comb))) == all_attrs:
+                    cand_keys.append(lhs_only.union(comb))
 
         for x in cand_keys[:]:
             for y in cand_keys[:]:
@@ -537,6 +521,57 @@ class Dependencies(object):
                     cand_keys.remove(x)
                     break
         return cand_keys
+
+    # def find_candidate_keys(self):
+    #     """
+    #     Returns all candidate keys as a list of sets of attributes.
+    #     A candidate key is a minimal set of attributes whose closure is
+    #     all attributes in the table.
+
+    #     Returns:
+    #     candidate_keys (string set list): candidate keys found
+
+    #     example:
+    #         TO DO
+    #     """
+    #     rhs_attrs = set([rhs for rhs in self._data if len(self._data[rhs]) > 0])
+    #     lhs_attrs = set()
+    #     for rhs in self._data:
+    #         for lhs in self._data[rhs]:
+    #             lhs_attrs.update(set(lhs))
+
+    #     lhs_only = lhs_attrs.difference(rhs_attrs)
+    #     all_attrs = set(self._data.keys())
+    #     rhs_only = rhs_attrs.difference(lhs_attrs)
+    #     lhs_and_lhs = all_attrs.difference(lhs_only.union(rhs_only))
+    #     rels = self.tuple_relations()
+
+    #     if find_closure(rels, list(lhs_only)) == all_attrs:
+    #         return [lhs_only]
+
+    #     def helper(base, options, all_attrs):
+    #         print(base)
+    #         if len(options) == 0:
+    #             return [base]
+    #         if base == all_attrs:
+    #             return [base]
+    #         result = []
+    #         for x in options:
+    #             combo = base.union(set([x]))
+    #             if find_closure(rels, list(combo)) == all_attrs:
+    #                 result.append(combo)
+    #             else:
+    #                 result = result + helper(combo, options.difference(set([x])), all_attrs)
+    #         return result
+
+    #     cand_keys = helper(lhs_only, lhs_and_lhs, all_attrs)
+
+    #     for x in cand_keys[:]:
+    #         for y in cand_keys[:]:
+    #             if x.issuperset(y) and x is not y:
+    #                 cand_keys.remove(x)
+    #                 break
+    #     return cand_keys
 
     def find_partial_deps(self):
         """
@@ -557,7 +592,8 @@ class Dependencies(object):
             G --> F
         """
         partial_deps = []
-        cand_keys = self.find_candidate_keys()
+        cand_keys = [self.get_prim_key()]
+        # cand_keys = self.find_candidate_keys()
         key_attrs = set()
         for key in cand_keys:
             key_attrs.update(key)
@@ -587,7 +623,8 @@ class Dependencies(object):
             DF --> E
         """
         trans_deps = []
-        cand_keys = self.find_candidate_keys()
+        cand_keys = [self.get_prim_key()]
+        # cand_keys = self.find_candidate_keys()
         key_attrs = set()
         for key in cand_keys:
             key_attrs.update(key)

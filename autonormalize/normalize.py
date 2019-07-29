@@ -235,10 +235,13 @@ def split_on_dep(lhs_dep, dependencies):
         new_deps[attr] = old_deps[attr][:]
 
     for rhs in list(old_deps.keys()):
-        if lhs_dep in old_deps[rhs]:
-            new_deps[rhs] = old_deps[rhs]
-            old_deps.pop(rhs)
-            new_rhs.add(rhs)
+        for lhs in old_deps[rhs]:
+            if set(lhs).issubset(lhs_dep):
+                # if lhs_dep in old_deps[rhs]:
+                new_deps[rhs] = old_deps[rhs]
+                old_deps.pop(rhs)
+                new_rhs.add(rhs)
+                break
 
     for rhs in old_deps:
         for lhs in old_deps[rhs][:]:
@@ -273,4 +276,5 @@ def drop_primary_dups(df, prim_key):
         df_lst.append(group.mode().iloc[0])
         # new_df = new_df.append(group.mode().iloc[0], ignore_index=True)
 
-    return (pd.DataFrame(df_lst, columns=df.columns)).reset_index(drop=True)
+    result = (pd.DataFrame(df_lst, columns=df.columns)).reset_index(drop=True)
+    return result.astype(dict(df.dtypes))

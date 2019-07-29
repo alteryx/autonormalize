@@ -161,9 +161,9 @@ def test_find_partial_deps():
     dep_dic = {
         'A': [['B']], 'B': [['E'], ['A', 'D']], 'C': [['E', 'F']],
         'D': [['A']], 'E': [['A']], 'F': [['G']], 'G': []}
-    dependencies = Dependencies(dep_dic)
+    dependencies = Dependencies(dep_dic, ['A', 'G'])
     dependencies.remove_implied_extroneous()
-    partial_deps = [(['A'], 'D'), (['G'], 'F')]
+    partial_deps = [(['A'], 'D'), (['G'], 'F'), (['A'], 'B'), (['A'], 'E')]
     assert_equal_tuple_rels(dependencies.find_partial_deps(), partial_deps)
 
 
@@ -191,6 +191,6 @@ def test_find_trans_deps():
     dep_dic = {
         'A': [], 'B': [], 'C': [], 'D': [['F']],
         'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
-    dep = Dependencies(dep_dic)
+    dep = Dependencies(dep_dic, ['A', 'B', 'C'])
     dep.remove_implied_extroneous()
     assert dep.find_trans_deps() == [(['F'], 'D')]
