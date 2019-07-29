@@ -89,12 +89,12 @@ def normalize_dataframe(depdf):
 
     part_deps = depdf.deps.find_partial_deps()
     if part_deps != []:
-        split_on = find_most_comm(part_deps, depdf.deps)
+        split_on = find_most_comm(part_deps, depdf.deps, depdf.df)
         split_up(split_on, depdf)
         return
     trans_deps = depdf.deps.find_trans_deps()
     if trans_deps != []:
-        split_on = find_most_comm(trans_deps, depdf.deps)
+        split_on = find_most_comm(trans_deps, depdf.deps, depdf.df)
         split_up(split_on, depdf)
         return
 
@@ -162,7 +162,7 @@ def remove_trans_deps(dependencies):
     return remove_trans_deps(new_deps[0]) + remove_trans_deps(new_deps[1])
 
 
-def find_most_comm(deps, dependencies):
+def find_most_comm(deps, dependencies, df=None):
     """
     Given a list of dependency relations, finds the most common set of
     LHS attributes. If more than one LHS set occurs the same amount of
@@ -193,13 +193,16 @@ def find_most_comm(deps, dependencies):
             positions[frozenset(lhs)] = len(priority_lst) - 1
 
     # IF THEY ARE THE SAME, CHOOSE ONE WITH SHORTEST LENGHT
-    max_lhs = priority_lst[0][1]
-    scr = priority_lst[0][0]
-    i = 1
-    while i < len(priority_lst) and priority_lst[i][0] == scr:
-        if len(priority_lst[i][1]) < len(max_lhs):
-            max_lhs = priority_lst[i][1]
-        i += 1
+    options = [item[1] for item in priority_lst if item[0] == priority_lst[0][0]]
+    max_lhs = choose_index(options, df)
+
+    # max_lhs = priority_lst[0][1]
+    # scr = priority_lst[0][0]
+    # i = 1
+    # while i < len(priority_lst) and priority_lst[i][0] == scr:
+    #     if len(priority_lst[i][1]) < len(max_lhs):
+    #         max_lhs = priority_lst[i][1]
+    #     i += 1
 
     for i in range(len(max_lhs)):
         for key in dependencies.get_prim_key():
@@ -278,3 +281,22 @@ def drop_primary_dups(df, prim_key):
 
     result = (pd.DataFrame(df_lst, columns=df.columns)).reset_index(drop=True)
     return result.astype(dict(df.dtypes))
+
+
+def choose_index(keys, df):
+    sort_key = sorted(keys, key=len)
+    m = len(sort_key[0])
+    options = [key for key in sort_key if len(key) == m]
+    for key in options:
+        for attr in key:
+            if "_id" in attr.lower() or " id" in attr.lower() or "id _" in attr.lower() or "id " in attr.lower():
+                return list(key)
+
+    if df is None:
+        return list(sort_key[0])
+
+    # for col in df.columns:
+    #     if col in options:
+    #         return list([col])
+
+    return list(sort_key[0])

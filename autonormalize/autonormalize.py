@@ -31,7 +31,7 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
     """
     deps = Dependencies(dfd.dfd(df, accuracy, rep_percent, index))
     if index is None:
-        prim_key = list(sorted(deps.find_candidate_keys(), key=len)[0])
+        prim_key = normalize.choose_index(deps.find_candidate_keys(), df)
         deps.set_prim_key(prim_key)
     else:
         deps.set_prim_key([index])
