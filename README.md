@@ -1,6 +1,6 @@
 # Autonormalize
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/autonormalize.svg?style=svg&circle-token=b890443ca669d7e88d62ad2fd712f92951550c4a)](https://circleci.com/gh/FeatureLabs/autonormalize)
+[![CircleCI](https://circleci.com/gh/FeatureLabs/autonormalize.svg?style=shield&circle-token=b890443ca669d7e88d62ad2fd712f92951550c4a)](https://circleci.com/gh/FeatureLabs/autonormalize)
 
 ### Installation
 ```shell
