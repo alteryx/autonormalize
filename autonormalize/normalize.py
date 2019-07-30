@@ -139,6 +139,7 @@ def remove_part_deps(dependencies):
     the new groups with no partial depenencies
     """
     part_deps = dependencies.find_partial_deps()
+    filter(part_deps)
     if part_deps == []:
         return [dependencies]
     new_deps = split_on_dep(find_most_comm(part_deps, dependencies), dependencies)
@@ -158,6 +159,7 @@ def remove_trans_deps(dependencies):
     the new groups with no transitive depenencies
     """
     trans_deps = dependencies.find_trans_deps()
+    filter(trans_deps)
     if trans_deps == []:
         return [dependencies]
     new_deps = split_on_dep(find_most_comm(trans_deps, dependencies), dependencies)
@@ -295,9 +297,15 @@ def choose_index(keys, df):
                 return list(key)
 
     if df is None:
-        return list(sort_key[0])
+        return list(options[0])
 
-    return list(sort_key[0])
+    for col in df.columns:
+        includes = [option for option in options if col in option]
+        if len(includes) == 1:
+            return list(includes[0])
+        if len(includes) > 1:
+            options = includes
+    return list(options[0])
 
 
 def filter(keys, df):
