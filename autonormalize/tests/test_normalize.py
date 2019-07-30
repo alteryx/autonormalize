@@ -16,11 +16,16 @@ def test_normalize():
         'A': [], 'B': [], 'C': [], 'D': [['F']],
         'E': [['A', 'B', 'C', 'D']], 'F': [['A', 'B']]}
     dep = classes.Dependencies(dep_dic, ['A', 'B', 'C'])
-    new = normalize.normalize(dep)
+    df = pd.DataFrame(columns=['A', 'B', 'C', 'D', 'E', 'F'], dtype='int64')
+    new = normalize.normalize(dep, df)
     dep_dic = dep.serialize()
     for x in new:
-        assert x.find_trans_deps() == []
-        assert x.find_partial_deps() == []
+        trans_deps = x.find_trans_deps()
+        normalize.filter(trans_deps, df)
+        assert trans_deps == []
+        part_deps = x.find_partial_deps()
+        normalize.filter(part_deps, df)
+        assert part_deps == []
         dic = x.serialize()
         for rhs in dic:
             for lhs in dic[rhs]:

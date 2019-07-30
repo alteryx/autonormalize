@@ -3,7 +3,7 @@ import pandas as pd
 from .classes import Dependencies
 
 
-def normalize(dependencies):
+def normalize(dependencies, df):
     """
     Normalizes the dependency relationships in dependencies into new
     groups by breaking up all partial and transitive dependencies.
@@ -16,10 +16,10 @@ def normalize(dependencies):
     the new groups
     """
     dependencies.remove_implied_extroneous()
-    no_part_deps = remove_part_deps(dependencies)
+    no_part_deps = remove_part_deps(dependencies, df)
     no_trans_deps = []
     for grp in no_part_deps:
-        no_trans_deps += remove_trans_deps(grp)
+        no_trans_deps += remove_trans_deps(grp, df)
     return no_trans_deps
 
 
@@ -126,7 +126,7 @@ def form_child(df, deps):
     return new_df
 
 
-def remove_part_deps(dependencies):
+def remove_part_deps(dependencies, df):
     """
     Breaks up the dependency relations in dependencies into new groups of
     relations so that there are no more partial dependencies.
@@ -139,14 +139,14 @@ def remove_part_deps(dependencies):
     the new groups with no partial depenencies
     """
     part_deps = dependencies.find_partial_deps()
-    filter(part_deps)
+    filter(part_deps, df)
     if part_deps == []:
         return [dependencies]
     new_deps = split_on_dep(find_most_comm(part_deps, dependencies), dependencies)
-    return remove_part_deps(new_deps[0]) + remove_part_deps(new_deps[1])
+    return remove_part_deps(new_deps[0], df) + remove_part_deps(new_deps[1], df)
 
 
-def remove_trans_deps(dependencies):
+def remove_trans_deps(dependencies, df):
     """
     Breaks up the dependency relations in dependencies into new groups of
     relations so that there are no more transitive dependencies.
@@ -159,11 +159,11 @@ def remove_trans_deps(dependencies):
     the new groups with no transitive depenencies
     """
     trans_deps = dependencies.find_trans_deps()
-    filter(trans_deps)
+    filter(trans_deps, df)
     if trans_deps == []:
         return [dependencies]
     new_deps = split_on_dep(find_most_comm(trans_deps, dependencies), dependencies)
-    return remove_trans_deps(new_deps[0]) + remove_trans_deps(new_deps[1])
+    return remove_trans_deps(new_deps[0], df) + remove_trans_deps(new_deps[1], df)
 
 
 def find_most_comm(deps, dependencies, df=None):

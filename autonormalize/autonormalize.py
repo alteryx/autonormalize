@@ -38,7 +38,7 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
     return deps
 
 
-def normalize_dependencies(dependencies):
+def normalize_dependencies(df, dependencies):
     """
     Breaks up a set of dependency relations into groups that are normalized,
     meaning there are no partial or transitive dependencies within each group.
@@ -52,7 +52,7 @@ def normalize_dependencies(dependencies):
     dependencies_groups (Dependencies list): list of Dependencies objects each
     containing the relations in a new group
     """
-    return normalize.normalize(dependencies)
+    return normalize.normalize(dependencies, df)
 
 
 def normalize_dataframe(df, dependencies):
