@@ -327,7 +327,7 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
     Returns:
     is_dependency (bool): True if is a dependency, false otherwise
     """
-    # for approximate dependencies see TANE section 2.3
+    # for approximate dependencies see TANE section 2.3s
     if accuracy < 1:
         return approximate_dependencies(list(lhs_set), rhs, df, accuracy, masks, rep_percent)
     part_rhs = partition(lhs_set.union(set([rhs])), df, partitions)

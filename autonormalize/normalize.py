@@ -88,11 +88,13 @@ def normalize_dataframe(depdf):
     """
 
     part_deps = depdf.deps.find_partial_deps()
+    filter(part_deps, depdf.df)
     if part_deps != []:
         split_on = find_most_comm(part_deps, depdf.deps, depdf.df)
         split_up(split_on, depdf)
         return
     trans_deps = depdf.deps.find_trans_deps()
+    filter(trans_deps, depdf.df)
     if trans_deps != []:
         split_on = find_most_comm(trans_deps, depdf.deps, depdf.df)
         split_up(split_on, depdf)
@@ -295,8 +297,12 @@ def choose_index(keys, df):
     if df is None:
         return list(sort_key[0])
 
-    # for col in df.columns:
-    #     if col in options:
-    #         return list([col])
-
     return list(sort_key[0])
+
+
+def filter(keys, df):
+    for key, rhs in keys[:]:
+        for attr in key:
+            if df[attr].dtypes.name not in set(['category', 'int64', 'object']):
+                keys.remove((key, rhs))
+                break
