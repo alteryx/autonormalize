@@ -194,3 +194,10 @@ def test_find_trans_deps():
     dep = Dependencies(dep_dic, ['A', 'B', 'C'])
     dep.remove_implied_extroneous()
     assert dep.find_trans_deps() == [(['F'], 'D')]
+
+
+def test_equi_atttrs():
+    dep_dic = {'A': [['B']], 'B': [['A']], 'C': [], 'D': [['A']]}
+    dep = Dependencies(dep_dic, ['A', 'C'])
+    assert dep.equiv_attrs('A', 'B')
+    assert not dep.equiv_attrs('A', 'D')
