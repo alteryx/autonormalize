@@ -21,22 +21,22 @@ def dfd(df, accuracy, rep_percent, index=None):
 
     Arguments:
 
-    df (pd.Dataframe object): the dataframe containing the data to find the
-    dependencies from
+        df (pd.Dataframe) : the dataframe containing the data to find the
+        dependencies from
 
-    accuracy (0 < float <= 1.00): the accuracy threshold
-    required in order to conclude a dependency (i.e. with accuracy = 0.98,
-    0.98 of the rows must hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00) : the accuracy threshold required in order
+        to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows
+        must hold true the dependency LHS --> RHS)
 
-    rep_percent (0 < float <= 1.00): the maximum amount of
-    data that may be unique in order to determine a dependency (i.e. with
-    rep_percent = 0.85, if less than 15% of rows are repeated for the columns
-    in LHS + RHS, no dependency will be concluded.)
+        rep_percent (0 < float <= 1.00) : the maximum amount of
+        data that may be unique in order to determine a dependency (i.e. with
+        rep_percent = 0.85, if less than 15% of rows are repeated for the columns
+        in LHS + RHS, no dependency will be concluded.)
 
     Returns:
 
-    minimal_dependencies (DfdDependencies object): the minimal dependencies
-    represented by the data in df
+        minimal_dependencies (DfdDependencies) : the minimal dependencies
+        represented by the data in df
     """
     partitions = {}
     masks = Masks(df.columns)
@@ -61,27 +61,28 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
 
     Arguments:
 
-    rhs (string): name of column for which we are investigating dependencies for
-    attrs (Set object containing strings): the columns to consider as LHS attributes
+        rhs (str) : name of column for which we are investigating dependencies
+        for attrs (Set object containing strings): the columns to consider as
+        LHS attributes
 
-    df (Dataframe object): dataframe containing data to look at
+        df (Dataframe) : dataframe containing data to look at
 
-    partitions (Dict): dictionary containing past calculated partition sizes for
-    column combinations
+        partitions (dict[frozenset[str] --> int]) : dictionary containing past
+        calculated partition sizes for column combinations
 
-    accuracy (0 < float <= 1.00): the accuracy threshold required in order
-    to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
-    hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00) : the accuracy threshold required in order
+        to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
+        hold true the dependency LHS --> RHS)
 
-    masks (Masks object): contains past calculated masks
+        masks (Masks) : contains past calculated masks
 
-    rep_percent (0 < float <= 1.00): the maximum amount of data that may be
-    unique in order to determine a dependency (i.e. with rep_percent = 0.85,
-    if less than 15% of rows are repeated for the columns in LHS + RHS, no
-    dependency will be concluded.)
+        rep_percent (0 < float <= 1.00) : the maximum amount of data that may be
+        unique in order to determine a dependency (i.e. with rep_percent = 0.85,
+        if less than 15% of rows are repeated for the columns in LHS + RHS, no
+        dependency will be concluded.)
 
     Returns:
-    lhss (LHSs object): all the LHS that determine rhs
+        lhss (LHSs) : all the LHS that determine rhs
     """
     lhs_attrs = attrs.difference(set([rhs]))
     seeds = nodes_from_seeds(sorted(list(lhs_attrs)))
@@ -91,8 +92,6 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
     while seeds != []:
         node = seeds[0]  # should this actually be random?
         while node is not None:
-
-            # print(node.attrs)
 
             if node.visited:
                 if node.is_candidate():
@@ -134,10 +133,10 @@ def nodes_from_seeds(seeds):
     lattice graph.
 
     Arguments:
-    seeds (Set strings): set of column names of seeds
+        seeds (set[str]) : set of column names of seeds
 
     Returns:
-    nodes (Node list): list of base nodes for lattice graph
+        nodes (list[Node]) : list of base nodes for lattice graph
     """
     base_nodes = [Node(frozenset([attr])) for attr in seeds]
     make_lattice(base_nodes, seeds)
@@ -151,8 +150,8 @@ def make_lattice(nodes, attrs):
     and connecting them to each other.
 
     Arguments:
-    nodes (Node list): list of nodes to connect upward from
-    attrs (string Set): set of column names present in the lattice
+        nodes (list[Node]) : list of nodes to connect upward from
+        attrs (set[str]): set of column names present in the lattice
     """
     if len(nodes) < 2:
         return
@@ -202,14 +201,14 @@ def pick_next_node(node, trace, min_deps, max_non_deps, attrs):
     If not a candidate, return last node on trace (go back down in graph)
 
     Arguments:
-    node (Node object): current node just visited
-    trace (Node list): stack of past nodes visited
-    min_deps (LHSs object): discovered minimum dependencies
-    max_non_deps (LHSs object): discovered maximum non-dependencies
+        node (Node) : current node just visited
+        trace (list[Node]) : stack of past nodes visited
+        min_deps (LHSs) : discovered minimum dependencies
+        max_non_deps (LHSs) : discovered maximum non-dependencies
 
     Returns:
-    next_node (Node object or None): next node to look at, None if none left
-    to check in currrent part of graph
+        next_node (Node or None) : next node to look at, None if none left
+        to check in currrent part of graph
     """
     srt_key = partial(sort_key, sorted(attrs))
     if node.category == 3:
@@ -243,8 +242,8 @@ def remove_pruned_subsets(subsets, min_deps):
     thus know it is a non-dependency)
 
     Arguments:
-    subsets (Node list): list of subset nodes
-    min_deps (LHSs object): discovered minimal dependencies
+        subsets (list[Node]) : list of subset nodes
+        min_deps (LHSs) : discovered minimal dependencies
     """
     for n in subsets[:]:
         if min_deps.contains_superset(n.attrs):
@@ -258,8 +257,8 @@ def remove_pruned_supersets(supersets, max_non_deps):
     we thus know it is a dependency)
 
     Arguments:
-    supersets (Node list): list of superset nodes
-    max_non_deps (LHSs object): discovered maximal non-dependencies
+        supersets (list[Node]) : list of superset nodes
+        max_non_deps (LHSs) : discovered maximal non-dependencies
     """
     for n in supersets[:]:
         if max_non_deps.contains_subset(n.attrs):
@@ -275,12 +274,12 @@ def generate_next_seeds(max_non_deps, min_deps, lhs_attrs):
     is not satisfied, the new seeds are the remaining elements.
 
     Arguments:
-    max_non_deps (LHSs object): discovered maximal non-dependencies
-    min_deps (LHSs object): discovered minimal dependencies
-    lhs_attrs (string Set): attributes being considered as parts of LHSs
+        max_non_deps (LHSs) : discovered maximal non-dependencies
+        min_deps (LHSs) : discovered minimal dependencies
+        lhs_attrs (set[str]) : attributes being considered as parts of LHSs
 
     Returns:
-    seed_attributes (string list): list of seeds that need to be visited
+        seed_attributes (list[str]) : list of seeds that need to be visited
     """
     seeds = set()
     if max_non_deps.all_sets() == set():
@@ -303,29 +302,29 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
 
     Arguments:
 
-    df (Dataframe object): dataframe containing data to look at
+        df (pd.DataFrame) : dataframe containing data to look at
 
-    rhs (string): name of column for which we are investigating dependencies for
-    attrs (Set object containing strings): the columns to consider as LHS attributes
+        rhs (str) : name of column for which we are investigating dependencies for
+        attrs (Set object containing strings): the columns to consider as LHS attributes
 
-    lhs_set (string Set): set containing column names of LHS set
+        lhs_set (set[str]) : set containing column names of LHS set
 
-    partitions (Dict): dictionary containing past calculated partition sizes for
-    column combinations
+        partitions (dict[frozenset[str] --> int]) : dictionary containing past
+        calculated partition sizes for column combinations
 
-    accuracy (0 < float <= 1.00): the accuracy threshold required in order
-    to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
-    hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00) : the accuracy threshold required in order
+        to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must
+        hold true the dependency LHS --> RHS)
 
-    masks (Masks object): contains past calculated masks
+        masks (Masks) : contains past calculated masks
 
-    rep_percent (0 < float <= 1.00): the maximum amount of data that may be
-    unique in order to determine a dependency (i.e. with rep_percent = 0.85,
-    if less than 15% of rows are repeated for the columns in LHS + RHS, no
-    dependency will be concluded.)
+        rep_percent (0 < float <= 1.00) : the maximum amount of data that may be
+        unique in order to determine a dependency (i.e. with rep_percent = 0.85,
+        if less than 15% of rows are repeated for the columns in LHS + RHS, no
+        dependency will be concluded.)
 
     Returns:
-    is_dependency (bool): True if is a dependency, false otherwise
+        is_dependency (bool) : True if is a dependency, false otherwise
     """
     # for approximate dependencies see TANE section 2.3s
     if accuracy < 1:

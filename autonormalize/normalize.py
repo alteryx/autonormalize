@@ -9,11 +9,11 @@ def normalize(dependencies, df):
     groups by breaking up all partial and transitive dependencies.
 
     Arguments:
-    dependencies (Dependencies object): the dependencies to be split up
+        dependencies (Dependencies) : the dependencies to be split up
 
     Returns:
-    new_groups (Dependencies list): list of new dependencies objects representing
-    the new groups
+        new_groups (list[Dependencies]) : list of new dependencies objects
+        representing the new groups
     """
     dependencies.remove_implied_extroneous()
     no_part_deps = remove_part_deps(dependencies, df)
@@ -24,8 +24,28 @@ def normalize(dependencies, df):
 
 
 class DepDF(object):
+    """
+    Represents dataframe and functional dependencies between columns in it.
+    Used in the normalization process.
+
+    Attributes:
+        deps
+        df
+        parent
+        children
+        index
+    """
 
     def __init__(self, deps, df, index, parent=None):
+        """
+        Creates a DepDF.
+
+        Arguments:
+            deps (Dependencies) : dependenies among the df
+            df (pd.DataFrame) : dataframe for the object
+            index (list[str]) : index columns for dataframe
+            parent (DepDF, optional) : parent DepDF object
+        """
         self.deps = deps
         self.df = df
         self.parent = parent
@@ -33,6 +53,12 @@ class DepDF(object):
         self.index = index
 
     def return_dfs(self):
+        """
+        Returns the dataframes stored in self and all its descendents.
+
+        Returns:
+            dfs (list[pd.DataFrame]) : dataframes
+        """
         if self.children == []:
             return [self.df]
         result = [self.df]
@@ -43,9 +69,12 @@ class DepDF(object):
 
 def make_indexes(depdf):
     """
-    Goes through depdf and all descendents, and if any have a primary key of
-    more than a single attribute, creates a new index columns, and replaces
-    the old primary key columns with the new column in parent dfs (if exists)
+    Goes through depdf, and all of its descendents, and if any have primary keys
+    of more than one attribute, creates a new index column, and replaces the
+    old primary key columns with the new column in the parent df.
+
+    Arguments:
+        depdf (DepDF) : depDF to make indexes for
     """
     prim_key = depdf.deps.get_prim_key()
 
@@ -84,7 +113,11 @@ def make_indexes(depdf):
 
 def normalize_dataframe(depdf):
     """
-    Normalizes the dataframe represented by depdf forming its descendents accordingly.
+    Normalizes the dataframe represetned by depdf, created descendents
+    as needed.
+
+    Arguments:
+        depdf (DepDF) : depdf to normalize
     """
 
     part_deps = depdf.deps.find_partial_deps()
@@ -103,8 +136,12 @@ def normalize_dataframe(depdf):
 
 def split_up(split_on, depdf):
     """
-    Breaks off a depdf and forms its child. Recursively calls normalize on it again
-    and on the newly formed child.
+    Breaks off a depdf and forms its child. Recursively calls normalize on
+    the original depdf, and its newly formed child.
+
+    Arguments:
+        split_on (list[str]) : attributes to split the dataframe on
+        depdf (DepDF) : the depdf ot split
     """
     parent_deps, child_deps = split_on_dep(split_on, depdf.deps)
     child = DepDF(child_deps, form_child(depdf.df, child_deps), split_on, depdf)
@@ -117,7 +154,11 @@ def split_up(split_on, depdf):
 
 def form_child(df, deps):
     """
-    Returns a new dataframe based of the dependencies in deps
+    Returns a new dataframe based off of the dependencies in deps.
+
+    Arguments:
+        df (pd.DataFrame) : dataframe to create new dataframe from
+        deps (Dependencies) : dependencies to base new dataframe off of
     """
     attrs = deps.all_attrs()
     drops = set(df.columns).difference(attrs)
@@ -132,11 +173,11 @@ def remove_part_deps(dependencies, df):
     relations so that there are no more partial dependencies.
 
     Arguments:
-    dependencies (Dependneies object): the dependencies to be split up
+        dependencies (Dependncies) : the dependencies to be split up
 
     Returns:
-    new_groups (Dependencies list): list of new dependencies objects representing
-    the new groups with no partial depenencies
+        new_groups (list[Dependencies]) : list of new dependencies objects
+        representing the new groups with no partial depenencies
     """
     part_deps = dependencies.find_partial_deps()
     filter(part_deps, df)
@@ -152,11 +193,11 @@ def remove_trans_deps(dependencies, df):
     relations so that there are no more transitive dependencies.
 
     Arguments:
-    dependencies (Dependneies object): the dependencies to be split up
+        dependencies (Dependencies) : the dependencies to be split up
 
     Returns:
-    new_groups (Dependencies list): list of new dependencies objects representing
-    the new groups with no transitive depenencies
+        new_groups (list[Dependencies]): list of new dependencies objects
+        representing the new groups with no transitive depenencies
     """
     trans_deps = dependencies.find_trans_deps()
     filter(trans_deps, df)
@@ -173,11 +214,11 @@ def find_most_comm(deps, dependencies, df=None):
     times, chooses the set with the least number of attributes.
 
     Arguments:
-    deps ((string Set*string) list): list of tuples representing relations
-    where the lhs is a set of attribute names, and the rhs is an attribute.
+        deps (list[(set[str], str)]) : list of tuples representing relations
+        where the lhs is a set of attribute names, and the rhs is an attribute.
 
     Returns:
-    most_comm (string Set): the most common lhs set of attributes
+        most_comm (set[str]) : the most common lhs set of attributes
     """
     positions = {}
     priority_lst = []
@@ -224,13 +265,12 @@ def split_on_dep(lhs_dep, dependencies):
     primary key.
 
     Arguments:
-    lhs_dep (string list): set of attributes to be the new group's
-    primary key
-    dependencies (Dependencies object): dependency relations to be
-    split up
+        lhs_dep (list[str]) : set of attributes to be the new group's
+        primary key
+        dependencies (Dependencies) : dependency relations to be split up
 
     Returns:
-    new_groups (Dependencies object * Dependencies object): the new groups
+        new_groups ((Dependencies, Dependencies)) : the new groups
     """
     new_deps = {}
     old_deps = dependencies.serialize()
@@ -269,8 +309,16 @@ def split_on_dep(lhs_dep, dependencies):
 
 def drop_primary_dups(df, prim_key):
     """
-    Drops all duplicates based off of the columns in prim_key keeping the for all other
-    columns the "mode" of the duplicates' occurances.
+    Drops all duplicates based off of the columns in prim_key. If there isn't a
+    unique value for the other columns, for every unique instance of columns in
+    prim_key, keeps the "mode" of the unique instances' occurance.
+
+    Arguments:
+        df (pd.DataFrame) : dataframe to drop duplicates of
+        prim_key (list[str]) : columns that form the primary key of the dataframe
+
+    Returns:
+        new_df (pd.DataFrame) : dataframe with duplicates dropped
     """
     df_lst = []
 
@@ -288,6 +336,20 @@ def drop_primary_dups(df, prim_key):
 
 
 def choose_index(keys, df):
+    """
+    Chooses key from a list of keys. Order of priority:
+    1) shortest length
+    2) has "id" in some form in name of an attribute
+    3) has attribute furthest to the left in table
+
+    Arguments:
+        keys (list[set[str]]) : list of keys to choose from
+        df (pd.DataFrame) : pandas dataframe keys are for
+
+    Returns:
+        index (list[str]) : chosen key
+    """
+
     sort_key = sorted(keys, key=len)
     m = len(sort_key[0])
     options = [key for key in sort_key if len(key) == m]
@@ -309,6 +371,14 @@ def choose_index(keys, df):
 
 
 def filter(keys, df):
+    """
+    Filters out any keys that contain attributes that are not strings, ints, or
+    categories from a list of relations.
+
+    Arguments:
+        keys (list[(list[str], str)]) : relationships to filter out
+        df (pd.DataFrame) : dataframe attributes in keys are from
+    """
     for key, rhs in keys[:]:
         for attr in key:
             if df[attr].dtypes.name not in set(['category', 'int64', 'object']):
