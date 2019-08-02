@@ -11,7 +11,7 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
 
     Arugments:
 
-        df (Dataframe) : the dataframe containing data
+        df (pd.Dataframe) : the dataframe containing data
 
         accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold
         required in order to conclude a dependency (i.e. with accuracy = 0.98,
