@@ -12,7 +12,7 @@ After Autonormalize:
 
 ![](screenshots/after.png)
 <br />
-### Installation
+### Install
 ```shell
 pip install autonormalize
 ```
