@@ -1,14 +1,14 @@
-# Autonormalize
+# AutoNormalize
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/autonormalize.svg?style=shield&circle-token=b890443ca669d7e88d62ad2fd712f92951550c4a)](https://circleci.com/gh/FeatureLabs/autonormalize)
 
-Autonormalize is a Python library for automated datatable normalization, intended for use with [Feature Tools](https://github.com/Featuretools/featuretools). Autonormalize allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning.
+AutoNormalize is a Python library for automated datatable normalization, intended for use with [Feature Tools](https://github.com/Featuretools/featuretools). AutoNormalize allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning.
 
-Before Autonormalize:
+Before AutoNormalize:
 
 ![](screenshots/before.png)   
 
-After Autonormalize:
+After AutoNormalize:
 
 ![](screenshots/after.png)
 <br />
@@ -84,4 +84,4 @@ Returns:
     <img src="http://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
 </a>
 
-Autonormalize is an open source project created by [Feature Labs](https://www.featurelabs.com/). To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
+AutoNormalize is an open source project created by [Feature Labs](https://www.featurelabs.com/). To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
