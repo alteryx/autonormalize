@@ -60,9 +60,12 @@ Returns:
 ```shell
 normalize_dataframe(df, dependencies)
 ```
-Normalizes dataframe based on the dependencies given.
+Normalizes dataframe based on the dependencies given. Keys for the newly created DataFrames can only be columns that are strings, ints, or categories. Keys are chosen according to the priority: 
+1) shortest lenghts 
+2) has "id" in some form in the name of an attribute 
+3) has attribute furthest to left in the table
 
-Returns:
+Returns:x
 
 `new_dfs` (list[pd.DataFrame]) : list of new dataframes
 
@@ -71,7 +74,7 @@ Returns:
 ```shell
 make_entityset(df, dependencies, name=None, time_index=None):
 ```
-Creates a normalized EntitySet from dataframe based on the dependencies given.
+Creates a normalized EntitySet from dataframe based on the dependencies given. Keys are chosen in the same fashion as for `normalize_dataframe`and a new index will be created if any key has more than a single attribute.
 
 Returns:
 

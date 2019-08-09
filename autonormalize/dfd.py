@@ -10,7 +10,7 @@ from .classes import DfdDependencies, LHSs, Masks, Node
 # run script.py  to see a couple examples
 
 
-def dfd(df, accuracy, rep_percent, index=None):
+def dfd(df, accuracy, index=None):
     """
     Main loop of DFD algorithm. It returns all the dependencies represented
     in the data in dataframe df. Refer to section 3.2 of paper for literature.
@@ -28,11 +28,6 @@ def dfd(df, accuracy, rep_percent, index=None):
         to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows
         must hold true the dependency LHS --> RHS)
 
-        rep_percent (0 < float <= 1.00) : the maximum amount of
-        data that may be unique in order to determine a dependency (i.e. with
-        rep_percent = 0.85, if less than 15% of rows are repeated for the columns
-        in LHS + RHS, no dependency will be concluded.)
-
     Returns:
 
         minimal_dependencies (DfdDependencies) : the minimal dependencies
@@ -49,12 +44,12 @@ def dfd(df, accuracy, rep_percent, index=None):
             non_uniq.remove(i)
             dependencies.add_unique_lhs(i)
     for i in tqdm(non_uniq):
-        lhss = find_LHSs(i, non_uniq, df, partitions, accuracy, masks, rep_percent)
+        lhss = find_LHSs(i, non_uniq, df, partitions, accuracy, masks)
         dependencies.add_LHSs(i, lhss)
     return dependencies
 
 
-def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
+def find_LHSs(rhs, attrs, df, partitions, accuracy, masks):
     """
     Finds all LHS sets of attributes that satisfy a dependency relation for the
     RHS attribute i. This is such that LHS --> RHS.
@@ -75,11 +70,6 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
         hold true the dependency LHS --> RHS)
 
         masks (Masks) : contains past calculated masks
-
-        rep_percent (0 < float <= 1.00) : the maximum amount of data that may be
-        unique in order to determine a dependency (i.e. with rep_percent = 0.85,
-        if less than 15% of rows are repeated for the columns in LHS + RHS, no
-        dependency will be concluded.)
 
     Returns:
         lhss (LHSs) : all the LHS that determine rhs
@@ -106,7 +96,7 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks, rep_percent):
             else:
                 node.infer_type()
                 if node.category == 0:
-                    if compute_partitions(df, rhs, node.attrs, partitions, accuracy, masks, rep_percent):
+                    if compute_partitions(df, rhs, node.attrs, partitions, accuracy, masks):
                         if node.is_minimal():
                             min_deps.add_dep(node.attrs)
                             node.category = 2
@@ -296,7 +286,7 @@ def generate_next_seeds(max_non_deps, min_deps, lhs_attrs):
     return list(seeds)
 
 
-def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percent):
+def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks):
     """
     Returns true if lhs_set --> rhs for dataframe df.
 
@@ -318,17 +308,12 @@ def compute_partitions(df, rhs, lhs_set, partitions, accuracy, masks, rep_percen
 
         masks (Masks) : contains past calculated masks
 
-        rep_percent (0 < float <= 1.00) : the maximum amount of data that may be
-        unique in order to determine a dependency (i.e. with rep_percent = 0.85,
-        if less than 15% of rows are repeated for the columns in LHS + RHS, no
-        dependency will be concluded.)
-
     Returns:
         is_dependency (bool) : True if is a dependency, false otherwise
     """
     # for approximate dependencies see TANE section 2.3s
     if accuracy < 1:
-        return approximate_dependencies(list(lhs_set), rhs, df, accuracy, masks, rep_percent)
+        return approximate_dependencies(list(lhs_set), rhs, df, accuracy, masks)
     part_rhs = partition(lhs_set.union(set([rhs])), df, partitions)
     # if part_rhs > df.shape[0] * rep_percent:
     #     return False
@@ -347,7 +332,7 @@ def partition(attrs, df, partitions):
     return shape
 
 
-def approximate_dependencies(lhs_set, rhs, df, accuracy, masks, rep_percent):
+def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
     """
     Checks whether the columns represented in lhs_set functionally determines the column rhs
     for the dataframe df.

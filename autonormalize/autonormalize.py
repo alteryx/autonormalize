@@ -4,7 +4,7 @@ from . import dfd, normalize
 from .classes import Dependencies
 
 
-def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
+def find_dependencies(df, accuracy=0.98, index=None):
     """
     Finds dependencies within dataframe df with the DFD search algorithm.
     Returns the dependencies as a Dependencies object.
@@ -17,11 +17,6 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
         required in order to conclude a dependency (i.e. with accuracy = 0.98,
         0.98 of the rows must hold true the dependency LHS --> RHS)
 
-        rep_percent (0 < float <= 1.00; default = 0.85) : the maximum amount of
-        data that may be unique in order to determine a dependency (i.e. with
-        rep_percent = 0.85, if less than 15% of rows are repeated for the columns
-        in LHS + RHS, no dependency will be concluded.)
-
         index (str, optional) : name of column that is intended index of df
 
     Returns:
@@ -29,7 +24,7 @@ def find_dependencies(df, accuracy=0.98, rep_percent=0.85, index=None):
         dependencies (Dependencies) : the dependencies found in the data
         within the contraints provided
     """
-    deps = Dependencies(dfd.dfd(df, accuracy, rep_percent, index))
+    deps = Dependencies(dfd.dfd(df, accuracy, index))
     if index is None:
         prim_key = normalize.choose_index(deps.find_candidate_keys(), df)
         deps.set_prim_key(prim_key)
@@ -57,7 +52,11 @@ def normalize_dependencies(df, dependencies):
 
 def normalize_dataframe(df, dependencies):
     """
-    Normalizes a dataframe based on the dependencies given.
+    Normalizes a dataframe based on the dependencies given. Keys for the newly
+    created DataFrames can only be columns that are strings, ints, or
+    categories. Keys are chosen according to the priority:
+    1) shortest lenghts 2) has "id" in some form in the name of an attribute
+    3) has attribute furthest to left in the table
 
     Arguments:
         df (pd.DataFrame) : dataframe to split up
@@ -74,6 +73,10 @@ def normalize_dataframe(df, dependencies):
 def make_entityset(df, dependencies, name=None, time_index=None):
     """
     Creates a normalized EntitySet from df based on the dependencies given.
+    Keys for the newly created DataFrames can only be columns that are strings,
+    ints, or categories. Keys are chosen according to the priority:
+    1) shortest lenghts 2) has "id" in some form in the name of an attribute
+    3) has attribute furthest to left in the table
 
     Arguments:
         df (pd.DataFrame) : dataframe to normalize and make entity set from
@@ -107,7 +110,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
     return ft.EntitySet(name, entities, relationships)
 
 
-def auto_entityset(df, accuracy=0.98, rep_percent=0.85, index=None, name=None, time_index=None):
+def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
     """
     Creates a normalized entityset from a dataframe.
 
@@ -119,11 +122,6 @@ def auto_entityset(df, accuracy=0.98, rep_percent=0.85, index=None, name=None, t
         required in order to conclude a dependency (i.e. with accuracy = 0.98,
         0.98 of the rows must hold true the dependency LHS --> RHS)
 
-        rep_percent (0 < float <= 1.00; default = 0.85) : the maximum amount of
-        data that may be unique in order to determine a dependency (i.e. with
-        rep_percent = 0.85, if less than 15% of rows are repeated for the columns
-        in LHS + RHS, no dependency will be concluded.)
-
         index (str, optional) : name of column that is intended index of df
 
         name (str, optional) : the name of created EntitySet
@@ -134,7 +132,7 @@ def auto_entityset(df, accuracy=0.98, rep_percent=0.85, index=None, name=None, t
 
         entityset (ft.EntitySet) : created entity set
     """
-    return make_entityset(df, find_dependencies(df, accuracy, rep_percent, index), name, time_index)
+    return make_entityset(df, find_dependencies(df, accuracy, index), name, time_index)
 
 
 def auto_normalize(df):
