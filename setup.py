@@ -10,7 +10,7 @@ setup(
     name='autonormalize',
     version='0.0.0',
     description='a library for automated table normalization',
-    url='http://featuretools.com',
+    url='https://github.com/FeatureLabs/autonormalize',
     license='BSD 3-clause',
     author='Feature Labs, Inc.',
     author_email='support@featurelabs.com',
