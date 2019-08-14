@@ -8,7 +8,7 @@ with open(path.join(dirname, 'README.md')) as f:
 
 setup(
     name='autonormalize',
-    version='0.0.0',
+    version='0.1.2',
     description='a library for automated table normalization',
     url='http://featuretools.com',
     license='BSD 3-clause',
