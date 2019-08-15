@@ -146,3 +146,28 @@ def auto_normalize(df):
         new_dfs (list[pd.DataFrame]) : list of new dataframes
     """
     return normalize_dataframe(df, find_dependencies(df))
+
+
+def normalize_entity(es, accuracy=0.98):
+    """
+    Returns a new normalized EntitySet from an EntitySet with a single entity.
+
+    Arguments:
+        es (ft.EntitySet) : EntitySet to normalize
+        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold
+        required in order to conclude a dependency (i.e. with accuracy = 0.98,
+        0.98 of the rows must hold true the dependency LHS --> RHS)
+
+    Returns:
+        new_es (ft.EntitySet) : new normalized EntitySet
+    """
+    # TO DO: add option to pass an EntitySet with more than one entity, and specify which one
+    # to normalize while preserving existing relationships
+
+    if len(es.entities()) > 1:
+        raise ValueError('There is more than one entity in this EntitySet')
+    if len(es.entities()) == 0:
+        raise ValueError('This EntitySet is empty')
+    entity = es.entities()[0]
+    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
+    return new_es
