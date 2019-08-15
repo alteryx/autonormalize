@@ -4,14 +4,8 @@
 
 AutoNormalize is a Python library for automated datatable normalization, intended for use with [Featuretools](https://github.com/Featuretools/featuretools). AutoNormalize allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning.
 
-Before AutoNormalize:
+![](gif.gif)
 
-![](screenshots/before.png)   
-
-After AutoNormalize:
-
-![](screenshots/after.png)
-<br />
 ### Install
 ```shell
 pip install featuretools[autonormalize]
