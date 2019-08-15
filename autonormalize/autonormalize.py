@@ -164,10 +164,10 @@ def normalize_entity(es, accuracy=0.98):
     # TO DO: add option to pass an EntitySet with more than one entity, and specify which one
     # to normalize while preserving existing relationships
 
-    if len(es.entities()) > 1:
+    if len(es.entities) > 1:
         raise ValueError('There is more than one entity in this EntitySet')
-    if len(es.entities()) == 0:
+    if len(es.entities) == 0:
         raise ValueError('This EntitySet is empty')
-    entity = es.entities()[0]
+    entity = es.entities[0]
     new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
     return new_es
