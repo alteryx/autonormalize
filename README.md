@@ -66,6 +66,7 @@ Normalizes dataframe based on the dependencies given. Keys for the newly created
 3) has attribute furthest to left in the table
 
 **Returns:**
+
 * `new_dfs` (list[pd.DataFrame]) : list of new dataframes
 
 <br />
@@ -73,12 +74,30 @@ Normalizes dataframe based on the dependencies given. Keys for the newly created
 #### `make_entityset`
 
 ```shell
-make_entityset(df, dependencies, name=None, time_index=None):
+make_entityset(df, dependencies, name=None, time_index=None)
 ```
 Creates a normalized EntitySet from dataframe based on the dependencies given. Keys are chosen in the same fashion as for `normalize_dataframe`and a new index will be created if any key has more than a single attribute.
 
 **Returns:**
+
 * `entityset` (ft.EntitySet) : created EntitySet
+
+<br />
+
+#### `normalize_entity`
+
+```shell
+normalize_entity(es, accuracy=0.98)
+```
+Returns a new normalized `EntitySet` from an `EntitySet` with a single entity.
+
+**Arguments:**
+
+* `es` (ft.EntitySet) : EntitySet with a single entity to normalize
+
+**Returns:**
+
+* `new_es` (ft.EntitySet) : new normalized EntitySet
 
 <br />
 
