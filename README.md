@@ -108,6 +108,8 @@ Returns a new normalized `EntitySet` from an `EntitySet` with a single entity.
 * [Demo with Editing Dependencies](https://github.com/Featuretools/featuretools/pull/699)
 * [Kaggle Food Production Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Food%20%20Dataset%20Demo.ipynb)
 
+<br />
+
 ## Feature Labs
 <a href="https://www.featurelabs.com/">
     <img src="http://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
