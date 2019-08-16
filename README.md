@@ -2,23 +2,38 @@
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/autonormalize.svg?style=shield&circle-token=b890443ca669d7e88d62ad2fd712f92951550c4a)](https://circleci.com/gh/FeatureLabs/autonormalize)
 
-AutoNormalize is a Python library for automated datatable normalization, intended for use with [Featuretools](https://github.com/Featuretools/featuretools). AutoNormalize allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning.
+AutoNormalize is a Python library for automated datatable normalization. It allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning using [Featuretools](https://github.com/Featuretools/featuretools).
 
-![](gif.gif)
+<img src=https://github.com/FeatureLabs/autonormalize/blob/master/gif.gif>
 
-### Install
+## Getting Started
+* [Install](#install)  
+* [Demos](#demos)  
+* [API Reference](#api-reference)  
+
+
+## Install
 ```shell
 pip install featuretools[autonormalize]
 ```
-### Uninstall
+#### Uninstall
 ```shell
 pip uninstall autonormalize
 ```
-<br />
 
-### API Reference
+## Demos
 
-#### `auto_entityset`
+
+* [Blog Post](https://blog.featurelabs.com/automatic-dataset-normalization-for-feature-engineering-in-python/)
+* [Machine Learning Demo with Featuretools](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/AutoNormalize%20%2B%20FeatureTools%20Demo.ipynb)
+* [Kaggle Liquor Sales Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Liquor%20Sales%20Dataset%20Demo.ipynb)
+* [Demo with Editing Dependencies](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Editing%20Dependnecies%20Demo.ipynb)
+* [Kaggle Food Production Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Food%20%20Dataset%20Demo.ipynb)
+
+
+## API Reference
+
+### `auto_entityset`
 ```shell
 auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None)
 ```
@@ -40,9 +55,7 @@ Creates a normalized entityset from a dataframe.
 
 * `entityset` (ft.EntitySet) : created entity set
 
-<br />
-
-#### `find_dependencies`
+### `find_dependencies`
 
 ```shell
 find_dependencies(df, accuracy=0.98, index=None)
@@ -53,9 +66,7 @@ Finds dependencies within dataframe with the DFD search algorithm.
 
 *  `dependencies` (Dependencies) : the dependencies found in the data within the contraints provided
 
-<br />
-
-#### `normalize_dataframe`
+### `normalize_dataframe`
 
 ```shell
 normalize_dataframe(df, dependencies)
@@ -71,7 +82,7 @@ Normalizes dataframe based on the dependencies given. Keys for the newly created
 
 <br />
 
-#### `make_entityset`
+### `make_entityset`
 
 ```shell
 make_entityset(df, dependencies, name=None, time_index=None)
@@ -84,7 +95,7 @@ Creates a normalized EntitySet from dataframe based on the dependencies given. K
 
 <br />
 
-#### `normalize_entity`
+### `normalize_entity`
 
 ```shell
 normalize_entity(es, accuracy=0.98)
@@ -98,15 +109,6 @@ Returns a new normalized `EntitySet` from an `EntitySet` with a single entity.
 **Returns:**
 
 * `new_es` (ft.EntitySet) : new normalized EntitySet
-
-<br />
-
-### Demos
-
-* [Machine Learning Demo with Featuretools](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/AutoNormalize%20%2B%20FeatureTools%20Demo.ipynb)
-* [Kaggle Liquor Sales Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Liquor%20Sales%20Dataset%20Demo.ipynb)
-* [Demo with Editing Dependencies](https://github.com/Featuretools/featuretools/pull/699)
-* [Kaggle Food Production Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Food%20%20Dataset%20Demo.ipynb)
 
 <br />
 
