@@ -23,6 +23,8 @@ pip uninstall autonormalize
 
 ## Demos
 
+
+* [Blog Post](https://blog.featurelabs.com/automatic-dataset-normalization-for-feature-engineering-in-python/)
 * [Machine Learning Demo with Featuretools](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/AutoNormalize%20%2B%20FeatureTools%20Demo.ipynb)
 * [Kaggle Liquor Sales Dataset Demo](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Kaggle%20Liquor%20Sales%20Dataset%20Demo.ipynb)
 * [Demo with Editing Dependencies](https://github.com/FeatureLabs/autonormalize/blob/master/autonormalize/demos/Editing%20Dependnecies%20Demo.ipynb)
