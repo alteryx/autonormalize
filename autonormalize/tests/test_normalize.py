@@ -1,7 +1,11 @@
 import pandas as pd
+import featuretools as ft
+
+from featuretools.variable_types import ZIPCode
 from pandas.util.testing import assert_frame_equal
 
-from autonormalize import classes, normalize
+from autonormalize import classes, normalize, autonormalize
+
 
 # from classes import Dependencies
 
@@ -178,3 +182,16 @@ def test_make_indexes():
     assert new_dfs[0][new_dfs[1].columns[0]][5] == val
     assert new_dfs[0][new_dfs[1].columns[0]][6] == val
     assert new_dfs[0][new_dfs[1].columns[0]][7] == val
+
+
+def test_variable_types():
+    df = ft.demo.load_mock_customer(n_customers=20, n_products=12, n_sessions=50,
+                                    n_transactions=100, return_single_table=True)
+    entityset = ft.EntitySet()
+    entityset.entity_from_dataframe(entity_id='Customer Transactions',
+                                    dataframe=df,
+                                    time_index='transaction_time',
+                                    variable_types={"zip_code": ZIPCode})
+
+    normalized_entityset = autonormalize.normalize_entity(entityset)
+    assert normalized_entityset['customer_id'].variable_types['zip_code'] == ZIPCode
