@@ -1,79 +1,115 @@
 version: 2.1
 
+executors:
+  python:
+    parameters:
+      image_tag:
+        type: string
+        default: "python:3.7"
+    docker:
+      - image: circleci/<< parameters.image_tag >>
+
 commands:
-  install-packaged-autonormalize:
-    description: "install autonormalize from source distribution"
+  installation:
     steps:
-      - run : |
-          source test_env/bin/activate
-          python setup.py sdist
-          AUTONORMALIZE_VERSION=$(python setup.py --version)
-          tar -zxvf "dist/autonormalize-${AUTONORMALIZE_VERSION}.tar.gz"
-          pip install -e "autonormalize-${AUTONORMALIZE_VERSION}/"
-          pip install -r "autonormalize-${AUTONORMALIZE_VERSION}/test-requirements.txt"
-  run-packaged-tests:
-    description: "run unit tests on packaged testing files"
-    steps:
-      - run: |
-          source test_env/bin/activate
-          cd "autonormalize-$(python setup.py --version)/"
-          pytest
+      - checkout
+      - run:
+          name: "Install Package in Virtual Environment"
+          command: |
+            virtualenv env -q
+            source env/bin/activate
+            pip install . --progress-bar off
 
 jobs:
-  "python-27":
-    working_directory: ~/auto-norm
-    docker:
-      - image: circleci/python:2.7
+  lint_tests:
+    working_directory: ~/autonormalize
+    parameters:
+      image_tag:
+        type: string
+        default: "python:3.7"
+    executor:
+      name: python
+      image_tag: << parameters.image_tag >>
     steps:
-      - checkout
-      - run: virtualenv test_env && virtualenv dev_env
-      - install-packaged-autonormalize
-      - run: source dev_env/bin/activate && make installdeps
-      - run: source dev_env/bin/activate && make lint
-      - run-packaged-tests
+      - installation
+      - run:
+          name: "Install Test Requirements"
+          command: |
+            source env/bin/activate
+            pip install -r test-requirements.txt --progress-bar off
+      - run:
+          name: "Run Lint Tests"
+          command: |
+            source env/bin/activate
+            make lint-tests
 
-  "python-35":
-    working_directory: ~/auto-norm
-    docker:
-      - image: circleci/python:3.5
+  unit_tests:
+    working_directory: ~/autonormalize
+    parameters:
+      image_tag:
+        type: string
+        default: "python:3.7"
+    executor:
+      name: python
+      image_tag: << parameters.image_tag >>
     steps:
-      - checkout
-      - run: virtualenv test_env && virtualenv dev_env
-      - install-packaged-autonormalize
-      - run: source dev_env/bin/activate && make installdeps
-      - run: source dev_env/bin/activate && make lint
-      - run-packaged-tests
+      - installation
+      - run:
+          name: "Install Test Requirements"
+          command: |
+            source env/bin/activate
+            pip install -r test-requirements.txt --progress-bar off
+      - run:
+          name: "Run Unit Tests"
+          command: |
+            source env/bin/activate
+            make unit-tests
 
-  "python-36":
-    working_directory: ~/auto-norm
-    docker:
-      - image: circleci/python:3.6
+  entry_point_test:
+    working_directory: ~/autonormalize
+    parameters:
+      image_tag:
+        type: string
+        default: "python:3.7"
+    executor:
+      name: python
+      image_tag: << parameters.image_tag >>
     steps:
-      - checkout
-      - run: virtualenv test_env && virtualenv dev_env
-      - install-packaged-autonormalize
-      - run: source dev_env/bin/activate && make installdeps
-      - run: source dev_env/bin/activate && make lint
-      - run-packaged-tests
-
-  "python-37":
-    working_directory: ~/auto-norm
-    docker:
-      - image: circleci/python:3.7
-    steps:
-      - checkout
-      - run: virtualenv test_env && virtualenv dev_env
-      - install-packaged-autonormalize
-      - run: source dev_env/bin/activate && make installdeps
-      - run: source dev_env/bin/activate && make lint
-      - run-packaged-tests
-
+      - installation
+      - run:
+          name: "Test Entry Point"
+          command: |
+            source env/bin/activate
+            make entry-point-test
 
 workflows:
   version: 2
-  test_all_python_versions:
+  "Integration Tests":
     jobs:
-      - "python-27"
-      - "python-35"
-      - "python-36"
-      - "python-37"
+      - lint_tests:
+          name: "Lint Tests - Python 3.5"
+          image_tag: "python:3.5"
+      - lint_tests:
+          name: "Lint Tests - Python 3.6"
+          image_tag: "python:3.6"
+      - lint_tests:
+          name: "Lint Tests - Python 3.7"
+          image_tag: "python:3.7"
+      - unit_tests:
+          name: "Unit Tests - Python 3.5"
+          image_tag: "python:3.5"
+      - unit_tests:
+          name: "Unit Tests - Python 3.6"
+          image_tag: "python:3.6"
+      - unit_tests:
+          name: "Unit Tests - Python 3.7"
+          image_tag: "python:3.7"
+      - entry_point_test:
+          name: "Entry Point Test - Python 3.5"
+          image_tag: "python:3.5"
+      - entry_point_test:
+          name: "Entry Point Test - Python 3.6"
+          image_tag: "python:3.6"
+      - entry_point_test:
+          name: "Entry Point Test - Python 3.7"
+          image_tag: "python:3.7"
