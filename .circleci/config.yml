@@ -40,7 +40,7 @@ jobs:
       - run:
           name: "Lint Tests"
           command: |
-            source env/bin/activate
+            source package/bin/activate
             cd package && make lint-tests
 
   unit_tests:
@@ -57,7 +57,7 @@ jobs:
       - run:
           name: "Unit Tests"
           command: |
-            source env/bin/activate
+            source package/bin/activate
             cd package && make unit-tests
 
   entry_point_test:
@@ -74,7 +74,7 @@ jobs:
       - run:
           name: "Entry Point Test"
           command: |
-            source env/bin/activate
+            source package/bin/activate
             cd package && make entry-point-test
 
 workflows:
