@@ -14,11 +14,16 @@ commands:
     steps:
       - checkout
       - run:
-          name: "Install Package in Virtual Environment"
+          name: "Package Installation to Virtual Environment"
           command: |
-            virtualenv env -q
-            source env/bin/activate
-            pip install . --progress-bar off
+            python setup.py sdist
+            PACKAGE=$(python setup.py --fullname)
+            tar -zxvf "dist/${PACKAGE}.tar.gz"
+            cd $PACKAGE
+            virtualenv package -q
+            source package/bin/activate
+            pip install -e . --progress-bar off
+            pip install -r test-requirements.txt --progress-bar off
 
 jobs:
   lint_tests:
@@ -33,12 +38,7 @@ jobs:
     steps:
       - installation
       - run:
-          name: "Install Test Requirements"
-          command: |
-            source env/bin/activate
-            pip install -r test-requirements.txt --progress-bar off
-      - run:
-          name: "Run Lint Tests"
+          name: "Lint Tests"
           command: |
             source env/bin/activate
             make lint-tests
@@ -55,12 +55,7 @@ jobs:
     steps:
       - installation
       - run:
-          name: "Install Test Requirements"
-          command: |
-            source env/bin/activate
-            pip install -r test-requirements.txt --progress-bar off
-      - run:
-          name: "Run Unit Tests"
+          name: "Unit Tests"
           command: |
             source env/bin/activate
             make unit-tests
@@ -77,7 +72,7 @@ jobs:
     steps:
       - installation
       - run:
-          name: "Test Entry Point"
+          name: "Entry Point Test"
           command: |
             source env/bin/activate
             make entry-point-test
