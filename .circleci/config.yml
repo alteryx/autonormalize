@@ -27,7 +27,6 @@ commands:
 
 jobs:
   lint_tests:
-    working_directory: ~/autonormalize
     parameters:
       image_tag:
         type: string
@@ -45,7 +44,6 @@ jobs:
             make lint-tests
 
   unit_tests:
-    working_directory: ~/autonormalize
     parameters:
       image_tag:
         type: string
@@ -63,7 +61,6 @@ jobs:
             make unit-tests
 
   entry_point_test:
-    working_directory: ~/autonormalize
     parameters:
       image_tag:
         type: string
