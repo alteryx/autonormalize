@@ -19,7 +19,7 @@ commands:
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
             tar -zxvf "dist/${PACKAGE}.tar.gz"
-            cd $PACKAGE
+            mv ${PACKAGE} package && cd package
             virtualenv package -q
             source package/bin/activate
             pip install -e . --progress-bar off
@@ -41,7 +41,7 @@ jobs:
           name: "Lint Tests"
           command: |
             source env/bin/activate
-            make lint-tests
+            cd package && make lint-tests
 
   unit_tests:
     working_directory: ~/autonormalize
@@ -58,7 +58,7 @@ jobs:
           name: "Unit Tests"
           command: |
             source env/bin/activate
-            make unit-tests
+            cd package && make unit-tests
 
   entry_point_test:
     working_directory: ~/autonormalize
@@ -75,7 +75,7 @@ jobs:
           name: "Entry Point Test"
           command: |
             source env/bin/activate
-            make entry-point-test
+            cd package && make entry-point-test
 
 workflows:
   version: 2
