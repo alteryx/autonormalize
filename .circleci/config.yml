@@ -40,7 +40,7 @@ jobs:
           name: "Lint Tests"
           command: |
             source python/bin/activate
-            make lint-tests
+            make -C package lint-tests
 
   unit_tests:
     parameters:
@@ -56,7 +56,7 @@ jobs:
           name: "Unit Tests"
           command: |
             source python/bin/activate
-            make unit-tests
+            make -C package unit-tests
 
   entry_point_test:
     parameters:
@@ -72,7 +72,7 @@ jobs:
           name: "Entry Point Test"
           command: |
             source python/bin/activate
-            make entry-point-test
+            make -C package entry-point-test
 
 workflows:
   version: 2
