@@ -19,11 +19,11 @@ commands:
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
             tar -zxvf "dist/${PACKAGE}.tar.gz"
-            mv ${PACKAGE} package && cd package
-            virtualenv package -q
-            source package/bin/activate
-            pip install -e . --progress-bar off
-            pip install -r test-requirements.txt --progress-bar off
+            mv ${PACKAGE} package
+            virtualenv python -q
+            source python/bin/activate
+            pip install -e package --progress-bar off
+            pip install -r package/test-requirements.txt --progress-bar off
 
 jobs:
   lint_tests:
@@ -39,8 +39,7 @@ jobs:
       - run:
           name: "Lint Tests"
           command: |
-            cd package
-            source package/bin/activate
+            source python/bin/activate
             make lint-tests
 
   unit_tests:
@@ -56,8 +55,7 @@ jobs:
       - run:
           name: "Unit Tests"
           command: |
-            cd package
-            source package/bin/activate
+            source python/bin/activate
             make unit-tests
 
   entry_point_test:
@@ -73,8 +71,7 @@ jobs:
       - run:
           name: "Entry Point Test"
           command: |
-            cd package
-            source package/bin/activate
+            source python/bin/activate
             make entry-point-test
 
 workflows:

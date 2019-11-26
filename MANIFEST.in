@@ -1,6 +1,5 @@
 include *.txt
 include LICENSE
-include Makefile
 include README.md
 include featuretools/primitives/data/featuretools_unit_test_example.csv
 recursive-exclude * __pycache__
