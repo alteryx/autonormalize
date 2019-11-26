@@ -20,8 +20,8 @@ commands:
             PACKAGE=$(python setup.py --fullname)
             tar -zxvf "dist/${PACKAGE}.tar.gz"
             mv ${PACKAGE} package && cd package
-            virtualenv env -q
-            source env/bin/activate
+            virtualenv package -q
+            source package/bin/activate
             pip install -e . --progress-bar off
             pip install -r test-requirements.txt --progress-bar off
 
@@ -40,8 +40,9 @@ jobs:
       - run:
           name: "Lint Tests"
           command: |
-            source env/bin/activate
-            cd package && make lint-tests
+            cd package
+            source package/bin/activate
+            make lint-tests
 
   unit_tests:
     working_directory: ~/autonormalize
@@ -57,8 +58,9 @@ jobs:
       - run:
           name: "Unit Tests"
           command: |
-            source env/bin/activate
-            cd package && make unit-tests
+            cd package
+            source package/bin/activate
+            make unit-tests
 
   entry_point_test:
     working_directory: ~/autonormalize
@@ -74,8 +76,9 @@ jobs:
       - run:
           name: "Entry Point Test"
           command: |
-            source env/bin/activate
-            cd package && make entry-point-test
+            cd package
+            source package/bin/activate
+            make entry-point-test
 
 workflows:
   version: 2
