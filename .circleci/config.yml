@@ -14,7 +14,7 @@ commands:
     steps:
       - checkout
       - run:
-          name: Package Installation to Virtual Environment
+          name: Installation
           command: |
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
