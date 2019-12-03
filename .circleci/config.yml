@@ -59,7 +59,7 @@ jobs:
           name: Unit Tests
           command: |
             source python/bin/activate
-            make -C package unit-tests --makefile ../makefile
+            make -C package unit-tests --makefile ../Makefile
       - when:
           condition: << parameters.codecov >>
           steps:
