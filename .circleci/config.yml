@@ -64,7 +64,7 @@ jobs:
           condition: << parameters.codecov >>
           steps:
             - run:
-                name: Codec Coverage Upload
+                name: Code Coverage
                 command: |
                   source python/bin/activate
                   cd package
