@@ -11,4 +11,5 @@ lint-tests:
 	isort --check-only --recursive autonormalize
 
 unit-tests:
-	pytest --cache-clear --show-capture=stderr -vv
+	coverage erase
+	pytest --cov=autonormalize --cache-clear --show-capture=stderr -vv

@@ -5,7 +5,7 @@ executors:
     parameters:
       image_tag:
         type: string
-        default: "python:3.7"
+        default: python:3.7
     docker:
       - image: circleci/<< parameters.image_tag >>
 
@@ -14,11 +14,11 @@ commands:
     steps:
       - checkout
       - run:
-          name: "Package Installation to Virtual Environment"
+          name: Package Installation to Virtual Environment
           command: |
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
-            tar -zxvf "dist/${PACKAGE}.tar.gz"
+            tar -zxvf dist/${PACKAGE}.tar.gz
             mv ${PACKAGE} package
             virtualenv python -q
             source python/bin/activate
@@ -26,82 +26,95 @@ commands:
             pip install -r package/test-requirements.txt --progress-bar off
 
 jobs:
-  lint_tests:
+  Lint Tests:
     parameters:
       image_tag:
         type: string
-        default: "python:3.7"
+        default: python:3.7
     executor:
       name: python
       image_tag: << parameters.image_tag >>
     steps:
       - installation
       - run:
-          name: "Lint Tests"
+          name: Lint Tests
           command: |
             source python/bin/activate
             make -C package lint-tests --makefile ../Makefile
 
-  unit_tests:
+  Unit Tests:
     parameters:
       image_tag:
         type: string
-        default: "python:3.7"
+        default: python:3.7
+      codecov:
+        type: boolean
+        default: false
     executor:
       name: python
       image_tag: << parameters.image_tag >>
     steps:
       - installation
       - run:
-          name: "Unit Tests"
+          name: Unit Tests
           command: |
             source python/bin/activate
-            make -C package unit-tests --makefile ../Makefile
+            make -C package unit-tests --makefile ../makefile
+      - when:
+          condition: << parameters.codecov >>
+          steps:
+            - run:
+                name: Codec Coverage Upload
+                command: |
+                  source python/bin/activate
+                  cd package
+                  codecov
 
-  entry_point_test:
+  Entry Point Test:
     parameters:
       image_tag:
         type: string
-        default: "python:3.7"
+        default: python:3.7
     executor:
       name: python
       image_tag: << parameters.image_tag >>
     steps:
       - installation
       - run:
-          name: "Entry Point Test"
+          name: Entry Point Test
           command: |
             source python/bin/activate
             make -C package entry-point-test --makefile ../Makefile
 
 workflows:
   version: 2
-  "Integration Tests":
+  Integration Tests:
     jobs:
-      - lint_tests:
-          name: "Lint Tests - Python 3.5"
-          image_tag: "python:3.5"
-      - lint_tests:
-          name: "Lint Tests - Python 3.6"
-          image_tag: "python:3.6"
-      - lint_tests:
-          name: "Lint Tests - Python 3.7"
-          image_tag: "python:3.7"
-      - unit_tests:
-          name: "Unit Tests - Python 3.5"
-          image_tag: "python:3.5"
-      - unit_tests:
-          name: "Unit Tests - Python 3.6"
-          image_tag: "python:3.6"
-      - unit_tests:
-          name: "Unit Tests - Python 3.7"
-          image_tag: "python:3.7"
-      - entry_point_test:
-          name: "Entry Point Test - Python 3.5"
-          image_tag: "python:3.5"
-      - entry_point_test:
-          name: "Entry Point Test - Python 3.6"
-          image_tag: "python:3.6"
-      - entry_point_test:
-          name: "Entry Point Test - Python 3.7"
-          image_tag: "python:3.7"
+      - Lint Tests:
+          name: Lint Tests - Python 3.5
+          image_tag: python:3.5
+      - Lint Tests:
+          name: Lint Tests - Python 3.6
+          image_tag: python:3.6
+      - Lint Tests:
+          name: Lint Tests - Python 3.7
+          image_tag: python:3.7
+      - Unit Tests:
+          name: Unit Tests - Python 3.5
+          image_tag: python:3.5
+      - Unit Tests:
+          name: Unit Tests - Python 3.6
+          image_tag: python:3.6
+      - Unit Tests:
+          name: Unit Tests - Python 3.7
+          image_tag: python:3.7
+          codecov: true
+      - Entry Point Test:
+          name: Entry Point Test - Python 3.5
+          image_tag: python:3.5
+      - Entry Point Test:
+          name: Entry Point Test - Python 3.6
+          image_tag: python:3.6
+      - Entry Point Test:
+          name: Entry Point Test - Python 3.7
+          image_tag: python:3.7
