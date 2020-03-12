@@ -14,7 +14,7 @@ def test_ft_mock_customer():
     entityset = an.auto_entityset(df, name="Customer Transactions", time_index='transaction_time')
 
     assert set(entityset['transaction_id'].df.columns) == set(['transaction_id', 'session_id', 'transaction_time',
-                                                              'product_id', 'amount'])
+                                                               'product_id', 'amount'])
 
     assert set(entityset['product_id'].df.columns) == set(['product_id', 'brand'])
 

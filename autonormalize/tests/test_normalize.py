@@ -1,5 +1,5 @@
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 from autonormalize import classes, normalize
 
@@ -123,7 +123,7 @@ def test_normalize_dataframe():
     assert len(new_dfs) == 3
 
     dic_one = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-               'Yellow', 'Green', 'Green', 'Blue'],
+                        'Yellow', 'Green', 'Green', 'Blue'],
                'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
                'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H']}
 
