@@ -59,7 +59,7 @@ jobs:
           name: Unit Tests
           command: |
             source python/bin/activate
-            make -C package test --makefile ../Makefile
+            pytest autonormalize/
       - when:
           condition: << parameters.codecov >>
           steps:
