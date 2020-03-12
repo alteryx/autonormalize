@@ -40,7 +40,7 @@ jobs:
           name: Lint Tests
           command: |
             source python/bin/activate
-            make -C package lint-tests --makefile ../Makefile
+            make -C package lint --makefile ../Makefile
 
   Unit Tests:
     parameters:
@@ -59,7 +59,7 @@ jobs:
           name: Unit Tests
           command: |
             source python/bin/activate
-            make -C package unit-tests --makefile ../Makefile
+            make -C package test --makefile ../Makefile
       - when:
           condition: << parameters.codecov >>
           steps:
