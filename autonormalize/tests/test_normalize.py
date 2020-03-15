@@ -1,7 +1,7 @@
 import pandas as pd
 import featuretools as ft
 
-from featuretools.variable_types import ZIPCode
+from featuretools.variable_types import ZIPCode, Index, Datetime, Numeric, DatetimeTimeIndex, Categorical, Id
 from pandas.util.testing import assert_frame_equal
 
 from autonormalize import classes, normalize, autonormalize
@@ -194,4 +194,22 @@ def test_variable_types():
                                     variable_types={"zip_code": ZIPCode})
 
     normalized_entityset = autonormalize.normalize_entity(entityset)
+
+    assert normalized_entityset['transaction_id'].variable_types['transaction_id'] == Index
+    assert normalized_entityset['transaction_id'].variable_types['session_id'] == Id
+    assert normalized_entityset['transaction_id'].variable_types['transaction_time'] == DatetimeTimeIndex
+    assert normalized_entityset['transaction_id'].variable_types['product_id'] == Id
+    assert normalized_entityset['transaction_id'].variable_types['amount'] == Numeric
+
+    assert normalized_entityset['product_id'].variable_types['product_id'] == Index
+    assert normalized_entityset['product_id'].variable_types['brand'] == Categorical
+
+    assert normalized_entityset['session_id'].variable_types['session_id'] == Index
+    assert normalized_entityset['session_id'].variable_types['customer_id'] == Id
+    assert normalized_entityset['session_id'].variable_types['device'] == Categorical
+    assert normalized_entityset['session_id'].variable_types['session_start'] == Datetime
+
+    assert normalized_entityset['customer_id'].variable_types['customer_id'] == Index
+    assert normalized_entityset['customer_id'].variable_types['join_date'] == Datetime
+    assert normalized_entityset['customer_id'].variable_types['date_of_birth'] == Datetime
     assert normalized_entityset['customer_id'].variable_types['zip_code'] == ZIPCode
