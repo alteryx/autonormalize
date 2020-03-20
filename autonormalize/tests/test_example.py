@@ -22,6 +22,10 @@ def test_ft_mock_customer():
 
     assert set(entityset['customer_id'].df.columns) == set(['customer_id', 'zip_code', 'join_date', 'date_of_birth'])
 
-    assert set([str(rel) for rel in entityset.relationships]) == set(['<Relationship: transaction_id.session_id -> session_id.session_id>',
-                                                                      '<Relationship: transaction_id.product_id -> product_id.product_id>',
-                                                                      '<Relationship: session_id.customer_id -> customer_id.customer_id>'])
+    assert {str(rel) for rel in entityset.relationships} == set(
+        [
+            '<Relationship: transaction_id.session_id -> session_id.session_id>',
+            '<Relationship: transaction_id.product_id -> product_id.product_id>',
+            '<Relationship: session_id.customer_id -> customer_id.customer_id>',
+        ]
+    )

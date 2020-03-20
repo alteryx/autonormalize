@@ -80,7 +80,7 @@ def make_indexes(depdf):
 
     if len(prim_key) > 1:
 
-        depdf.df.insert(0, '_'.join(prim_key), range(0, len(depdf.df)))
+        depdf.df.insert(0, '_'.join(prim_key), range(len(depdf.df)))
         depdf.index = ['_'.join(prim_key)]
 
         # now need to replace it in the parent df...
@@ -94,11 +94,7 @@ def make_indexes(depdf):
                 mask = None
                 for i in range(len(prim_key)):
                     m = depdf.df[prim_key[i]] == name[i]
-                    if mask is None:
-                        mask = m
-                    else:
-                        mask = mask & m
-
+                    mask = m if mask is None else mask & m
                 new_val = depdf.df[mask]['_'.join(prim_key)].item()
 
                 for index in indices[name]:
@@ -119,7 +115,6 @@ def normalize_dataframe(depdf):
     Arguments:
         depdf (DepDF) : depdf to normalize
     """
-
     part_deps = depdf.deps.find_partial_deps()
     filter(part_deps, depdf.df)
     if part_deps != []:

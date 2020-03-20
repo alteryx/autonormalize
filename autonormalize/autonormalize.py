@@ -169,5 +169,10 @@ def normalize_entity(es, accuracy=0.98):
     if len(es.entities) == 0:
         raise ValueError('This EntitySet is empty')
     entity = es.entities[0]
-    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
-    return new_es
+    return auto_entityset(
+        entity.df,
+        accuracy,
+        index=entity.index,
+        name=es.id,
+        time_index=entity.time_index,
+    )

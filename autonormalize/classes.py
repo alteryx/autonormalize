@@ -444,7 +444,7 @@ class Dependencies(object):
         """
         result = []
         for rhs in self._data:
-            result = result + [(lhs, rhs) for lhs in self._data[rhs]]
+            result += [(lhs, rhs) for lhs in self._data[rhs]]
         return result
 
     def remove_implied_extroneous(self):
@@ -490,7 +490,7 @@ class Dependencies(object):
             cand_keys (list[set[str]]) : list of candidate keys for self
         """
 
-        rhs_attrs = set([rhs for rhs in self._data if len(self._data[rhs]) > 0])
+        rhs_attrs = {rhs for rhs in self._data if len(self._data[rhs]) > 0}
         lhs_attrs = set()
         for rhs in self._data:
             for lhs in self._data[rhs]:
@@ -628,15 +628,10 @@ class Dependencies(object):
         rels = self.tuple_relations()
 
         for lhs, rhs in rels:
-            if rhs not in key_attrs:
-                if find_closure(rels, lhs) != all_attrs:
-                    acc = False
-                    for key in cand_keys:
-                        if set(lhs).issubset(key):
-                            acc = True
-                            break
-                    if not acc:
-                        trans_deps.append((lhs, rhs))
+            if rhs not in key_attrs and find_closure(rels, lhs) != all_attrs:
+                acc = any(set(lhs).issubset(key) for key in cand_keys)
+                if not acc:
+                    trans_deps.append((lhs, rhs))
         return trans_deps
 
     def equiv_attrs(self, one, two):

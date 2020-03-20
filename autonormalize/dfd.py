@@ -172,11 +172,7 @@ def sort_key(attrs, node):
     """
     Sort key for sorting lists of nodes.
     """
-    acc = 0
-    for i in range(len(attrs)):
-        if attrs[i] in node.attrs:
-            acc += 10**i
-    return acc
+    return sum(10**i for i in range(len(attrs)) if attrs[i] in node.attrs)
 
 
 def pick_next_node(node, trace, min_deps, max_non_deps, attrs):
@@ -367,6 +363,8 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
             if m is None:
                 if df[attr].dtypes.name == 'datetime64[ns]':
                     m = df[attr] == row[attr]
+                elif isinstance(row[attr], float) and numpy.isnan(row[attr]):
+                    m = df[attr].isnull()
                 else:
                     m = df[attr].values == row[attr]
                 masks.add_mask(attr, row[attr], m)
@@ -376,6 +374,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
                 mask = mask & m
         options = df[mask]
         _, unique_counts = numpy.unique(options[rhs].to_numpy(), return_counts=True)
+        # unique_counts = options[rhs].value_counts(dropna=False)
         acc += unique_counts.sum() - unique_counts.max()
         if acc > limit:
             return False
