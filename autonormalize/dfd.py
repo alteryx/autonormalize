@@ -1,7 +1,7 @@
 from functools import partial
 from itertools import combinations
 
-import numpy
+import pandas as pd
 from tqdm import tqdm
 
 from .classes import DfdDependencies, LHSs, Masks, Node
@@ -359,7 +359,6 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
     acc = 0
 
     for index, row in indicator.iterrows():
-
         mask = None
         for attr in lhs_set:
 
@@ -368,14 +367,19 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
                 if df[attr].dtypes.name == 'datetime64[ns]':
                     m = df[attr] == row[attr]
                 else:
-                    m = df[attr].values == row[attr]
+                    if pd.isna(row[attr]):
+                        m = df[attr].isnull()
+                    else:
+                        m = df[attr].values == row[attr]
                 masks.add_mask(attr, row[attr], m)
             if mask is None:
                 mask = m
             else:
                 mask = mask & m
         options = df[mask]
-        _, unique_counts = numpy.unique(options[rhs].to_numpy(), return_counts=True)
+
+        # _, unique_counts = np.unique(options[rhs].to_numpy(), return_counts=True)
+        unique_counts = options[rhs].value_counts()
         acc += unique_counts.sum() - unique_counts.max()
         if acc > limit:
             return False
