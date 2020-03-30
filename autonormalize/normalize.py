@@ -76,6 +76,7 @@ def make_indexes(depdf):
     Arguments:
         depdf (DepDF) : depDF to make indexes for
     """
+
     prim_key = depdf.deps.get_prim_key()
 
     if len(prim_key) > 1:
@@ -103,8 +104,9 @@ def make_indexes(depdf):
 
                 for index in indices[name]:
                     add[index] = new_val
-
-            depdf.parent.df.drop(columns=prim_key, inplace=True)
+            # Don't drop a column if it is needed in another parent relationship
+            to_drop = [key for key in prim_key if key not in depdf.parent.deps.serialize().keys()]
+            depdf.parent.df.drop(columns=to_drop, inplace=True)
             depdf.parent.df.insert(len(depdf.parent.df.columns), '_'.join(prim_key), add)
 
     for child in depdf.children:
