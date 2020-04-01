@@ -59,7 +59,7 @@ jobs:
           name: Unit Tests
           command: |
             source python/bin/activate
-            pytest autonormalize/
+            pytest autonormalize/ --cov=autonormalize
       - when:
           condition: << parameters.codecov >>
           steps:
