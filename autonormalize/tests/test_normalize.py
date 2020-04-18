@@ -1,16 +1,46 @@
 import pandas as pd
-import featuretools as ft
-
-from featuretools.variable_types import ZIPCode, Index, Datetime, Numeric, DatetimeTimeIndex, Categorical, Id, \
-    SubRegionCode
+import pytest
 from pandas.util.testing import assert_frame_equal
 
-from autonormalize import classes, normalize, autonormalize
+import featuretools as ft
+from featuretools.variable_types import (
+    Categorical,
+    Datetime,
+    DatetimeTimeIndex,
+    Id,
+    Index,
+    Numeric,
+    Text,
+    ZIPCode
+)
 
+from autonormalize import autonormalize, classes, normalize
 
 # from classes import Dependencies
 
 # from normalize import normalize, find_most_comm, split_on_dep
+
+@pytest.fixture
+def teams_input():
+    class Teams:
+        def get_df(self):
+            dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
+                            'Yellow', 'Green', 'Green', 'Blue'],
+                   'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
+                   'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
+                   'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
+                            'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
+                   'state': ['MA', 'MA', 'MA', 'IL', 'IL', 'HI', 'HI', 'MA', 'MA', 'TX']}
+            return pd.DataFrame(dic)
+
+        def get_deps(self):
+            return classes.Dependencies({'team': [['player_name', 'jersey_num']],
+                                         'jersey_num': [['player_name', 'team']],
+                                         'player_name': [['team', 'jersey_num']],
+                                         'city': [['team'], ['state'], ['player_name', 'jersey_num']],
+                                         'state': [['team'], ['player_name', 'jersey_num'],
+                                                   ['city']]}, ['team', 'jersey_num'])
+    return Teams()
 
 
 def test_normalize():
@@ -105,23 +135,8 @@ def test_choose_index():
     assert normalize.choose_index(keys, df) == ['A', 'B']
 
 
-def test_normalize_dataframe():
-
-    dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-                    'Yellow', 'Green', 'Green', 'Blue'],
-           'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
-           'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
-           'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
-                    'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
-           'state': ['MA', 'MA', 'MA', 'IL', 'IL', 'HI', 'HI', 'MA', 'MA', 'TX']}
-    df = pd.DataFrame(dic)
-    deps = classes.Dependencies({'team': [['player_name', 'jersey_num']],
-                                 'jersey_num': [['player_name', 'team']],
-                                 'player_name': [['team', 'jersey_num']],
-                                 'city': [['team'], ['state'], ['player_name', 'jersey_num']],
-                                 'state': [['team'], ['player_name', 'jersey_num'], ['city']]}, ['team', 'jersey_num'])
-
-    depdf = normalize.DepDF(deps, df, deps.get_prim_key())
+def test_normalize_dataframe(teams_input):
+    depdf = normalize.DepDF(teams_input.get_deps(), teams_input.get_df(), teams_input.get_deps().get_prim_key())
     normalize.normalize_dataframe(depdf)
     new_dfs = depdf.return_dfs()
 
@@ -216,21 +231,8 @@ def test_variable_types():
     assert normalized_entityset['customer_id'].variable_types['zip_code'] == ZIPCode
 
 
-def test_make_entityset_default_args():
-    dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-                    'Yellow', 'Green', 'Green', 'Blue'],
-           'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
-           'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
-           'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
-                    'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
-           'state': ['US-MA', 'US-MA', 'US-MA', 'US-IL', 'US-IL', 'US-HI', 'US-HI', 'US-MA', 'US-MA', 'US-TX']}
-    df = pd.DataFrame(dic)
-    deps = classes.Dependencies({'team': [['player_name', 'jersey_num']],
-                                 'jersey_num': [['player_name', 'team']],
-                                 'player_name': [['team', 'jersey_num']],
-                                 'city': [['team'], ['state'], ['player_name', 'jersey_num']],
-                                 'state': [['team'], ['player_name', 'jersey_num'], ['city']]}, ['team', 'jersey_num'])
-    normalized_entityset = autonormalize.make_entityset(df, deps)
+def test_make_entityset_default_args(teams_input):
+    normalized_entityset = autonormalize.make_entityset(teams_input.get_df(), teams_input.get_deps())
 
     dic_one = {'team_jersey_num': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
@@ -242,7 +244,7 @@ def test_make_entityset_default_args():
                'city': ['austin', 'boston', 'chicago', 'boston', 'honolulu']}
 
     dic_three = {'city': ['austin', 'boston', 'chicago', 'honolulu'],
-                 'state': ['US-TX', 'US-MA', 'US-IL', 'US-HI', ]}
+                 'state': ['TX', 'MA', 'IL', 'HI']}
 
     assert len(normalized_entityset.entities) == 3
 
@@ -264,24 +266,11 @@ def test_make_entityset_default_args():
     assert normalized_entityset.entities[2].variable_types['state'] == Categorical
 
 
-def test_make_entityset_custom_args():
-    dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-                    'Yellow', 'Green', 'Green', 'Blue'],
-           'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
-           'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
-           'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
-                    'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
-           'state': ['US-MA', 'US-MA', 'US-MA', 'US-IL', 'US-IL', 'US-HI', 'US-HI', 'US-MA', 'US-MA', 'US-TX']}
-    df = pd.DataFrame(dic)
-    deps = classes.Dependencies({'team': [['player_name', 'jersey_num']],
-                                 'jersey_num': [['player_name', 'team']],
-                                 'player_name': [['team', 'jersey_num']],
-                                 'city': [['team'], ['state'], ['player_name', 'jersey_num']],
-                                 'state': [['team'], ['player_name', 'jersey_num'], ['city']]}, ['team', 'jersey_num'])
-    normalized_entityset = autonormalize.make_entityset(df=df,
-                                                        dependencies=deps,
-                                                        name='Sport',
-                                                        variable_types={'state': SubRegionCode})
+def test_make_entityset_custom_args(teams_input):
+    normalized_entityset = autonormalize.make_entityset(df=teams_input.get_df(),
+                                                        dependencies=teams_input.get_deps(),
+                                                        name='Teams',
+                                                        variable_types={'state': Text})
 
     dic_one = {'team_jersey_num': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
@@ -293,10 +282,10 @@ def test_make_entityset_custom_args():
                'city': ['austin', 'boston', 'chicago', 'boston', 'honolulu']}
 
     dic_three = {'city': ['austin', 'boston', 'chicago', 'honolulu'],
-                 'state': ['US-TX', 'US-MA', 'US-IL', 'US-HI', ]}
+                 'state': ['TX', 'MA', 'IL', 'HI']}
 
     assert len(normalized_entityset.entities) == 3
-    assert normalized_entityset.id == 'Sport'
+    assert normalized_entityset.id == 'Teams'
 
     assert normalized_entityset.entities[0].df.equals(pd.DataFrame(dic_one))
     assert normalized_entityset.entities[1].df.equals(pd.DataFrame(
@@ -313,19 +302,11 @@ def test_make_entityset_custom_args():
     assert normalized_entityset.entities[1].variable_types['city'] == Id
 
     assert normalized_entityset.entities[2].variable_types['city'] == Index
-    assert normalized_entityset.entities[2].variable_types['state'] == SubRegionCode
+    assert normalized_entityset.entities[2].variable_types['state'] == Text
 
 
-def test_auto_entityset_default_args():
-    dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-                    'Yellow', 'Green', 'Green', 'Blue'],
-           'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
-           'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
-           'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
-                    'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
-           'state': ['US-MA', 'US-MA', 'US-MA', 'US-IL', 'US-IL', 'US-HI', 'US-HI', 'US-MA', 'US-MA', 'US-TX']}
-    df = pd.DataFrame(dic)
-    normalized_entityset = autonormalize.auto_entityset(df)
+def test_auto_entityset_default_args(teams_input):
+    normalized_entityset = autonormalize.auto_entityset(teams_input.get_df())
 
     dic_one = {'jersey_num_team': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
@@ -337,7 +318,7 @@ def test_auto_entityset_default_args():
                'city': ['austin', 'boston', 'chicago', 'boston', 'honolulu']}
 
     dic_three = {'city': ['austin', 'boston', 'chicago', 'honolulu'],
-                 'state': ['US-TX', 'US-MA', 'US-IL', 'US-HI', ]}
+                 'state': ['TX', 'MA', 'IL', 'HI']}
 
     assert len(normalized_entityset.entities) == 3
 
@@ -359,20 +340,12 @@ def test_auto_entityset_default_args():
     assert normalized_entityset.entities[2].variable_types['state'] == Categorical
 
 
-def test_auto_entityset_custom_args():
-    dic = {'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
-                    'Yellow', 'Green', 'Green', 'Blue'],
-           'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
-           'player_name': ['A', 'B', 'C', 'D', 'A', 'E', 'B', 'A', 'G', 'H'],
-           'city': ['boston', 'boston', 'boston', 'chicago', 'chicago',
-                    'honolulu', 'honolulu', 'boston', 'boston', 'austin'],
-           'state': ['US-MA', 'US-MA', 'US-MA', 'US-IL', 'US-IL', 'US-HI', 'US-HI', 'US-MA', 'US-MA', 'US-TX']}
-    df = pd.DataFrame(dic)
-    normalized_entityset = autonormalize.auto_entityset(df=df,
-                                                        name='Sport',
-                                                        variable_types={'state': SubRegionCode})
+def test_auto_entityset_custom_args(teams_input):
+    normalized_entityset = autonormalize.auto_entityset(df=teams_input.get_df(),
+                                                        name='Teams',
+                                                        variable_types={'state': Text})
 
-    dic_one = {'team_jersey_num': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    dic_one = {'jersey_num_team': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
                         'Yellow', 'Green', 'Green', 'Blue'],
                'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
@@ -382,10 +355,10 @@ def test_auto_entityset_custom_args():
                'city': ['austin', 'boston', 'chicago', 'boston', 'honolulu']}
 
     dic_three = {'city': ['austin', 'boston', 'chicago', 'honolulu'],
-                 'state': ['US-TX', 'US-MA', 'US-IL', 'US-HI', ]}
+                 'state': ['TX', 'MA', 'IL', 'HI']}
 
     assert len(normalized_entityset.entities) == 3
-    assert normalized_entityset.id == 'Sport'
+    assert normalized_entityset.id == 'Teams'
 
     assert normalized_entityset.entities[0].df.equals(pd.DataFrame(dic_one))
     assert normalized_entityset.entities[1].df.equals(pd.DataFrame(
@@ -402,4 +375,4 @@ def test_auto_entityset_custom_args():
     assert normalized_entityset.entities[1].variable_types['city'] == Id
 
     assert normalized_entityset.entities[2].variable_types['city'] == Index
-    assert normalized_entityset.entities[2].variable_types['state'] == SubRegionCode
+    assert normalized_entityset.entities[2].variable_types['state'] == Text
