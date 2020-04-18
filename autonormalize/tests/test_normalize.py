@@ -234,7 +234,7 @@ def test_variable_types():
 def test_make_entityset_default_args(teams_input):
     normalized_entityset = autonormalize.make_entityset(teams_input.get_df(), teams_input.get_deps())
 
-    dic_one = {'team_jersey_num': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    dic_one = {'jersey_num_team': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
                         'Yellow', 'Green', 'Green', 'Blue'],
                'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
@@ -254,7 +254,7 @@ def test_make_entityset_default_args(teams_input):
     assert normalized_entityset.entities[2].df.equals(pd.DataFrame(
         dic_three, index=['austin', 'boston', 'chicago', 'honolulu']))
 
-    assert normalized_entityset.entities[0].variable_types['team_jersey_num'] == Index
+    assert normalized_entityset.entities[0].variable_types['jersey_num_team'] == Index
     assert normalized_entityset.entities[0].variable_types['team'] == Id
     assert normalized_entityset.entities[0].variable_types['jersey_num'] == Numeric
     assert normalized_entityset.entities[0].variable_types['player_name'] == Categorical
@@ -272,7 +272,7 @@ def test_make_entityset_custom_args(teams_input):
                                                         name='Teams',
                                                         variable_types={'state': Text})
 
-    dic_one = {'team_jersey_num': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    dic_one = {'jersey_num_team': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                'team': ['Red', 'Red', 'Red', 'Orange', 'Orange', 'Yellow',
                         'Yellow', 'Green', 'Green', 'Blue'],
                'jersey_num': [1, 2, 3, 1, 2, 1, 5, 8, 2, 2],
@@ -293,7 +293,7 @@ def test_make_entityset_custom_args(teams_input):
     assert normalized_entityset.entities[2].df.equals(pd.DataFrame(
         dic_three, index=['austin', 'boston', 'chicago', 'honolulu']))
 
-    assert normalized_entityset.entities[0].variable_types['team_jersey_num'] == Index
+    assert normalized_entityset.entities[0].variable_types['jersey_num_team'] == Index
     assert normalized_entityset.entities[0].variable_types['team'] == Id
     assert normalized_entityset.entities[0].variable_types['jersey_num'] == Numeric
     assert normalized_entityset.entities[0].variable_types['player_name'] == Categorical
