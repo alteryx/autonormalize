@@ -35,7 +35,7 @@ pip uninstall autonormalize
 
 ### `auto_entityset`
 ```shell
-auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None)
+auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None, variable_types=None)
 ```
 Creates a normalized entityset from a dataframe.
 
@@ -49,8 +49,10 @@ Creates a normalized entityset from a dataframe.
 
 * `name` (str, optional) : the name of created EntitySet
 
-* `time_index` (str, optional) : name of time column in the dataframe.
+* `time_index` (str, optional) : name of time column in the dataframe
 
+* `variable_types` (dict[str -> Variable], optional) : Keys are of variable ids and values are variable types. Used to initialize an entity's store.
+            
 **Returns:**
 
 * `entityset` (ft.EntitySet) : created entity set
@@ -85,7 +87,7 @@ Normalizes dataframe based on the dependencies given. Keys for the newly created
 ### `make_entityset`
 
 ```shell
-make_entityset(df, dependencies, name=None, time_index=None)
+make_entityset(df, dependencies, name=None, time_index=None, variable_types=None)
 ```
 Creates a normalized EntitySet from dataframe based on the dependencies given. Keys are chosen in the same fashion as for `normalize_dataframe`and a new index will be created if any key has more than a single attribute.
 

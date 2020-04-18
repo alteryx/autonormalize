@@ -70,7 +70,7 @@ def normalize_dataframe(df, dependencies):
     return depdf.return_dfs()
 
 
-def make_entityset(df, dependencies, name=None, time_index=None):
+def make_entityset(df, dependencies, name=None, time_index=None, variable_types=None):
     """
     Creates a normalized EntitySet from df based on the dependencies given.
     Keys for the newly created DataFrames can only be columns that are strings,
@@ -82,6 +82,10 @@ def make_entityset(df, dependencies, name=None, time_index=None):
         df (pd.DataFrame) : dataframe to normalize and make entity set from
         dependencies (Dependenies) : the dependencies discovered in df
         name (str, optional) : the name of created EntitySet
+        time_index (str, optional) : name of time column in the dataframe
+        variable_types (dict[str -> Variable], optional):
+            Keys are of variable ids and values are variable types. Used to
+            initialize an entity's store.
 
     Returns:
         entityset (ft.EntitySet) : created entity set
@@ -97,10 +101,14 @@ def make_entityset(df, dependencies, name=None, time_index=None):
 
     while stack != []:
         current = stack.pop()
-        if time_index in current.df.columns:
-            entities[current.index[0]] = (current.df, current.index[0], time_index)
+        if variable_types is not None:
+            entity_variable_types = {col: variable_types[col] for col in current.df.columns if col in variable_types}
         else:
-            entities[current.index[0]] = (current.df, current.index[0])
+            entity_variable_types = None
+        if time_index in current.df.columns:
+            entities[current.index[0]] = (current.df, current.index[0], time_index, entity_variable_types)
+        else:
+            entities[current.index[0]] = (current.df, current.index[0], None, entity_variable_types)
         for child in current.children:
             # add to stack
             # add relationship
@@ -110,7 +118,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
     return ft.EntitySet(name, entities, relationships)
 
 
-def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
+def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None, variable_types=None):
     """
     Creates a normalized entityset from a dataframe.
 
@@ -126,13 +134,17 @@ def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
 
         name (str, optional) : the name of created EntitySet
 
-        time_index (str, optional) : name of time column in the dataframe.
+        time_index (str, optional) : name of time column in the dataframe
+
+        variable_types (dict[str -> Variable], optional):
+            Keys are of variable ids and values are variable types. Used to
+            initialize an entity's store
 
     Returns:
 
         entityset (ft.EntitySet) : created entity set
     """
-    return make_entityset(df, find_dependencies(df, accuracy, index), name, time_index)
+    return make_entityset(df, find_dependencies(df, accuracy, index), name, time_index, variable_types)
 
 
 def auto_normalize(df):
@@ -169,5 +181,6 @@ def normalize_entity(es, accuracy=0.98):
     if len(es.entities) == 0:
         raise ValueError('This EntitySet is empty')
     entity = es.entities[0]
-    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
+    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index,
+                            variable_types=entity.variable_types)
     return new_es
