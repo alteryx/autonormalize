@@ -79,7 +79,7 @@ def make_indexes(depdf):
     prim_key = depdf.deps.get_prim_key()
 
     if len(prim_key) > 1:
-
+        prim_key.sort()
         depdf.df.insert(0, '_'.join(prim_key), range(0, len(depdf.df)))
         depdf.index = ['_'.join(prim_key)]
 
