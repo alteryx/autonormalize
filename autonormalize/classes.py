@@ -329,6 +329,8 @@ class Dependencies(object):
             prim_key (list[str], optional) : the primary key of the dependencies
         """
         assert prim_key is None or isinstance(prim_key, list)
+        if isinstance(prim_key, list):
+            prim_key.sort()
         if isinstance(dependencies, dict):
             self._data = dependencies
         else:
@@ -343,6 +345,8 @@ class Dependencies(object):
             prim_key (list[str]) : primary key to set
         """
         assert prim_key is None or isinstance(prim_key, list)
+        if isinstance(prim_key, list):
+            prim_key.sort()
         self._primkey = prim_key
 
     def get_prim_key(self):
