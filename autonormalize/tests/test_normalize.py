@@ -181,6 +181,10 @@ def test_make_indexes():
     assert new_dfs[0][new_dfs[1].columns[0]][6] == val
     assert new_dfs[0][new_dfs[1].columns[0]][7] == val
 
+    # Make sure new column names are sorted
+    assert 'hemisphere_month' in new_dfs[0].columns
+    assert 'hemisphere_month' in new_dfs[1].columns
+
 
 def test_make_indexes_improper_column_drop():
     df_dict = {'Id': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
