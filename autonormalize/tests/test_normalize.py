@@ -178,3 +178,7 @@ def test_make_indexes():
     assert new_dfs[0][new_dfs[1].columns[0]][5] == val
     assert new_dfs[0][new_dfs[1].columns[0]][6] == val
     assert new_dfs[0][new_dfs[1].columns[0]][7] == val
+
+    # Make sure new column names are sorted
+    assert 'hemisphere_month' in new_dfs[0].columns
+    assert 'hemisphere_month' in new_dfs[1].columns
