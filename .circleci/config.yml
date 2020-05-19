@@ -22,8 +22,10 @@ commands:
             mv ${PACKAGE} package
             virtualenv python -q
             source python/bin/activate
-            pip install -e package --progress-bar off
-            pip install -r package/test-requirements.txt --progress-bar off
+            pip config --site set global.progress_bar off
+            pip install --upgrade pip
+            pip install -e package
+            pip install -r package/test-requirements.txt
 
 jobs:
   Lint Tests:
