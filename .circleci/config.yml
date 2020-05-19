@@ -16,15 +16,17 @@ commands:
       - run:
           name: Installation
           command: |
-            python -m pip install --upgrade pip virtualenv
+            pip config --site set global.progress_bar off
+            pip install --upgrade pip virtualenv
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
             tar -zxvf dist/${PACKAGE}.tar.gz
             mv ${PACKAGE} package
             python -m virtualenv python -q
             source python/bin/activate
-            pip install -e package --progress-bar off
-            pip install -r package/test-requirements.txt --progress-bar off
+            pip install --upgrade pip
+            pip install -e package
+            pip install -r package/test-requirements.txt
 
 jobs:
   Lint Tests:
