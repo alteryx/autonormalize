@@ -16,12 +16,12 @@ commands:
       - run:
           name: Installation
           command: |
-            python -m pip install --upgrade pip
+            python -m pip install --upgrade pip virtualenv
             python setup.py sdist
             PACKAGE=$(python setup.py --fullname)
             tar -zxvf dist/${PACKAGE}.tar.gz
             mv ${PACKAGE} package
-            virtualenv python -q
+            python -m virtualenv python -q
             source python/bin/activate
             pip install -e package --progress-bar off
             pip install -r package/test-requirements.txt --progress-bar off
