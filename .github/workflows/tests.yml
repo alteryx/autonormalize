@@ -56,7 +56,7 @@ jobs:
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
       - name: Run lint tests
-        run: cd dist/package && make lint-tests -f ../../Makefile
+        run: cd dist/package && make lint_tests -f ../../Makefile
 
   unit_tests:
     name: Unit Tests - Python ${{ matrix.python-version }}
