@@ -8,6 +8,11 @@ lint-fix:
 	autopep8 --in-place --recursive --max-line-length=100 --select=${select} autonormalize
 	isort --recursive autonormalize
 
+.PHONY: lint
+lint:
+	flake8 autonormalize
+	isort --check-only --recursive autonormalize
+
 .PHONY: lint_tests
 lint_tests:
 	flake8 autonormalize
