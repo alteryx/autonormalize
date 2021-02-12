@@ -20,3 +20,15 @@ test: lint
 .PHONY: testcoverage
 testcoverage: lint
 		pytest autonormalize/ --cov=autonormalize
+
+.PHONY: unit_tests
+unit_tests:
+	pytest --cache-clear --show-capture=stderr -vv ${addopts}
+
+.PHONY: package_build
+package_build:
+	rm -rf dist/package
+	python setup.py sdist
+	$(eval package=$(shell python setup.py --fullname))
+	tar -zxvf "dist/${package}.tar.gz" 
+	mv ${package} dist/package
