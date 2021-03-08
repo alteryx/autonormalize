@@ -1,10 +1,10 @@
 # AutoNormalize
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/autonormalize.svg?style=shield&circle-token=b890443ca669d7e88d62ad2fd712f92951550c4a)](https://circleci.com/gh/FeatureLabs/autonormalize)
+![Tests](https://github.com/FeatureLabs/autonormalize/workflows/Tests/badge.svg)
 
-AutoNormalize is a Python library for automated datatable normalization. It allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning using [Featuretools](https://github.com/Featuretools/featuretools).
+AutoNormalize is a Python library for automated datatable normalization. It allows you to build an `EntitySet` from a single denormalized table and generate features for machine learning using [Featuretools](https://github.com/FeatureLabs/featuretools).
 
-<img src=https://github.com/FeatureLabs/autonormalize/blob/master/gif.gif>
+<img src=https://github.com/FeatureLabs/autonormalize/blob/main/gif.gif>
 
 ## Getting Started
 * [Install](#install)  
