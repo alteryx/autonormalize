@@ -112,9 +112,9 @@ Returns a new normalized `EntitySet` from an `EntitySet` with a single entity.
 
 <br />
 
-## Feature Labs
-<a href="https://www.featurelabs.com/">
-    <img src="http://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
-</a>
 
-AutoNormalize is an open source project created by [Feature Labs](https://www.featurelabs.com/). To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
+## Built at Alteryx Innovation Labs
+
+<a href="https://www.alteryx.com/innovation-labs">
+    <img src="https://evalml-web-images.s3.amazonaws.com/alteryx_innovation_labs.png" alt="Alteryx Innovation Labs" />
+</a>
