@@ -23,7 +23,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Install woodwork with dev, test, and optional requirements
+      - name: Install autonormalize with dev, and test requirements
         run: |
           pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
