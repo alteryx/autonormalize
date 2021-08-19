@@ -1,5 +1,3 @@
-import os
-
 import featuretools as ft
 
 import autonormalize as an
