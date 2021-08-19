@@ -1,10 +1,8 @@
-import os  # noqa isort:skip
-import sys  # noqa isort:skip
-sys.path.append(os.path.abspath(os.path.join('..', '..',)))  # noqa
+import os
 
-import featuretools as ft  # noqa isort:skip
+import featuretools as ft
 
-import autonormalize as an  # noqa isort:skip
+import autonormalize as an
 
 
 def test_ft_mock_customer():
