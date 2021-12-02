@@ -3,4 +3,4 @@ from .classes import Dependencies
 
 from .autonormalize import *
 
-__version__ = '0.0.0'
+__version__ = '1.0.1'
