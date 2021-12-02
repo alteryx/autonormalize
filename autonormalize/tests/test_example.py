@@ -16,7 +16,7 @@ def test_ft_mock_customer():
 
     assert set(entityset['session_id'].columns) == set(['session_id', 'customer_id', 'device', 'session_start'])
 
-    assert set(entityset['customer_id'].columns) == set(['customer_id', 'zip_code', 'join_date', 'date_of_birth'])
+    assert set(entityset['customer_id'].columns) == set(['customer_id', 'zip_code', 'join_date', 'birthday'])
 
     assert set([str(rel) for rel in entityset.relationships]) == set(['<Relationship: transaction_id.session_id -> session_id.session_id>',
                                                                       '<Relationship: transaction_id.product_id -> product_id.product_id>',
