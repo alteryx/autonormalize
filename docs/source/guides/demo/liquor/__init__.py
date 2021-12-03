@@ -10,4 +10,5 @@ def load_sample():
     # df = df.drop(range(1500000, 12591077))
     # df = df.dropna()
     # df = df.drop_duplicates()
+    # df = df.head(1000)
     return df
