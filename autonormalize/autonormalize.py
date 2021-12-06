@@ -9,7 +9,7 @@ def find_dependencies(df, accuracy=0.98, index=None):
     Finds dependencies within dataframe df with the DFD search algorithm.
     Returns the dependencies as a Dependencies object.
 
-    Arugments:
+    Arguments:
 
         df (pd.Dataframe) : the dataframe containing data
 
