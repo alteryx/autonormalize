@@ -1,5 +1,5 @@
-import csv
-import random
+# import csv
+# import random
 
 # csvData = [['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']]
 
@@ -110,22 +110,22 @@ import random
 # csvFile.close()
 
 
-csvData = [['A', 'B', 'C', 'D', 'E', 'F']]
+# csvData = [['A', 'B', 'C', 'D', 'E', 'F']]
 
-for x in range(400000):
-    a = random.randint(0, 25)
-    b = random.randint(0, 3)
-    c = random.randint(-10, 20)
-    d = a <= 15 and b >= 2
-    e = a + b
-    f = a + b + c >= 15
-    elem = [a, b, c, d, e, f]
-    for x in range(6):
-        elem[x] = str(elem[x])
-    csvData.append(elem)
+# for x in range(400000):
+#     a = random.randint(0, 25)
+#     b = random.randint(0, 3)
+#     c = random.randint(-10, 20)
+#     d = a <= 15 and b >= 2
+#     e = a + b
+#     f = a + b + c >= 15
+#     elem = [a, b, c, d, e, f]
+#     for x in range(6):
+#         elem[x] = str(elem[x])
+#     csvData.append(elem)
 
-with open('example_make_index', 'w') as csvFile:
-    writer = csv.writer(csvFile)
-    writer.writerows(csvData)
+# with open('example_make_index', 'w') as csvFile:
+#     writer = csv.writer(csvFile)
+#     writer.writerows(csvData)
 
-csvFile.close()
+# csvFile.close()
