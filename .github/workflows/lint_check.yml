@@ -31,4 +31,4 @@ jobs:
           python -m pip install -r dev-requirements.txt
           python -m pip install -r test-requirements.txt
       - name: Run lint test
-      run: make lint
+        run: make lint
