@@ -10,12 +10,9 @@ def find_dependencies(df, accuracy=0.98, index=None):
     Returns the dependencies as a Dependencies object.
 
     Arguments:
-
         df (pd.Dataframe) : the dataframe containing data
 
-        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold
-        required in order to conclude a dependency (i.e. with accuracy = 0.98,
-        0.98 of the rows must hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold required in order to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must hold true the dependency LHS --> RHS)
 
         index (str, optional) : name of column that is intended index of df
 
@@ -39,11 +36,9 @@ def normalize_dependencies(df, dependencies):
     meaning there are no partial or transitive dependencies within each group.
 
     Arguments:
-
-        dependencies (Dependencies) : the dependencies to be normalized
+    dependencies (Dependencies) : the dependencies to be normalized
 
     Returns:
-
         dependencies_groups (list[Dependencies]) : list of Dependencies objects each
         containing the relations in a new group
     """
@@ -114,13 +109,11 @@ def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
     """
     Creates a normalized entityset from a dataframe.
 
-    Arugments:
+    Arguments:
 
         df (pd.Dataframe) : the dataframe containing data
 
-        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold
-        required in order to conclude a dependency (i.e. with accuracy = 0.98,
-        0.98 of the rows must hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold required in order to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must hold true the dependency LHS --> RHS)
 
         index (str, optional) : name of column that is intended index of df
 
@@ -154,9 +147,7 @@ def normalize_entity(es, accuracy=0.98):
 
     Arguments:
         es (ft.EntitySet) : EntitySet to normalize
-        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold
-        required in order to conclude a dependency (i.e. with accuracy = 0.98,
-        0.98 of the rows must hold true the dependency LHS --> RHS)
+        accuracy (0 < float <= 1.00; default = 0.98) : the accuracy threshold required in order to conclude a dependency (i.e. with accuracy = 0.98, 0.98 of the rows must hold true the dependency LHS --> RHS)
 
     Returns:
         new_es (ft.EntitySet) : new normalized EntitySet

@@ -26,6 +26,12 @@ test: lint
 testcoverage: lint
 		pytest autonormalize/ --cov=autonormalize
 
+.PHONY: installdeps
+installdeps:
+	pip install --upgrade pip
+	pip install -e .
+	pip install -r dev-requirements.txt
+
 .PHONY: package_autonormalize
 package_autonormalize:
 	python setup.py sdist
