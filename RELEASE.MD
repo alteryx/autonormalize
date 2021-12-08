@@ -15,7 +15,7 @@ Autonormalize uses [semantic versioning](https://semver.org/). Every release has
 
 ### Create release branch
 
-1. Branch off of Woodwork `main`. For the branch name, please use "release_vX.Y.Z" as the naming scheme (e.g. "release_v1.0.1").
+1. Branch off of AutoNormalize `main`. For the branch name, please use "release_vX.Y.Z" as the naming scheme (e.g. "release_v1.0.1").
 
 ### Bump version number
 
