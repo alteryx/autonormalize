@@ -20,6 +20,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          lfs: 'True'
       - name: Install autonormalize with doc requirements
         run: |
           sudo apt update
