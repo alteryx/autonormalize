@@ -9,7 +9,9 @@ Release Notes
     * Fixes
     * Changes
     * Documentation Changes
+      * Updated sphinx documentation and guides
     * Testing Changes
+      * Updated tests to work with featuretools 1.0
 
 .. Thanks to the following people for contributing to this release:
 
