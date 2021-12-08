@@ -19,7 +19,7 @@ Autonormalize uses [semantic versioning](https://semver.org/). Every release has
 
 ### Bump version number
 
-1. Bump `__version__` in `setup.py`, `autonormalize/__init__.py`, and `woodwork/tests/test_version.py`.
+1. Bump `__version__` in `setup.py`, `autonormalize/__init__.py`, and `autonormalize/tests/test_version.py`.
 
 ### Update Release Notes
 
