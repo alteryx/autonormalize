@@ -3,11 +3,6 @@ from pandas.testing import assert_frame_equal
 
 from autonormalize import classes, normalize
 
-# from classes import Dependencies
-
-# from normalize import normalize, find_most_comm, split_on_dep
-
-
 def test_normalize():
     # how to test that relations remain the same???
     # check that there are no new relations?
