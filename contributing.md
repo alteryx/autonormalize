@@ -43,7 +43,7 @@ There are many ways to contribute to AutoNormalize, with the most common ones be
   make test
 
   # runs linting
-
+  make lint
 
   # will fix some common linting issues automatically
   make lint-fix
@@ -64,14 +64,14 @@ There are many ways to contribute to AutoNormalize, with the most common ones be
 
 * Once your changes are ready to be submitted, make sure to push your changes to GitHub before creating a pull request. Create a pull request, and our continuous integration will run automatically.
 * Update the "Future Release" section of the release notes (`docs/source/release_notes.rst`) to include your pull request and add your github username to the list of contributors.  Add a description of your PR to the subsection that most closely matches your contribution:
-  * Enhancements: new features or additions to Featuretools.
+  * Enhancements: new features or additions to Autonormalize.
   * Fixes: things like bugfixes or adding more descriptive error messages.
-  * Changes: modifications to an existing part of Featuretools.
+  * Changes: modifications to an existing part of Autonormalize.
   * Documentation Changes
   * Testing Changes
 
    Documentation or testing changes rarely warrant an individual release notes entry; the PR number can be added to their respective "Miscellaneous changes" entries.
-* We will review your changes, and you will most likely be asked to make additional changes before it is finally ready to merge. However, once it's reviewed by a maintainer of Featuretools, passes continuous integration, we will merge it, and you will have successfully contributed to Featuretools!
+* We will review your changes, and you will most likely be asked to make additional changes before it is finally ready to merge. However, once it's reviewed by a maintainer of Autonormalize, passes continuous integration, we will merge it, and you will have successfully contributed to Autonormalize!
 
 ## Report issues
 
