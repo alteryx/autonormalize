@@ -1,7 +1,7 @@
 Install
 *******
 
-AutoNormalize is available for Python 3.7 and 3.8. The recommended way to install Featuretools is using ``pip`` ::
+AutoNormalize is available for Python 3.7, 3.8, and 3.9. The recommended way to install Featuretools is using ``pip`` ::
 
     python -m pip install featuretools[autonormalize]
 
