@@ -1,6 +1,7 @@
 import csv
 import random
 
+
 def generate_example_3():
     csvData = [['A', 'B', 'C', 'D', 'E', 'F', 'G']]
 
@@ -8,7 +9,7 @@ def generate_example_3():
         b = random.randint(0, 25)
         c = random.randint(0, 3)
         d = random.randint(-10, 20)
-        elem = [x, b, c, d, c != 1, b<10, c+d]
+        elem = [x, b, c, d, c != 1, b < 10, c + d]
         for x in range(7):
             elem[x] = str(elem[x])
         csvData.append(elem)

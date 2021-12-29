@@ -3,6 +3,7 @@ from pandas.testing import assert_frame_equal
 
 from autonormalize import classes, normalize
 
+
 def test_normalize():
     # how to test that relations remain the same???
     # check that there are no new relations?
