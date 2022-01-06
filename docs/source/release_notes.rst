@@ -9,8 +9,8 @@ Release Notes
     * Fixes
     * Changes
     * Documentation Changes
-      * Update release notes and release format
-      * Updated sphinx documentation and guides
+      * Update release notes and release format (:pr:`37`)
+      * Updated sphinx documentation and guides (:pr:`35`)
     * Testing Changes
       * Updated tests to work with featuretools 1.0
 
