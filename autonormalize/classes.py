@@ -511,8 +511,8 @@ class Dependencies(object):
 
         cand_keys = []
 
-        for l in range(1, len(lhs_and_lhs) + 1):
-            combos = combinations(lhs_and_lhs, l)
+        for i in range(1, len(lhs_and_lhs) + 1):
+            combos = combinations(lhs_and_lhs, i)
             for comb in combos:
                 if find_closure(rels, list(lhs_only.union(comb))) == all_attrs:
                     cand_keys.append(lhs_only.union(comb))

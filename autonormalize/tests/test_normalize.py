@@ -5,10 +5,6 @@ from pandas.testing import assert_frame_equal
 import autonormalize as an
 from autonormalize import classes, normalize
 
-# from classes import Dependencies
-
-# from normalize import normalize, find_most_comm, split_on_dep
-
 
 def test_normalize():
     # how to test that relations remain the same???
