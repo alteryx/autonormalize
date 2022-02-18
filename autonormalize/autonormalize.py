@@ -92,16 +92,24 @@ def make_entityset(df, dependencies, name=None, time_index=None):
 
     while stack != []:
         current = stack.pop()
+        if (current.df.ww.schema is None):
+            current.df.ww.init(index=current.index[0], name=current.index[0])
+
+        current_df_name = current.df.ww.name
         if time_index in current.df.columns:
-            entities[current.index[0]] = (current.df, current.index[0], time_index)
+            entities[current_df_name] = (current.df, current.index[0], time_index)
         else:
-            entities[current.index[0]] = (current.df, current.index[0])
+            entities[current_df_name] = (current.df, current.index[0])
         for child in current.children:
+            if (child.df.ww.schema is None):
+                child.df.ww.init(index=child.index[0], name=child.index[0])
+            child_df_name = child.df.ww.name
             # add to stack
             # add relationship
             stack.append(child)
-            relationships.append((child.index[0], child.index[0], current.index[0], child.index[0]))
+            relationships.append((child_df_name, child.index[0], current_df_name, child.index[0]))
 
+    # breakpoint()
     return ft.EntitySet(name, entities, relationships)
 
 
@@ -155,10 +163,10 @@ def normalize_entity(es, accuracy=0.98):
     # TO DO: add option to pass an EntitySet with more than one entity, and specify which one
     # to normalize while preserving existing relationships
 
-    if len(es.entities) > 1:
+    if len(es.dataframes) > 1:
         raise ValueError('There is more than one entity in this EntitySet')
-    if len(es.entities) == 0:
+    if len(es.dataframes) == 0:
         raise ValueError('This EntitySet is empty')
-    entity = es.entities[0]
-    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
+    df = es.dataframes[0]
+    new_es = auto_entityset(df, accuracy, index=df.ww.index, name=es.id, time_index=df.ww.time_index)
     return new_es

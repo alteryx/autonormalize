@@ -7,6 +7,8 @@ def test_ft_mock_customer():
     df = ft.demo.load_mock_customer(n_customers=80, n_products=50, n_sessions=200,
                                     n_transactions=10000, return_single_table=True)
 
+    df.ww.init()
+
     entityset = an.auto_entityset(df, name="Customer Transactions", time_index='transaction_time')
 
     assert set(entityset['transaction_id'].columns) == set(['transaction_id', 'session_id', 'transaction_time',
