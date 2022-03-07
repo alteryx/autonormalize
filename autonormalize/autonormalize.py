@@ -167,6 +167,7 @@ def normalize_entity(es, accuracy=0.98):
         raise ValueError('There is more than one entity in this EntitySet')
     if len(es.dataframes) == 0:
         raise ValueError('This EntitySet is empty')
+
     df = es.dataframes[0]
     new_es = auto_entityset(df, accuracy, index=df.ww.index, name=es.id, time_index=df.ww.time_index)
     return new_es

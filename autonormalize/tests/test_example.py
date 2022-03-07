@@ -1,5 +1,8 @@
 import featuretools as ft
+import pandas as pd
+from unittest.mock import patch
 
+import pytest
 import autonormalize as an
 
 
@@ -23,3 +26,30 @@ def test_ft_mock_customer():
     assert set([str(rel) for rel in entityset.relationships]) == set(['<Relationship: transaction_id.session_id -> session_id.session_id>',
                                                                       '<Relationship: transaction_id.product_id -> product_id.product_id>',
                                                                       '<Relationship: session_id.customer_id -> customer_id.customer_id>'])
+
+
+@patch("autonormalize.autonormalize.auto_entityset")
+def test_normalize_entity(auto_entityset):
+    df1 = pd.DataFrame({"test": [0, 1, 2]})
+    df2 = pd.DataFrame({"test": [0, 1, 2]})
+    accuracy = 0.98
+
+    es = ft.EntitySet()
+
+    error = "This EntitySet is empty"
+    with pytest.raises(ValueError, match=error):
+        an.normalize_entity(es, accuracy)
+
+    es.add_dataframe(df1, "df")
+
+    df_out = es.dataframes[0]
+
+    an.normalize_entity(es, accuracy)
+
+    auto_entityset.assert_called_with(df_out, accuracy, index=df_out.ww.index, name=es.id, time_index=df_out.ww.time_index)
+
+    es.add_dataframe(df2, "df2")
+
+    error = "There is more than one entity in this EntitySet"
+    with pytest.raises(ValueError, match=error):
+        an.normalize_entity(es, accuracy)
