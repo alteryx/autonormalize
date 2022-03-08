@@ -17,11 +17,11 @@ Future Release
 
 v1.0.1 Jan 7, 2022
 ==================
-    * Documentation Changes
-      * Update release notes and release format (:pr:`37`)
-      * Updated sphinx documentation and guides (:pr:`35`)
-    * Testing Changes
-      * Updated tests to work with featuretools 1.0 (:pr:`35`)
+  * Documentation Changes
+    * Update release notes and release format (:pr:`37`)
+    * Updated sphinx documentation and guides (:pr:`35`)
+  * Testing Changes
+    * Updated tests to work with featuretools 1.0 (:pr:`35`)
 
   Thanks to the following people for contributing to this release:
   :user:`gsheni`, :user:`tuethan1999`
@@ -29,7 +29,7 @@ v1.0.1 Jan 7, 2022
 
 v1.0.0 Aug 15, 2019
 ===================
-    * Initial Release
+  * Initial Release
 
   Thanks to the following people for contributing to this release:
   :user:`allisonportis`
