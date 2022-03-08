@@ -3,15 +3,17 @@
 Release Notes
 -------------
 
-.. Future Release
-  ==============
-    * Enhancements
-    * Fixes
-    * Changes
-    * Documentation Changes
-    * Testing Changes
+Future Release
+==============
+  * Enhancements
+  * Fixes
+    * Fix compatibility issues with featuretools (:pr:`41`)
+  * Changes
+  * Documentation Changes
+  * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+  Thanks to the following people for contributing to this release:
+  :user:`dvreed77`
 
 v1.0.1 Jan 7, 2022
 ==================
