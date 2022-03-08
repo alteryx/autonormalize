@@ -109,7 +109,6 @@ def make_entityset(df, dependencies, name=None, time_index=None):
             stack.append(child)
             relationships.append((child_df_name, child.index[0], current_df_name, child.index[0]))
 
-    # breakpoint()
     return ft.EntitySet(name, entities, relationships)
 
 
