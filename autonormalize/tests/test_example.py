@@ -48,6 +48,6 @@ def test_normalize_entityset(auto_entityset):
 
     es.add_dataframe(df2, "df2")
 
-    error = "There is more than one entity in this EntitySet"
+    error = "There is more than one dataframe in this EntitySet"
     with pytest.raises(ValueError, match=error):
         an.normalize_entityset(es, accuracy)
