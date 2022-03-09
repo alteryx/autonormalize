@@ -85,7 +85,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
     normalize.normalize_dataframe(depdf)
     normalize.make_indexes(depdf)
 
-    entities = {}
+    dataframes = {}
     relationships = []
 
     stack = [depdf]
@@ -97,9 +97,9 @@ def make_entityset(df, dependencies, name=None, time_index=None):
 
         current_df_name = current.df.ww.name
         if time_index in current.df.columns:
-            entities[current_df_name] = (current.df, current.index[0], time_index)
+            dataframes[current_df_name] = (current.df, current.index[0], time_index)
         else:
-            entities[current_df_name] = (current.df, current.index[0])
+            dataframes[current_df_name] = (current.df, current.index[0])
         for child in current.children:
             if (child.df.ww.schema is None):
                 child.df.ww.init(index=child.index[0], name=child.index[0])
@@ -109,7 +109,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
             stack.append(child)
             relationships.append((child_df_name, child.index[0], current_df_name, child.index[0]))
 
-    return ft.EntitySet(name, entities, relationships)
+    return ft.EntitySet(name, dataframes, relationships)
 
 
 def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
@@ -150,7 +150,7 @@ def auto_normalize(df):
 
 def normalize_entity(es, accuracy=0.98):
     """
-    Returns a new normalized EntitySet from an EntitySet with a single entity.
+    Returns a new normalized EntitySet from an EntitySet with a single dataframe.
 
     Arguments:
         es (ft.EntitySet) : EntitySet to normalize
@@ -159,11 +159,11 @@ def normalize_entity(es, accuracy=0.98):
     Returns:
         new_es (ft.EntitySet) : new normalized EntitySet
     """
-    # TO DO: add option to pass an EntitySet with more than one entity, and specify which one
+    # TO DO: add option to pass an EntitySet with more than one dataframe, and specify which one
     # to normalize while preserving existing relationships
 
     if len(es.dataframes) > 1:
-        raise ValueError('There is more than one entity in this EntitySet')
+        raise ValueError('There is more than one dataframe in this EntitySet')
     if len(es.dataframes) == 0:
         raise ValueError('This EntitySet is empty')
 
