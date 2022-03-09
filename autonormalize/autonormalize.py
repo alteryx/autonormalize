@@ -148,7 +148,7 @@ def auto_normalize(df):
     return normalize_dataframe(df, find_dependencies(df))
 
 
-def normalize_entity(es, accuracy=0.98):
+def normalize_entityset(es, accuracy=0.98):
     """
     Returns a new normalized EntitySet from an EntitySet with a single dataframe.
 

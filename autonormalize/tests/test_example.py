@@ -27,7 +27,7 @@ def test_ft_mock_customer():
 
 
 @patch("autonormalize.autonormalize.auto_entityset")
-def test_normalize_entity(auto_entityset):
+def test_normalize_entityset(auto_entityset):
     df1 = pd.DataFrame({"test": [0, 1, 2]})
     df2 = pd.DataFrame({"test": [0, 1, 2]})
     accuracy = 0.98
@@ -36,13 +36,13 @@ def test_normalize_entity(auto_entityset):
 
     error = "This EntitySet is empty"
     with pytest.raises(ValueError, match=error):
-        an.normalize_entity(es, accuracy)
+        an.normalize_entityset(es, accuracy)
 
     es.add_dataframe(df1, "df")
 
     df_out = es.dataframes[0]
 
-    an.normalize_entity(es, accuracy)
+    an.normalize_entityset(es, accuracy)
 
     auto_entityset.assert_called_with(df_out, accuracy, index=df_out.ww.index, name=es.id, time_index=df_out.ww.time_index)
 
@@ -50,4 +50,4 @@ def test_normalize_entity(auto_entityset):
 
     error = "There is more than one entity in this EntitySet"
     with pytest.raises(ValueError, match=error):
-        an.normalize_entity(es, accuracy)
+        an.normalize_entityset(es, accuracy)

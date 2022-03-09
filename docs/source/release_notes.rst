@@ -9,6 +9,7 @@ Future Release
     * Fixes
         * Fix compatibility issues with featuretools (:pr:`41`)
     * Changes
+        * Rename `normalize_entity` to `normalize_entityset` (:pr:`41`)
     * Documentation Changes
     * Testing Changes
 
