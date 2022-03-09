@@ -3,34 +3,41 @@
 Release Notes
 -------------
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
+        * Fix compatibility issues with featuretools (:pr:`41`)
     * Changes
+        * Rename ``normalize_entity`` to ``normalize_entityset`` (:pr:`41`)
     * Documentation Changes
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`dvreed77`
+
+Breaking Changes
+++++++++++++++++
+    * :pr:`41`: The function ``normalize_entity`` has been renamed to ``normalize_entityset``.
 
 v1.0.1 Jan 7, 2022
 ==================
     * Documentation Changes
-      * Update release notes and release format (:pr:`37`)
-      * Updated sphinx documentation and guides (:pr:`35`)
+        * Update release notes and release format (:pr:`37`)
+        * Updated sphinx documentation and guides (:pr:`35`)
     * Testing Changes
-      * Updated tests to work with featuretools 1.0 (:pr:`35`)
+        * Updated tests to work with featuretools 1.0 (:pr:`35`)
 
-  Thanks to the following people for contributing to this release:
-  :user:`gsheni`, :user:`tuethan1999`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`tuethan1999`
 
 
 v1.0.0 Aug 15, 2019
 ===================
     * Initial Release
 
-  Thanks to the following people for contributing to this release:
-  :user:`allisonportis`
+    Thanks to the following people for contributing to this release:
+    :user:`allisonportis`
 
 .. command
 .. git log --pretty=oneline --abbrev-commit

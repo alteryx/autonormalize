@@ -16,7 +16,7 @@ Autonormalize
    make_entityset
    auto_entityset
    auto_normalize
-   normalize_entity
+   normalize_entityset
 
 Dependencies
 ======================
