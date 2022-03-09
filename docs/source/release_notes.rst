@@ -9,12 +9,16 @@ Future Release
     * Fixes
         * Fix compatibility issues with featuretools (:pr:`41`)
     * Changes
-        * Rename `normalize_entity` to `normalize_entityset` (:pr:`41`)
+        * Rename ``normalize_entity`` to ``normalize_entityset`` (:pr:`41`)
     * Documentation Changes
     * Testing Changes
 
     Thanks to the following people for contributing to this release:
     :user:`dvreed77`
+
+Breaking Changes
+++++++++++++++++
+    * :pr:`41`: The function ``normalize_entity`` has been renamed to ``normalize_entityset``.
 
 v1.0.1 Jan 7, 2022
 ==================
