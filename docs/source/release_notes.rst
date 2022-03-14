@@ -3,15 +3,22 @@
 Release Notes
 -------------
 
-Future Release
-==============
-    * Enhancements
+.. Future Release
+      ==============
+        * Enhancements
+        * Fixes
+        * Changes
+        * Documentation Changes
+        * Testing Changes
+
+    .. Thanks to the following people for contributing to this release:
+
+v2.0.0 Mar 14, 2022
+===================
     * Fixes
         * Fix compatibility issues with featuretools (:pr:`41`)
     * Changes
         * Rename ``normalize_entity`` to ``normalize_entityset`` (:pr:`41`)
-    * Documentation Changes
-    * Testing Changes
 
     Thanks to the following people for contributing to this release:
     :user:`dvreed77`
