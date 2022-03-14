@@ -13,7 +13,7 @@ Release Notes
 
     .. Thanks to the following people for contributing to this release:
 
-v1.1.0 Mar 14, 2022
+v2.0.0 Mar 14, 2022
 ===================
     * Fixes
         * Fix compatibility issues with featuretools (:pr:`41`)
