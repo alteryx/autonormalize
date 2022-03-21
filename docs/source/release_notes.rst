@@ -3,15 +3,17 @@
 Release Notes
 -------------
 
-.. Future Release
-      ==============
-        * Enhancements
-        * Fixes
-        * Changes
-        * Documentation Changes
-        * Testing Changes
+Future Release
+==============
+    * Enhancements
+    * Fixes
+    * Changes
+        * Remove python-dateutil dependency requirement (:pr:`48`)
+    * Documentation Changes
+    * Testing Changes
 
-    .. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`rwedge`
 
 v2.0.0 Mar 14, 2022
 ===================
