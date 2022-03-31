@@ -11,9 +11,10 @@ Future Release
         * Remove python-dateutil dependency requirement (:pr:`48`)
     * Documentation Changes
     * Testing Changes
+        * Add ``test_version.py`` and release notes updated CI check (:pr:`49`)
 
     Thanks to the following people for contributing to this release:
-    :user:`rwedge`
+    :user:`rwedge`, :user:`thehomebrewnerd`
 
 v2.0.0 Mar 14, 2022
 ===================
