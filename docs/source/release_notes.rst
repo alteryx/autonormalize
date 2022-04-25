@@ -3,13 +3,20 @@
 Release Notes
 -------------
 
-Future Release
-==============
+.. Future Release
+    ==============
     * Enhancements
     * Fixes
     * Changes
-        * Remove python-dateutil dependency requirement (:pr:`48`)
     * Documentation Changes
+    * Testing Changes
+
+.. Thanks to the following people for contributing to this release:
+
+v2.1.0 Apr 25, 2022
+==============
+    * Changes
+        * Remove python-dateutil dependency requirement (:pr:`48`)
     * Testing Changes
         * Add ``test_version.py`` and release notes updated CI check (:pr:`49`)
 
