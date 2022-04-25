@@ -13,7 +13,7 @@ Release Notes
 
 .. Thanks to the following people for contributing to this release:
 
-v2.1.0 Apr 25, 2022
+v2.0.1 Apr 25, 2022
 ==============
     * Changes
         * Remove python-dateutil dependency requirement (:pr:`48`)
