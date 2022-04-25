@@ -8,7 +8,7 @@ with open(path.join(dirname, 'README.md')) as f:
 
 setup(
     name='autonormalize',
-    version='2.0.0',
+    version='2.0.1',
     description='a library for automated table normalization',
     url='https://github.com/alteryx/autonormalize',
     license='BSD 3-clause',
