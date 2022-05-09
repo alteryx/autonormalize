@@ -85,24 +85,31 @@ def make_entityset(df, dependencies, name=None, time_index=None):
     normalize.normalize_dataframe(depdf)
     normalize.make_indexes(depdf)
 
-    entities = {}
+    dataframes = {}
     relationships = []
 
     stack = [depdf]
 
     while stack != []:
         current = stack.pop()
+        if (current.df.ww.schema is None):
+            current.df.ww.init(index=current.index[0], name=current.index[0])
+
+        current_df_name = current.df.ww.name
         if time_index in current.df.columns:
-            entities[current.index[0]] = (current.df, current.index[0], time_index)
+            dataframes[current_df_name] = (current.df, current.index[0], time_index)
         else:
-            entities[current.index[0]] = (current.df, current.index[0])
+            dataframes[current_df_name] = (current.df, current.index[0])
         for child in current.children:
+            if (child.df.ww.schema is None):
+                child.df.ww.init(index=child.index[0], name=child.index[0])
+            child_df_name = child.df.ww.name
             # add to stack
             # add relationship
             stack.append(child)
-            relationships.append((child.index[0], child.index[0], current.index[0], child.index[0]))
+            relationships.append((child_df_name, child.index[0], current_df_name, child.index[0]))
 
-    return ft.EntitySet(name, entities, relationships)
+    return ft.EntitySet(name, dataframes, relationships)
 
 
 def auto_entityset(df, accuracy=0.98, index=None, name=None, time_index=None):
@@ -141,9 +148,9 @@ def auto_normalize(df):
     return normalize_dataframe(df, find_dependencies(df))
 
 
-def normalize_entity(es, accuracy=0.98):
+def normalize_entityset(es, accuracy=0.98):
     """
-    Returns a new normalized EntitySet from an EntitySet with a single entity.
+    Returns a new normalized EntitySet from an EntitySet with a single dataframe.
 
     Arguments:
         es (ft.EntitySet) : EntitySet to normalize
@@ -152,13 +159,14 @@ def normalize_entity(es, accuracy=0.98):
     Returns:
         new_es (ft.EntitySet) : new normalized EntitySet
     """
-    # TO DO: add option to pass an EntitySet with more than one entity, and specify which one
+    # TO DO: add option to pass an EntitySet with more than one dataframe, and specify which one
     # to normalize while preserving existing relationships
 
-    if len(es.entities) > 1:
-        raise ValueError('There is more than one entity in this EntitySet')
-    if len(es.entities) == 0:
+    if len(es.dataframes) > 1:
+        raise ValueError('There is more than one dataframe in this EntitySet')
+    if len(es.dataframes) == 0:
         raise ValueError('This EntitySet is empty')
-    entity = es.entities[0]
-    new_es = auto_entityset(entity.df, accuracy, index=entity.index, name=es.id, time_index=entity.time_index)
+
+    df = es.dataframes[0]
+    new_es = auto_entityset(df, accuracy, index=df.ww.index, name=es.id, time_index=df.ww.time_index)
     return new_es
