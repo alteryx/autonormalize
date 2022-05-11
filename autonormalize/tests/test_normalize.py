@@ -209,20 +209,3 @@ def test_make_indexes_improper_column_drop():
     new_dfs = depdf.return_dfs()
 
     assert 'MSSubClass' in new_dfs[0].columns
-
-
-def test_issue19():
-    df_dict = {'Id': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-               'MSSubClass': [90, 60, 90, 90, 20, 50, 80, 20, 60, 20, 20],
-               'MSZoning': ['RL', 'RL', 'RL', 'RL', 'RL', 'RM', 'RL', 'RL', 'RL', 'RL', 'RL'],
-               'LotFrontage': [55.0, np.nan, 42.0, 100.0, np.nan, 98.0, 70.0, 85.0, 65.0, 78.0, 60.0],
-               'LotArea': [12640, 8755, 7711, 25000, 14375, 8820, 8163, 14536, 14006, 9360, 7200],
-               'Alley': [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-               'LotShape': ['IR1', 'IR1', 'IR1', 'Reg', 'IR1', 'Reg', 'Reg', 'Reg', 'IR1', 'Reg', 'Reg'],
-               'LandContour': ['Lvl', 'Lvl', 'Lvl', 'Low', 'Lvl', 'Lvl', 'Lvl', 'Lvl', 'Lvl', 'Lvl', 'Lvl'],
-               'Utilities': ['AllPub', 'AllPub', 'AllPub', 'AllPub', 'NoSeWa', 'AllPub', 'AllPub', 'AllPub', 'AllPub', 'AllPub', 'AllPub']}
-
-    df = pd.DataFrame(df_dict)
-
-    es = an.auto_entityset(df, accuracy=1.0, name="es")
-    print(es)
