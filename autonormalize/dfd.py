@@ -378,7 +378,6 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
                 mask = mask & m
         options = df[mask]
 
-        # _, unique_counts = np.unique(options[rhs].to_numpy(), return_counts=True)
         unique_counts = options[rhs].value_counts()
         acc += unique_counts.sum() - unique_counts.max()
         if acc > limit:
