@@ -31,7 +31,7 @@ jobs:
         run: |
           sudo python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          sudo apt update 
+          sudo apt update
           sudo apt install -y graphviz
           python -m pip install "unpacked_sdist/[test]"
       - if: ${{ matrix.python_version == 3.8 }}

@@ -17,21 +17,23 @@ def test_ft_mock_customer():
     )
 
     entityset = an.auto_entityset(
-        df, name="Customer Transactions", time_index="transaction_time"
+        df,
+        name="Customer Transactions",
+        time_index="transaction_time",
     )
 
     assert set(entityset["transaction_id"].columns) == set(
-        ["transaction_id", "session_id", "transaction_time", "product_id", "amount"]
+        ["transaction_id", "session_id", "transaction_time", "product_id", "amount"],
     )
 
     assert set(entityset["product_id"].columns) == set(["product_id", "brand"])
 
     assert set(entityset["session_id"].columns) == set(
-        ["session_id", "customer_id", "device", "session_start"]
+        ["session_id", "customer_id", "device", "session_start"],
     )
 
     assert set(entityset["customer_id"].columns) == set(
-        ["customer_id", "zip_code", "join_date", "birthday"]
+        ["customer_id", "zip_code", "join_date", "birthday"],
     )
 
     assert set([str(rel) for rel in entityset.relationships]) == set(
@@ -39,7 +41,7 @@ def test_ft_mock_customer():
             "<Relationship: transaction_id.session_id -> session_id.session_id>",
             "<Relationship: transaction_id.product_id -> product_id.product_id>",
             "<Relationship: session_id.customer_id -> customer_id.customer_id>",
-        ]
+        ],
     )
 
 

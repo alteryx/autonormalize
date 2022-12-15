@@ -90,7 +90,7 @@ def test_add_unique_lhs():
             "rating",
             "experience",
             "mother",
-        ]
+        ],
     )
     dependencies.add_unique_lhs("name")
     assert_equal_dependency_dics(
@@ -122,8 +122,8 @@ def test_add_LHSs():
                 "rating",
                 "experience",
                 "mother",
-            ]
-        )
+            ],
+        ),
     )
     lhss_weight.add_dep(frozenset(["name"]))
     lhss_weight.add_dep(frozenset(["age", "height"]))
@@ -139,8 +139,8 @@ def test_add_LHSs():
                 "rating",
                 "experience",
                 "mother",
-            ]
-        )
+            ],
+        ),
     )
     lhss_age.add_dep(frozenset(["name"]))
     dependencies = DfdDependencies(
@@ -154,7 +154,7 @@ def test_add_LHSs():
             "rating",
             "experience",
             "mother",
-        ]
+        ],
     )
     dependencies.add_LHSs("age", lhss_age)
     assert_equal_dependency_dics(
@@ -266,7 +266,8 @@ def test_find_candidate_keys():
     dependencies = Dependencies(dep_dic)
     dependencies.remove_implied_extroneous()
     assert_equal_cand_keys(
-        dependencies.find_candidate_keys(), [{"A", "G"}, {"B", "G"}, {"E", "G"}]
+        dependencies.find_candidate_keys(),
+        [{"A", "G"}, {"B", "G"}, {"E", "G"}],
     )
 
 

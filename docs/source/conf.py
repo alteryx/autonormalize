@@ -12,16 +12,15 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import autonormalize
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
 from pathlib import Path
+
 from sphinx.ext.autodoc import Documenter, MethodDocumenter
 
-
-from sphinx.ext.autodoc import MethodDocumenter, Documenter
+import autonormalize
 
 path = os.path.join("..", "..")
 sys.path.insert(0, os.path.abspath(path))
@@ -282,10 +281,11 @@ def setup(app):
     ipython_p.mkdir(parents=True, exist_ok=True)
     file_p = os.path.abspath(os.path.dirname(__file__))
     shutil.copy(
-        file_p + "/set-headers.py", home_dir + "/.ipython/profile_default/startup"
+        file_p + "/set-headers.py",
+        home_dir + "/.ipython/profile_default/startup",
     )
     app.add_js_file(
-        "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"
+        "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js",
     )
     app.add_css_file("style.css")
     app.add_autodocumenter(AccessorCallableDocumenter)

@@ -1,7 +1,7 @@
 import featuretools as ft
 
-from . import dfd, normalize
-from .classes import Dependencies
+from autonormalize import dfd, normalize
+from autonormalize.classes import Dependencies
 
 
 def find_dependencies(df, accuracy=0.98, index=None):
@@ -108,7 +108,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
             # add relationship
             stack.append(child)
             relationships.append(
-                (child_df_name, child.index[0], current_df_name, child.index[0])
+                (child_df_name, child.index[0], current_df_name, child.index[0]),
             )
 
     return ft.EntitySet(name, dataframes, relationships)
@@ -171,6 +171,10 @@ def normalize_entityset(es, accuracy=0.98):
 
     df = es.dataframes[0]
     new_es = auto_entityset(
-        df, accuracy, index=df.ww.index, name=es.id, time_index=df.ww.time_index
+        df,
+        accuracy,
+        index=df.ww.index,
+        name=es.id,
+        time_index=df.ww.time_index,
     )
     return new_es

@@ -1,5 +1,4 @@
 # flake8: noqa
-from .autonormalize import *
-from .classes import Dependencies
-
-__version__ = "2.0.1"
+from autonormalize.version import __version__
+from autonormalize.autonormalize import *
+from autonormalize.classes import Dependencies

@@ -313,7 +313,7 @@ class Node(object):
                 "prev": self.prev,
                 "next": self.next,
                 "loc": id(self),
-            }
+            },
         )
 
 

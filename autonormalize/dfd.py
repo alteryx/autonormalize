@@ -4,7 +4,7 @@ from itertools import combinations
 import numpy
 from tqdm import tqdm
 
-from .classes import DfdDependencies, LHSs, Masks, Node
+from autonormalize.classes import DfdDependencies, LHSs, Masks, Node
 
 # see https://hpi.de/fileadmin/user_upload/fachgebiete/naumann/publications/2014/DFD_CIKM2014_p949_CRC.pdf for DFD paper
 # run script.py  to see a couple examples
@@ -97,7 +97,12 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks):
                 node.infer_type()
                 if node.category == 0:
                     if compute_partitions(
-                        df, rhs, node.attrs, partitions, accuracy, masks
+                        df,
+                        rhs,
+                        node.attrs,
+                        partitions,
+                        accuracy,
+                        masks,
                     ):
                         if node.is_minimal():
                             min_deps.add_dep(node.attrs)
@@ -115,7 +120,7 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks):
             node = pick_next_node(node, trace, min_deps, max_non_deps, df.columns)
 
         seeds = nodes_from_seeds(
-            sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs))
+            sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs)),
         )
     return min_deps
 
@@ -358,13 +363,15 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
         return False
 
     merged = df_lhs.merge(
-        df_lhs_rhs, indicator=True, how="outer"
+        df_lhs_rhs,
+        indicator=True,
+        how="outer",
     )  # create new df that is the merge of df_one and df_two
     indicator = merged[
         merged["_merge"] == "right_only"
     ]  # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
     indicator = indicator.drop_duplicates(
-        lhs_set
+        lhs_set,
     )  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
     acc = 0
 

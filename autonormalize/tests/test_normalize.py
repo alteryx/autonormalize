@@ -206,13 +206,13 @@ def test_normalize_dataframe():
     }
 
     assert new_dfs[0].equals(
-        normalize.drop_primary_dups(pd.DataFrame(dic_one), ["team", "jersey_num"])
+        normalize.drop_primary_dups(pd.DataFrame(dic_one), ["team", "jersey_num"]),
     )
     assert new_dfs[1].equals(
-        normalize.drop_primary_dups(pd.DataFrame(dic_two), ["team"])
+        normalize.drop_primary_dups(pd.DataFrame(dic_two), ["team"]),
     )
     assert new_dfs[2].equals(
-        normalize.drop_primary_dups(pd.DataFrame(dic_three), ["city"])
+        normalize.drop_primary_dups(pd.DataFrame(dic_three), ["city"]),
     )
 
 

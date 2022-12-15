@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .classes import Dependencies
+from autonormalize.classes import Dependencies
 
 
 def normalize(dependencies, df):
@@ -106,7 +106,9 @@ def make_indexes(depdf):
 
             depdf.parent.df.drop(columns=prim_key, inplace=True)
             depdf.parent.df.insert(
-                len(depdf.parent.df.columns), "_".join(prim_key), add
+                len(depdf.parent.df.columns),
+                "_".join(prim_key),
+                add,
             )
 
     for child in depdf.children:
@@ -149,7 +151,7 @@ def split_up(split_on, depdf):
     child = DepDF(child_deps, form_child(depdf.df, child_deps), split_on, depdf)
     depdf.deps = parent_deps
     depdf.df = depdf.df.drop(
-        columns=list(set(depdf.df.columns).difference(parent_deps.all_attrs()))
+        columns=list(set(depdf.df.columns).difference(parent_deps.all_attrs())),
     )
     depdf.children.append(child)
     normalize_dataframe(depdf)
