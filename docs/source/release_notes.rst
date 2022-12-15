@@ -8,7 +8,7 @@ Future Release
     * Enhancements
     * Fixes
     * Changes
-        * Transition to pyproject.toml, removing setup.py and setup.cfg (:pr:`17`)
+        * Transition to pyproject.toml, removing setup.py and setup.cfg (:pr:`54`)
     * Documentation Changes
     * Testing Changes
 
