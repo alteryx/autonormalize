@@ -25,8 +25,7 @@ There are many ways to contribute to AutoNormalize, with the most common ones be
   git clone https://github.com/alteryx/autonormalize.git
   python -m venv venv
   source venv/bin/activate
-  python -m pip install -e .
-  python -m pip install -r dev-requirements.txt
+  python -m pip install -e ".[dev]"
   ```
 
 * If you plan to build the docs locally, you will have to install [git lfs](https://git-lfs.github.com/) because the demo data for the guides use git-lfs
