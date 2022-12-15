@@ -3,7 +3,7 @@ import random
 
 
 def generate_example_3():
-    csvData = [['A', 'B', 'C', 'D', 'E', 'F', 'G']]
+    csvData = [["A", "B", "C", "D", "E", "F", "G"]]
 
     for x in range(100000):
         b = random.randint(0, 25)
@@ -14,7 +14,7 @@ def generate_example_3():
             elem[x] = str(elem[x])
         csvData.append(elem)
 
-    with open('example_3', 'w') as csvFile:
+    with open("example_3", "w") as csvFile:
         writer = csv.writer(csvFile)
         writer.writerows(csvData)
 

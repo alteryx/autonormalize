@@ -1,4 +1,5 @@
 .DS_Store
+unpacked_sdist/
 
 # IDE
 .vscode

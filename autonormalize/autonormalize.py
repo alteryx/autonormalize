@@ -1,7 +1,7 @@
 import featuretools as ft
 
-from . import dfd, normalize
-from .classes import Dependencies
+from autonormalize import dfd, normalize
+from autonormalize.classes import Dependencies
 
 
 def find_dependencies(df, accuracy=0.98, index=None):
@@ -92,7 +92,7 @@ def make_entityset(df, dependencies, name=None, time_index=None):
 
     while stack != []:
         current = stack.pop()
-        if (current.df.ww.schema is None):
+        if current.df.ww.schema is None:
             current.df.ww.init(index=current.index[0], name=current.index[0])
 
         current_df_name = current.df.ww.name
@@ -101,13 +101,15 @@ def make_entityset(df, dependencies, name=None, time_index=None):
         else:
             dataframes[current_df_name] = (current.df, current.index[0])
         for child in current.children:
-            if (child.df.ww.schema is None):
+            if child.df.ww.schema is None:
                 child.df.ww.init(index=child.index[0], name=child.index[0])
             child_df_name = child.df.ww.name
             # add to stack
             # add relationship
             stack.append(child)
-            relationships.append((child_df_name, child.index[0], current_df_name, child.index[0]))
+            relationships.append(
+                (child_df_name, child.index[0], current_df_name, child.index[0]),
+            )
 
     return ft.EntitySet(name, dataframes, relationships)
 
@@ -163,10 +165,16 @@ def normalize_entityset(es, accuracy=0.98):
     # to normalize while preserving existing relationships
 
     if len(es.dataframes) > 1:
-        raise ValueError('There is more than one dataframe in this EntitySet')
+        raise ValueError("There is more than one dataframe in this EntitySet")
     if len(es.dataframes) == 0:
-        raise ValueError('This EntitySet is empty')
+        raise ValueError("This EntitySet is empty")
 
     df = es.dataframes[0]
-    new_es = auto_entityset(df, accuracy, index=df.ww.index, name=es.id, time_index=df.ww.time_index)
+    new_es = auto_entityset(
+        df,
+        accuracy,
+        index=df.ww.index,
+        name=es.id,
+        time_index=df.ww.time_index,
+    )
     return new_es

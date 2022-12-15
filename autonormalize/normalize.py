@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .classes import Dependencies
+from autonormalize.classes import Dependencies
 
 
 def normalize(dependencies, df):
@@ -80,8 +80,8 @@ def make_indexes(depdf):
 
     if len(prim_key) > 1:
 
-        depdf.df.insert(0, '_'.join(prim_key), range(0, len(depdf.df)))
-        depdf.index = ['_'.join(prim_key)]
+        depdf.df.insert(0, "_".join(prim_key), range(0, len(depdf.df)))
+        depdf.index = ["_".join(prim_key)]
 
         # now need to replace it in the parent df...
         if depdf.parent is not None:
@@ -99,13 +99,17 @@ def make_indexes(depdf):
                     else:
                         mask = mask & m
 
-                new_val = depdf.df[mask]['_'.join(prim_key)].item()
+                new_val = depdf.df[mask]["_".join(prim_key)].item()
 
                 for index in indices[name]:
                     add[index] = new_val
 
             depdf.parent.df.drop(columns=prim_key, inplace=True)
-            depdf.parent.df.insert(len(depdf.parent.df.columns), '_'.join(prim_key), add)
+            depdf.parent.df.insert(
+                len(depdf.parent.df.columns),
+                "_".join(prim_key),
+                add,
+            )
 
     for child in depdf.children:
         make_indexes(child)
@@ -146,7 +150,9 @@ def split_up(split_on, depdf):
     parent_deps, child_deps = split_on_dep(split_on, depdf.deps)
     child = DepDF(child_deps, form_child(depdf.df, child_deps), split_on, depdf)
     depdf.deps = parent_deps
-    depdf.df = depdf.df.drop(columns=list(set(depdf.df.columns).difference(parent_deps.all_attrs())))
+    depdf.df = depdf.df.drop(
+        columns=list(set(depdf.df.columns).difference(parent_deps.all_attrs())),
+    )
     depdf.children.append(child)
     normalize_dataframe(depdf)
     normalize_dataframe(child)
@@ -304,7 +310,10 @@ def split_on_dep(lhs_dep, dependencies):
             if len(old_rhs.intersection(lhs)) != 0:
                 new_deps[rhs].remove(lhs)
 
-    return (Dependencies(old_deps, dependencies.get_prim_key()), Dependencies(new_deps, lhs_dep))
+    return (
+        Dependencies(old_deps, dependencies.get_prim_key()),
+        Dependencies(new_deps, lhs_dep),
+    )
 
 
 def drop_primary_dups(df, prim_key):
@@ -355,7 +364,12 @@ def choose_index(keys, df):
     options = [key for key in sort_key if len(key) == m]
     for key in options:
         for attr in key:
-            if "_id" in attr.lower() or " id" in attr.lower() or "id _" in attr.lower() or "id " in attr.lower():
+            if (
+                "_id" in attr.lower()
+                or " id" in attr.lower()
+                or "id _" in attr.lower()
+                or "id " in attr.lower()
+            ):
                 return list(key)
 
     if df is None:
@@ -381,6 +395,6 @@ def filter(keys, df):
     """
     for key, rhs in keys[:]:
         for attr in key:
-            if df[attr].dtypes.name not in set(['category', 'int64', 'object']):
+            if df[attr].dtypes.name not in set(["category", "int64", "object"]):
                 keys.remove((key, rhs))
                 break

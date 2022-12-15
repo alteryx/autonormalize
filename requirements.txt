@@ -1,5 +1,0 @@
-featuretools>=1.0.0
-numpy>=1.13.3
-pandas>=0.23.0
-tqdm>=4.19.2
-graphviz>=0.8.4

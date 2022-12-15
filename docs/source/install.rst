@@ -16,7 +16,7 @@ In order to use plotting you will need to install the graphviz library.
 pip users::
 
     pip install graphviz
-    
+
 conda users::
 
     conda install -c conda-forge python-graphviz

@@ -3,15 +3,17 @@
 Release Notes
 -------------
 
-.. Future Release
-    ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
+        * Transition to pyproject.toml, removing setup.py and setup.cfg (:pr:`54`)
     * Documentation Changes
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`
 
 v2.0.1 Apr 25, 2022
 ===================

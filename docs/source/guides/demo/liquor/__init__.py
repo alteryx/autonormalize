@@ -2,7 +2,8 @@ from demo import PWD
 from pandas import read_csv
 from os.path import join
 
-PWD = join(PWD, 'liquor')
+PWD = join(PWD, "liquor")
+
 
 def load_sample():
     df = read_csv(join(PWD, "Iowa_Liquor_Sales.csv"))

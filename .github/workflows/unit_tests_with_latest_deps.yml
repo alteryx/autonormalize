@@ -1,51 +1,50 @@
+name: Unit Tests - Latest Dependencies
 on:
   pull_request:
     types: [opened, synchronize]
   push:
     branches:
       - main
-
-name: Unit Tests - Latest Dependencies
+env:
+  PYARROW_IGNORE_TIMEZONE: 1
+  ALTERYX_OPEN_SRC_UPDATE_CHECKER: False
 jobs:
   unit_tests:
     name: Unit Tests - Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - name: Set up python ${{ matrix.python_version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_autonormalize
+        run: make package
       - name: Install package with test requirements
         run: |
           sudo python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          sudo apt update && sudo apt install -y graphviz
-          python -m pip install -e unpacked_sdist/
-          python -m pip install -r unpacked_sdist/test-requirements.txt
-      - if: ${{ matrix.python_version == 3.7 }}
+          sudo apt update
+          sudo apt install -y graphviz
+          python -m pip install "unpacked_sdist/[test]"
+      - if: ${{ matrix.python_version == 3.8 }}
         name: Run unit tests with code coverage
         run: |
-          python -m pip install "$(cat dev-requirements.txt | grep codecov)"
-          coverage erase
           cd unpacked_sdist/
           coverage erase
-          pytest autonormalize/ -n 2 --cov=autonormalize --cov-config=../.coveragerc
-        env:
-          PYARROW_IGNORE_TIMEZONE: 1
-          ALTERYX_OPEN_SRC_UPDATE_CHECKER: False
-      - if: ${{ matrix.python_version == 3.7 }}
+          pytest autonormalize/ -n auto --cov=autonormalize --cov-config=../pyproject.toml --cov-report=xml:../coverage.xml
+      - if: ${{ matrix.python_version == 3.8 }}
         name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ${{ github.workspace }}/coverage.xml
+          verbose: true

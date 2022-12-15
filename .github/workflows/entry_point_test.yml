@@ -9,23 +9,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.7", "3.8", "3.9"]
+        python_version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - name: Set up python ${{ matrix.python_version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_autonormalize
+        run: make package
       - name: Install package
         run: |
           pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install -e unpacked_sdist/
+          python -m pip install unpacked_sdist/
       - name: Test entry point
         run: make entry-point-test
