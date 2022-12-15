@@ -96,7 +96,9 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks):
             else:
                 node.infer_type()
                 if node.category == 0:
-                    if compute_partitions(df, rhs, node.attrs, partitions, accuracy, masks):
+                    if compute_partitions(
+                        df, rhs, node.attrs, partitions, accuracy, masks
+                    ):
                         if node.is_minimal():
                             min_deps.add_dep(node.attrs)
                             node.category = 2
@@ -112,7 +114,9 @@ def find_LHSs(rhs, attrs, df, partitions, accuracy, masks):
 
             node = pick_next_node(node, trace, min_deps, max_non_deps, df.columns)
 
-        seeds = nodes_from_seeds(sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs)))
+        seeds = nodes_from_seeds(
+            sorted(generate_next_seeds(max_non_deps, min_deps, lhs_attrs))
+        )
     return min_deps
 
 
@@ -353,9 +357,15 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
     if df_lhs_rhs.shape[0] - df_lhs.shape[0] > limit:
         return False
 
-    merged = df_lhs.merge(df_lhs_rhs, indicator=True, how='outer')  # create new df that is the merge of df_one and df_two
-    indicator = merged[merged['_merge'] == 'right_only']  # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
-    indicator = indicator.drop_duplicates(lhs_set)  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
+    merged = df_lhs.merge(
+        df_lhs_rhs, indicator=True, how="outer"
+    )  # create new df that is the merge of df_one and df_two
+    indicator = merged[
+        merged["_merge"] == "right_only"
+    ]  # filter out the rows that were only on the right side (the rows that are preventing the two dataframes from being equal)
+    indicator = indicator.drop_duplicates(
+        lhs_set
+    )  # find unique combinations of columns in LHS_set that characterize the disrepencies (have 2+ different values in rhs column)
     acc = 0
 
     for index, row in indicator.iterrows():
@@ -365,7 +375,7 @@ def approximate_dependencies(lhs_set, rhs, df, accuracy, masks):
 
             m = masks.get_mask(attr, row[attr])
             if m is None:
-                if df[attr].dtypes.name == 'datetime64[ns]':
+                if df[attr].dtypes.name == "datetime64[ns]":
                     m = df[attr] == row[attr]
                 else:
                     m = df[attr].values == row[attr]

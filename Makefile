@@ -4,37 +4,51 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name __pycache__ -delete
 	find . -name '*~' -delete
+	find . -name '.coverage.*' -delete
 
 .PHONY: entry-point-test
 entry-point-test:
-	cd ~ && python -c "from featuretools import autonormalize"
+	cd ~ && python -c "from autonormalize import autonormalize"
 
 .PHONY: lint
 lint:
-	flake8 autonormalize && isort --check-only autonormalize
+	isort --check-only autonormalize
+	black autonormalize docs/source -t py311 --check
+	flake8 autonormalize
 
 .PHONY: lint-fix
 lint-fix:
-	autopep8 --in-place --recursive --max-line-length=100 --exclude="*/migrations/*" --select="E225,E303,E302,E203,E128,E231,E251,E271,E127,E126,E301,W291,W293,E226,E306,E221,E261,E111,E114" autonormalize
+	black autonormalize docs/source -t py311
 	isort autonormalize
 
 .PHONY: test
 test: lint
-	pytest autonormalize/
+	pytest autonormalize/ -n auto
 
 .PHONY: testcoverage
 testcoverage: lint
-		pytest autonormalize/ --cov=autonormalize
+	pytest autonormalize/ -n auto --cov=autonormalize
 
 .PHONY: installdeps
-installdeps:
+installdeps: upgradepip
 	pip install --upgrade pip
-	pip install -e .
-	pip install -r dev-requirements.txt
+	pip install -e ".[dev]"
 
-.PHONY: package_autonormalize
-package_autonormalize:
-	python setup.py sdist
-	$(eval DT_VERSION=$(shell python setup.py --version))
-	tar -zxvf "dist/autonormalize-${DT_VERSION}.tar.gz"
-	mv "autonormalize-${DT_VERSION}" unpacked_sdist
+.PHONY: upgradepip
+upgradepip:
+	python -m pip install --upgrade pip
+
+.PHONY: upgradebuild
+upgradebuild:
+	python -m pip install --upgrade build
+
+.PHONY: upgradesetuptools
+upgradesetuptools:
+	python -m pip install --upgrade setuptools
+
+.PHONY: package
+package: upgradepip upgradebuild upgradesetuptools
+	python -m build
+	$(eval PACKAGE=$(shell python -c "from pep517.meta import load; metadata = load('.'); print(metadata.version)"))
+	tar -zxvf "dist/autonormalize-${PACKAGE}.tar.gz"
+	mv "autonormalize-${PACKAGE}" unpacked_sdist

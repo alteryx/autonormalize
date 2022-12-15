@@ -2,7 +2,8 @@ from demo import PWD
 from pandas import read_csv
 from os.path import join
 
-PWD = join(PWD, 'food')
+PWD = join(PWD, "food")
+
 
 def load_sample():
     food_df = read_csv(join(PWD, "FAO.csv"), encoding="latin1")

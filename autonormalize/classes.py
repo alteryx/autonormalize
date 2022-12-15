@@ -305,8 +305,16 @@ class Node(object):
         return id(self)
 
     def __str__(self):
-        return str({"attributes": str(self.attrs), "visited": self.visited,
-                    "category": self.category, "prev": self.prev, "next": self.next, "loc": id(self)})
+        return str(
+            {
+                "attributes": str(self.attrs),
+                "visited": self.visited,
+                "category": self.category,
+                "prev": self.prev,
+                "next": self.next,
+                "loc": id(self),
+            }
+        )
 
 
 class Dependencies(object):
@@ -480,7 +488,7 @@ class Dependencies(object):
 
             i = 0
             while i < len(self._data[rhs]):
-                if self._data[rhs][i] in self._data[rhs][i + 1:]:
+                if self._data[rhs][i] in self._data[rhs][i + 1 :]:
                     self._data[rhs].pop(i)
                 else:
                     i += 1
@@ -667,6 +675,7 @@ def find_closure(rel, attrs):
         closure (set[str]) : attrs' closure, aka the attributes that can be
         determined from the attributes in attrs
     """
+
     def helper(set_attr, rel):
         if rel == []:
             return set(set_attr)
@@ -676,6 +685,7 @@ def find_closure(rel, attrs):
                 rel_.remove((dep_attrs, dep))
                 return helper(set_attr + [dep], rel_)
         return set_attr
+
     return set(helper(attrs[:], rel))
 
 
@@ -723,6 +733,7 @@ class Masks(object):
         if val in self._masks[col]:
             return self._masks[col][val]
         return None
+
 
 # class BitIndexSet(object):
 #     """
