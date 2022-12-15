@@ -22,11 +22,11 @@ lint-fix:
 	isort autonormalize
 
 .PHONY: test
-test: lint
+test:
 	pytest autonormalize/ -n auto
 
 .PHONY: testcoverage
-testcoverage: lint
+testcoverage:
 	pytest autonormalize/ -n auto --cov=autonormalize
 
 .PHONY: installdeps

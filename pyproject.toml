@@ -42,6 +42,9 @@ dependencies = [
 "Twitter" = "https://twitter.com/alteryxoss"
 "Chat" = "https://join.slack.com/t/alteryx-oss/shared_invite/zt-182tyvuxv-NzIn6eiCEf8TBziuKp0bNA"
 
+[project.entry-points."featuretools_plugin"]
+autonormalize = "autonormalize"
+
 [project.optional-dependencies]
 test = [
     "pytest >= 5.2.0",
